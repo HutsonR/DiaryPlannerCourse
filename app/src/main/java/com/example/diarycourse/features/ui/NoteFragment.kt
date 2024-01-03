@@ -21,9 +21,6 @@ import com.example.diarycourse.features.dialogs.AddDialogFragment
 import com.example.diarycourse.features.dialogs.DialogListener
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
 

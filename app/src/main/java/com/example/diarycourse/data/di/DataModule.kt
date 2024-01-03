@@ -4,12 +4,8 @@ import android.app.Application
 import androidx.room.Room
 import com.example.diarycourse.data.database.AppDatabase
 import com.example.diarycourse.data.database.ScheduleItemDao
-import com.example.diarycourse.data.repository_api.Repository
-import com.example.diarycourse.data.repository_impl.RepositoryImpl
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
 
 @Module
 class DataModule {
