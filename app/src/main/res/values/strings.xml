@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">DailyFlow</string>
+
+    <string name="temp_text">Временный текст</string>
+
+    <!--  Add Task  -->
+    <string name="add_title">Добавить план на день</string>
+    <string name="add_title_task">Введите запись</string>
+    <string name="add_desc_task">Описание</string>
+    <string name="add_low_priority_task">Обычный приоритет</string>
+    <string name="add_medium_priority_task">Средний приоритет</string>
+    <string name="add_high_priority_task">Высокий приоритет</string>
+    <string name="add_date_task">Дата</string>
+    <string name="add_time_task_title">Время</string>
+    <string name="add_time_task_start">Начало</string>
+    <string name="add_time_task_end">Конец</string>
+    <string name="add_date_task_blank">Не выбрана</string>
+    <string name="add_date_time_blank">Нет</string>
+
+    <!--  Main Screen  -->
+    <string name="main_count_task">Кол-во записей: </string>
+    <string name="main_task_tab">Распорядок</string>
+    <string name="main_note_tab">Заметка</string>
+    <string name="main_low_priority">Обычное</string>
+    <string name="main_medium_priority">Среднее</string>
+    <string name="main_high_priority">Важное</string>
+    <string name="main_break">Перерыв</string>
+    <string name="main_add_task">Добавить задачу</string>
+
+    <!--  Splash  -->
+    <string name="splash_delete">Удалить</string>
+    <string name="splash_complete">Завершить</string>
+    <string name="splash_edit">Редактировать</string>
+    <string name="add_blank">На этот день нет записей</string>
+</resources>

@@ -1,0 +1,18 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.DiaryPlanner" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@color/backgroundMain</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.DiaryPlanner" parent="Base.Theme.DiaryPlanner" />
+
+    <style name="FabCustomShape">
+        <item name="cornerFamily">rounded</item> <!-- Тип закругления (круглые углы) -->
+        <item name="cornerSize">50%</item> <!-- Процент закругления (50% для круглого вида) -->
+        <item name="android:colorBackground">@color/primary</item> <!-- Задний фон -->
+    </style>
+
+</resources>
