@@ -18,6 +18,9 @@
     <color name="bgDialog">#101010</color>
     <color name="bgBorderDialog">#1E1E1E</color>
 
+    <color name="bottom_sheet_button_background">#171717</color>
+    <color name="bottom_sheet_divider">#DBDBDB</color>
+
     <color name="blue">#BAEEFF</color>
     <color name="green">#BAFFD6</color>
     <color name="yellow">#F1FFBA</color>

@@ -25,8 +25,9 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
         val view = inflater.inflate(R.layout.fragment_schedule_item_bottom_sheet, container, false)
 
         // Access the views in the Bottom Sheet layout and set the data
-        val descriptionTextView: TextView = view.findViewById(R.id.descriptionTextView)
-        val closeButton: ImageButton = view.findViewById(R.id.closeButton)
+        val titleTextView: TextView = view.findViewById(R.id.schedule_sheet_title)
+        val descriptionTextView: TextView = view.findViewById(R.id.schedule_sheet_description)
+        val startTimeTextView: TextView = view.findViewById(R.id.schedule_sheet_timeStart)
 
         // Получите модель из аргументов
         val scheduleItem = arguments?.getParcelable<ScheduleItem>("scheduleItem")
@@ -34,17 +35,13 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
         // Теперь вы можете использовать все поля модели
         if (scheduleItem != null) {
             title = scheduleItem.text
-            startTime = scheduleItem.startTime
             description = scheduleItem.description
-            // ... и так далее
+            startTime = scheduleItem.startTime
         }
 
-        descriptionTextView.text = title
-
-        // Set a click listener for the close button
-        closeButton.setOnClickListener {
-            dismiss() // Dismiss the Bottom Sheet when the close button is clicked
-        }
+        titleTextView.text = title
+        descriptionTextView.text = description
+        startTimeTextView.text = startTime
 
         return view
     }

@@ -87,6 +87,7 @@ class NoteFragment : Fragment(), DialogListener {
                     dataList.clear()
                     dataList.addAll(scheduleItems)
                     adapter.notifyDataSetChanged()
+                    countSchedules(dataList)
                 }
             }
         }
@@ -105,6 +106,7 @@ class NoteFragment : Fragment(), DialogListener {
 
     private fun onSuccess() {
         viewModel.getData()
+        countSchedules(dataList)
         Toast.makeText(requireContext(), "Данные получены", Toast.LENGTH_SHORT).show()
     }
 
@@ -112,8 +114,14 @@ class NoteFragment : Fragment(), DialogListener {
         Toast.makeText(requireContext(), "Ошибка получения данных", Toast.LENGTH_SHORT).show()
     }
 
+    // Подсчет кол-ва записей на день
     private fun countSchedules(dataList: List<ScheduleItem>) {
         binding.countSchedules.text = dataList.size.toString()
+        if (dataList.isEmpty()) {
+            binding.scheduleBlank.visibility = View.VISIBLE
+        } else {
+            binding.scheduleBlank.visibility = View.GONE
+        }
     }
 
     private fun setRecycler() {
@@ -225,6 +233,7 @@ class NoteFragment : Fragment(), DialogListener {
         }
     }
 
+    // Получение данных из диалога добавления расписания
     override fun onConfirmAddDialogResult(
         title: String,
         text: String,
