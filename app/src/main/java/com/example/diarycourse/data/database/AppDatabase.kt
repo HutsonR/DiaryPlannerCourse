@@ -2,9 +2,10 @@ package com.example.diarycourse.data.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.example.diarycourse.data.models.ScheduleItem
+import com.example.diarycourse.data.models.ScheduleItemDto
+import com.example.diarycourse.domain.models.ScheduleItem
 
-@Database(entities = [ScheduleItem::class], version = 3)
+@Database(entities = [ScheduleItemDto::class], version = 4)
 abstract class AppDatabase : RoomDatabase() {
     abstract val scheduleItemDao: ScheduleItemDao
 

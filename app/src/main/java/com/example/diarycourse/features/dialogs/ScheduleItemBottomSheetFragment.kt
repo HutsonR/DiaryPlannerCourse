@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import com.example.diarycourse.R
-import com.example.diarycourse.data.models.ScheduleItem
+import com.example.diarycourse.domain.models.ScheduleItem
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {

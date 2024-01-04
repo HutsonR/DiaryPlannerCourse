@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.diarycourse.R
-import com.example.diarycourse.data.models.ScheduleItem
+import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.features.dialogs.ScheduleItemBottomSheetFragment
 
 class ScheduleAdapter(private val dataList: MutableList<ScheduleItem>) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
