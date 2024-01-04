@@ -8,10 +8,11 @@ object ScheduleItemMapper {
     fun fromDto(scheduleItemDto: ScheduleItemDto): ScheduleItem {
         return ScheduleItem(
             id = scheduleItemDto.id,
-            startTime = scheduleItemDto.startTime,
-            endTime = scheduleItemDto.endTime,
             text = scheduleItemDto.text,
             description = scheduleItemDto.description,
+            date = scheduleItemDto.date,
+            startTime = scheduleItemDto.startTime,
+            endTime = scheduleItemDto.endTime,
             duration = scheduleItemDto.duration,
             isCompleteTask = scheduleItemDto.isCompleteTask
         )
@@ -20,10 +21,11 @@ object ScheduleItemMapper {
     fun toDto(scheduleItem: ScheduleItem): ScheduleItemDto {
         return ScheduleItemDto(
             id = scheduleItem.id ?: 0,
-            startTime = scheduleItem.startTime,
-            endTime = scheduleItem.endTime,
             text = scheduleItem.text,
             description = scheduleItem.description,
+            date = scheduleItem.date,
+            startTime = scheduleItem.startTime,
+            endTime = scheduleItem.endTime,
             duration = scheduleItem.duration,
             isCompleteTask = scheduleItem.isCompleteTask
         )

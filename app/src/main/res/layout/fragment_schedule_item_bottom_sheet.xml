@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/buttonDelete"
+                android:id="@+id/schedule_sheet_buttonDelete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -88,7 +88,7 @@
                 android:textColor="@color/black"
                 android:backgroundTint="@color/bottom_sheet_button_background" />
             <Button
-                android:id="@+id/buttonConfirm"
+                android:id="@+id/schedule_sheet_buttonConfirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -99,8 +99,8 @@
                 android:backgroundTint="@color/bottom_sheet_button_background" />
         </LinearLayout>
         <Button
+            android:id="@+id/schedule_sheet_buttonEdit"
             android:layout_marginTop="4dp"
-            android:id="@+id/buttonEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Редактировать"

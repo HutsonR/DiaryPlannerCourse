@@ -39,6 +39,7 @@ class NoteFragment : Fragment(), DialogListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ScheduleAdapter
     private var dataList: MutableList<ScheduleItem> = mutableListOf()
+    private var dateSelected: String = ""
 
     companion object {
         fun newInstance() = NoteFragment()
@@ -65,7 +66,7 @@ class NoteFragment : Fragment(), DialogListener {
 
 //        viewModel.init()
         subscribeToFlow()
-        viewModel.getData()
+        viewModel.fetchData()
         setCalendarListener()
         setDayOfWeek()
         setSelectedDayButtons()
@@ -75,6 +76,11 @@ class NoteFragment : Fragment(), DialogListener {
     }
 
     private fun setAddButton() {
+        binding.fabAdd.setOnLongClickListener {
+            dateSelected = ""
+            viewModel.fetchData()
+            true
+        }
         binding.fabAdd.setOnClickListener {
             AddDialogFragment(R.layout.fragment_add).show(childFragmentManager, "add fragment")
         }
@@ -85,9 +91,12 @@ class NoteFragment : Fragment(), DialogListener {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.dataList.collect { scheduleItems: List<ScheduleItem> ->
                     dataList.clear()
-                    dataList.addAll(scheduleItems)
+                    val sortedDataByTime = sortItemsByTime(scheduleItems)
+                    val sortedDataByDate = sortItemsByDate(sortedDataByTime)
+                    dataList.addAll(sortedDataByDate)
                     adapter.notifyDataSetChanged()
                     countSchedules(dataList)
+                    Log.d(TAG, "Выполнился dataList collect $dataList")
                 }
             }
         }
@@ -99,19 +108,42 @@ class NoteFragment : Fragment(), DialogListener {
                         is Resource.Success -> onSuccess()
                         is Resource.Empty.Failed -> onFailed()
                     }
+                    Log.d(TAG, "Выполнился result collect")
                 }
             }
         }
     }
 
     private fun onSuccess() {
-        viewModel.getData()
+        viewModel.fetchData()
         countSchedules(dataList)
         Toast.makeText(requireContext(), "Данные получены", Toast.LENGTH_SHORT).show()
+        Log.d(TAG, "Выполнился success collect")
     }
 
     private fun onFailed() {
         Toast.makeText(requireContext(), "Ошибка получения данных", Toast.LENGTH_SHORT).show()
+        countSchedules(dataList)
+        Log.d(TAG, "Выполнился failed collect")
+    }
+
+    private fun sortItemsByTime(dataList: List<ScheduleItem>): List<ScheduleItem> {
+        return dataList.sortedBy { it.startTime }
+    }
+
+    private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
+        val sortedData: MutableList<ScheduleItem> = mutableListOf()
+        Log.d(TAG, dateSelected)
+        if (dateSelected.isNotEmpty()) {
+            dataList.forEach {
+                if (it.date == dateSelected)
+                    sortedData.add(it)
+            }
+            Log.d(TAG, "dataList $dataList")
+            Log.d(TAG, "sortedData $sortedData")
+            return sortedData
+        } else
+            return dataList
     }
 
     // Подсчет кол-ва записей на день
@@ -130,12 +162,6 @@ class NoteFragment : Fragment(), DialogListener {
 
         adapter = ScheduleAdapter(dataList)
         recyclerView.adapter = adapter
-
-        if (dataList.isEmpty()) {
-            binding.scheduleBlank.visibility = View.VISIBLE
-        } else {
-            binding.scheduleBlank.visibility = View.GONE
-        }
     }
 
     // Обработка нажатий календаря
@@ -143,10 +169,9 @@ class NoteFragment : Fragment(), DialogListener {
         collapsibleCalendar.setCalendarListener(object : CollapsibleCalendar.CalendarListener {
             override fun onDaySelect() {
                 val day = collapsibleCalendar.selectedDay
-                val dateSelected = "${day?.year}${(day?.month)?.plus(1)}${day?.day}"
+                dateSelected = "${day?.year}${(day?.month)?.plus(1)}${day?.day}"
+                viewModel.fetchData()
                 setSelectedDayOfWeek()
-                Log.v(TAG, dateSelected)
-                Log.v(TAG, "day: ${day.toString()}")
             }
 
             override fun onItemClick(view: View) {}
@@ -242,10 +267,11 @@ class NoteFragment : Fragment(), DialogListener {
         timeEnd: String
     ) {
         val data = ScheduleItem(
-            startTime = timeStart,
-            endTime = timeEnd,
             text = title,
             description = text,
+            date = date,
+            startTime = timeStart,
+            endTime = timeEnd,
             duration = calculateDuration(timeStart, timeEnd),
             isCompleteTask = false
         )

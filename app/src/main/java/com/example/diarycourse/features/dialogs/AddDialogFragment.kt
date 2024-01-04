@@ -140,10 +140,12 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
         datePicker.addOnPositiveButtonClickListener { selectedTimestamp ->
             val selectedDate = Calendar.getInstance()
             selectedDate.timeInMillis = selectedTimestamp
-            val dateFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("yyyyMd", Locale.getDefault())
             val formattedDate = selectedDate.time.let { dateFormat.format(it) }
+            val dateFormatForUser = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+            val formattedDateForUser = selectedDate.time.let { dateFormatForUser.format(it) }
             date = formattedDate
-            binding.datePickerText.text = formattedDate
+            binding.datePickerText.text = formattedDateForUser
             updateSaveButtonState()
         }
 
@@ -153,7 +155,7 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
     private fun showTimePickerForStart() {
         val timePicker = MaterialTimePicker.Builder()
             .setTimeFormat(TimeFormat.CLOCK_24H)
-            .setTitleText("Выберите время начала")
+            .setTitleText("Выберите время начала задачи")
             .build()
 
         timePicker.addOnPositiveButtonClickListener {
@@ -176,7 +178,7 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
     private fun showTimePickerForEnd() {
         val timePicker = MaterialTimePicker.Builder()
             .setTimeFormat(TimeFormat.CLOCK_24H)
-            .setTitleText("Выберите время окончания")
+            .setTitleText("Выберите время окончания задачи")
             .build()
 
         timePicker.addOnPositiveButtonClickListener {

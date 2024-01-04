@@ -1,10 +1,8 @@
 package com.example.diarycourse.features.ui
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.diarycourse.data.database.ScheduleItemDao
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.domain_api.UseCase
 import com.example.diarycourse.domain.util.Resource
@@ -17,14 +15,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class NoteViewModel @Inject constructor (
-    private val useCase: UseCase,
-    private val scheduleItemDao: ScheduleItemDao,
-    application: Application
+    private val useCase: UseCase
 ) : ViewModel() {
 
     private val TAG = "debugTag"
 //    private val appContext: Context = application.applicationContext
-//    private var dataList: MutableList<ScheduleItem> = mutableListOf()
 
     private val _dataList = MutableSharedFlow<List<ScheduleItem>>(
         replay = 1,
@@ -38,7 +33,7 @@ class NoteViewModel @Inject constructor (
     )
     val result: SharedFlow<Resource> = _result.asSharedFlow()
 
-    fun getData() {
+    fun fetchData() {
         viewModelScope.launch {
             _dataList.emitAll(useCase.getAll())
         }
@@ -51,13 +46,11 @@ class NoteViewModel @Inject constructor (
     }
 
     class NoteViewModelFactory @Inject constructor(
-        private val useCase: UseCase,
-        private val scheduleItemDao: ScheduleItemDao,
-        private val application: Application
+        private val useCase: UseCase
     ) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return NoteViewModel(useCase, scheduleItemDao, application) as T
+            return NoteViewModel(useCase) as T
         }
     }
 
