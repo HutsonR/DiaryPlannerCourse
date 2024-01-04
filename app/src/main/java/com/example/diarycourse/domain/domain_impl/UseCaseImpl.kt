@@ -23,8 +23,13 @@ class UseCaseImpl @Inject constructor (
         return repository.getAll()
     }
 
-    override suspend fun deleteById(itemId: Int) {
-        return repository.deleteById(itemId)
+    override suspend fun deleteById(itemId: Int): Resource {
+        return if (itemId == null)
+            Resource.Empty.Failed
+        else {
+            repository.deleteById(itemId)
+            Resource.Success
+        }
     }
 
     override suspend fun deleteAll() {

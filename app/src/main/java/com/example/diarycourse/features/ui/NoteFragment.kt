@@ -278,4 +278,9 @@ class NoteFragment : Fragment(), DialogListener {
         viewModel.addData(data)
     }
 
+//    override fun onScheduleItemDeleted(isDelete: Boolean) {
+//        if (isDelete)
+//            viewModel.fetchData()
+//    }
+
 }

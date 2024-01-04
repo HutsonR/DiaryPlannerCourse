@@ -9,7 +9,7 @@ interface UseCase {
 
     suspend fun getAll(): Flow<List<ScheduleItem>>
 
-    suspend fun deleteById(itemId: Int)
+    suspend fun deleteById(itemId: Int): Resource
 
     suspend fun deleteAll()
 
