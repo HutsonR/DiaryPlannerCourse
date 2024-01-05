@@ -1,12 +1,14 @@
 package com.example.diarycourse.features.ui
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -22,6 +24,7 @@ import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.adapter.ScheduleAdapter
 import com.example.diarycourse.features.dialogs.AddDialogFragment
 import com.example.diarycourse.features.dialogs.DialogListener
+import com.shrikanthravi.collapsiblecalendarview.data.CalendarAdapter
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
 import kotlinx.coroutines.launch
@@ -39,7 +42,10 @@ class NoteFragment : Fragment(), DialogListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ScheduleAdapter
     private var dataList: MutableList<ScheduleItem> = mutableListOf()
+    private var adapterList: MutableList<ScheduleItem> = mutableListOf()
     private var dateSelected: String = ""
+    private val cal = Calendar.getInstance()
+    private lateinit var calAdapter: CalendarAdapter
 
     companion object {
         fun newInstance() = NoteFragment()
@@ -61,6 +67,7 @@ class NoteFragment : Fragment(), DialogListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         collapsibleCalendar = binding.calendarView
+        calAdapter = CalendarAdapter(requireContext(), cal)
 
 //        viewModel.action.onEach(::handleAction).collectOnStart(viewLifecycleOwner)
 
@@ -72,7 +79,6 @@ class NoteFragment : Fragment(), DialogListener {
         setSelectedDayButtons()
         setAddButton()
         setRecycler()
-
     }
 
     private fun setAddButton() {
@@ -90,13 +96,14 @@ class NoteFragment : Fragment(), DialogListener {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.dataList.collect { scheduleItems: List<ScheduleItem> ->
-                    dataList.clear()
-                    val sortedDataByTime = sortItemsByTime(scheduleItems)
-                    val sortedDataByDate = sortItemsByDate(sortedDataByTime)
-                    dataList.addAll(sortedDataByDate)
+                    dataList.apply {
+                        clear()
+                        addAll(scheduleItems)
+                    }
+                    sortItems(dataList)
+                    updateEventsTag(dataList)
                     adapter.notifyDataSetChanged()
-                    countSchedules(dataList)
-                    Log.d(TAG, "Выполнился dataList collect $dataList")
+                    countSchedules(adapterList)
                 }
             }
         }
@@ -108,7 +115,6 @@ class NoteFragment : Fragment(), DialogListener {
                         is Resource.Success -> onSuccess()
                         is Resource.Empty.Failed -> onFailed()
                     }
-                    Log.d(TAG, "Выполнился result collect")
                 }
             }
         }
@@ -116,34 +122,51 @@ class NoteFragment : Fragment(), DialogListener {
 
     private fun onSuccess() {
         viewModel.fetchData()
-        countSchedules(dataList)
-        Toast.makeText(requireContext(), "Данные получены", Toast.LENGTH_SHORT).show()
-        Log.d(TAG, "Выполнился success collect")
+        updateEventsTag(dataList)
+        countSchedules(adapterList)
     }
 
     private fun onFailed() {
         Toast.makeText(requireContext(), "Ошибка получения данных", Toast.LENGTH_SHORT).show()
-        countSchedules(dataList)
-        Log.d(TAG, "Выполнился failed collect")
+        countSchedules(adapterList)
+    }
+
+    private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
+        val sortedData: MutableList<ScheduleItem> = mutableListOf()
+        if (dateSelected.isNotEmpty()) {
+            dataList.forEach {
+                if (it.date == dateSelected)
+                    sortedData.add(it)
+            }
+            return sortedData
+        } else
+            return dataList
     }
 
     private fun sortItemsByTime(dataList: List<ScheduleItem>): List<ScheduleItem> {
         return dataList.sortedBy { it.startTime }
     }
 
-    private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
-        val sortedData: MutableList<ScheduleItem> = mutableListOf()
-        Log.d(TAG, dateSelected)
-        if (dateSelected.isNotEmpty()) {
+    private fun sortItems(dataList: List<ScheduleItem>) {
+        val sortedDataByDate = sortItemsByDate(dataList)
+        val sortedItemsByTime = sortItemsByTime(sortedDataByDate)
+        adapterList.apply {
+            clear()
+            addAll(sortedItemsByTime)
+        }
+        adapter.notifyDataSetChanged()
+        countSchedules(adapterList)
+    }
+
+    private fun updateEventsTag(dataList: List<ScheduleItem>) {
+        for (i in 0 until calAdapter.count) {
+            val day = calAdapter.getItem(i)
+            val dateSelected = "${day.year}${(day.month).plus(1)}${day.day}"
             dataList.forEach {
                 if (it.date == dateSelected)
-                    sortedData.add(it)
+                    collapsibleCalendar.addEventTag(day.year, day.month, day.day, ContextCompat.getColor(requireContext(), R.color.blue))
             }
-            Log.d(TAG, "dataList $dataList")
-            Log.d(TAG, "sortedData $sortedData")
-            return sortedData
-        } else
-            return dataList
+        }
     }
 
     // Подсчет кол-ва записей на день
@@ -156,21 +179,13 @@ class NoteFragment : Fragment(), DialogListener {
         }
     }
 
-    private fun setRecycler() {
-        recyclerView = binding.recycleSchedule
-        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-
-        adapter = ScheduleAdapter(dataList)
-        recyclerView.adapter = adapter
-    }
-
     // Обработка нажатий календаря
     private fun setCalendarListener() {
         collapsibleCalendar.setCalendarListener(object : CollapsibleCalendar.CalendarListener {
             override fun onDaySelect() {
                 val day = collapsibleCalendar.selectedDay
                 dateSelected = "${day?.year}${(day?.month)?.plus(1)}${day?.day}"
-                viewModel.fetchData()
+                sortItems(dataList)
                 setSelectedDayOfWeek()
             }
 
@@ -231,8 +246,8 @@ class NoteFragment : Fragment(), DialogListener {
         }
     }
 
-    private fun calculateDuration(startTime: String, endTime: String?): String {
-        if (endTime == null) {
+    private fun calculateDuration(startTime: String, endTime: String): String {
+        if (endTime.isEmpty()) {
             return "бессрочно"
         }
 
@@ -256,6 +271,14 @@ class NoteFragment : Fragment(), DialogListener {
             remainingMinutes > 0 -> "$remainingMinutes мин."
             else -> "0 мин."
         }
+    }
+
+    private fun setRecycler() {
+        recyclerView = binding.recycleSchedule
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+
+        adapter = ScheduleAdapter(adapterList)
+        recyclerView.adapter = adapter
     }
 
     // Получение данных из диалога добавления расписания

@@ -16,7 +16,7 @@ import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.features.dialogs.ScheduleItemBottomSheetFragment
 
-class ScheduleAdapter(private val dataList: MutableList<ScheduleItem>) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
+class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatisticViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
         return StatisticViewHolder(view)
@@ -24,7 +24,7 @@ class ScheduleAdapter(private val dataList: MutableList<ScheduleItem>) : Recycle
 
     @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: StatisticViewHolder, position: Int) {
-        val item = dataList[position]
+        val item = adapterList[position]
 
         holder.startTimeTextView.text = item.startTime
         holder.endTimeTextView.text = item.endTime
@@ -89,7 +89,7 @@ class ScheduleAdapter(private val dataList: MutableList<ScheduleItem>) : Recycle
     }
 
     override fun getItemCount(): Int {
-        return dataList.size
+        return adapterList.size
     }
 
     class StatisticViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
