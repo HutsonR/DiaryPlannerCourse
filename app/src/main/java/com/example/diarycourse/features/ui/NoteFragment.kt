@@ -139,8 +139,11 @@ class NoteFragment : Fragment(), DialogListener {
                     sortedData.add(it)
             }
             return sortedData
-        } else
-            return dataList
+        } else {
+            val day = calAdapter.getItem(collapsibleCalendar.todayItemPosition)
+            dateSelected = "${day.year}${(day.month).plus(1)}${day.day}"
+            return sortItemsByDate(dataList)
+        }
     }
 
     private fun sortItemsByTime(dataList: List<ScheduleItem>): List<ScheduleItem> {
