@@ -28,7 +28,7 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
     private var text: String = ""
     private var date: String = ""
     private var timeStart: String  = ""
-    private var timeEnd: String  = ""
+    private var timeEnd: String = ""
     private lateinit var titleEditText: TextView
     private lateinit var textEditText: TextView
     private lateinit var dialogListener: DialogListener
@@ -90,9 +90,8 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
         val isTextFilled = text.isNotEmpty()
         val isDateFilled = date.isNotEmpty()
         val isTimeStartFilled = timeStart.isNotEmpty()
-        val isTimeEndFilled = timeEnd.isNotEmpty()
 
-        val isEnabled = isTitleFilled && isTextFilled && isDateFilled && isTimeStartFilled && isTimeEndFilled
+        val isEnabled = isTitleFilled && isTextFilled && isDateFilled && isTimeStartFilled
 
         saveButton.isEnabled = isEnabled
         saveButton.alpha = if (isEnabled) 1.0f else 0.5f
