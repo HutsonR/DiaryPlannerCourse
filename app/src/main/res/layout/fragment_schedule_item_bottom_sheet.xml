@@ -17,7 +17,7 @@
         android:orientation="horizontal">
         <View
             android:id="@+id/divider"
-            android:layout_width="80dp"
+            android:layout_width="60dp"
             android:layout_height="4dp"
             android:background="@drawable/bottom_sheet_divider" />
     </LinearLayout>
@@ -27,9 +27,10 @@
         android:layout_width="wrap_content"
         android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:text="Title"
+        android:text="Заголовок"
         android:textColor="@color/black"
-        android:textSize="21sp"/>
+        android:textStyle="bold"
+        android:textSize="18sp"/>
 
     <LinearLayout
         android:id="@+id/timeLayout"
@@ -73,7 +74,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginTop="30dp">
+        android:layout_marginTop="40dp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

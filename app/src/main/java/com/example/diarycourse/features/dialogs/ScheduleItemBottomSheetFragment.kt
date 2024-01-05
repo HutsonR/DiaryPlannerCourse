@@ -7,25 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import com.example.diarycourse.App
 import com.example.diarycourse.R
-import com.example.diarycourse.data.database.ScheduleItemDao
 import com.example.diarycourse.domain.domain_api.UseCase
 import com.example.diarycourse.domain.models.ScheduleItem
-import com.example.diarycourse.domain.util.Resource
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
     class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
 
         private lateinit var title: String
+        private lateinit var dayOfWeek: String
         private lateinit var startTime: String
         private lateinit var description: String
 //        private lateinit var dialogListener: DialogListener
@@ -50,10 +44,10 @@ import javax.inject.Inject
         ): View? {
             val view = inflater.inflate(R.layout.fragment_schedule_item_bottom_sheet, container, false)
 
-            // Access the views in the Bottom Sheet layout and set the data
-            val titleTextView: TextView = view.findViewById(R.id.schedule_sheet_title)
-            val descriptionTextView: TextView = view.findViewById(R.id.schedule_sheet_description)
-            val startTimeTextView: TextView = view.findViewById(R.id.schedule_sheet_timeStart)
+            val titleTV: TextView = view.findViewById(R.id.schedule_sheet_title)
+            val descriptionTV: TextView = view.findViewById(R.id.schedule_sheet_description)
+            val startTimeTV: TextView = view.findViewById(R.id.schedule_sheet_timeStart)
+            val dayOfWeekTV: TextView = view.findViewById(R.id.schedule_sheet_day_of_week)
 
             val deleteButton: Button = view.findViewById(R.id.schedule_sheet_buttonDelete)
 
@@ -65,6 +59,7 @@ import javax.inject.Inject
                 title = scheduleItem.text
                 description = scheduleItem.description
                 startTime = scheduleItem.startTime
+                dayOfWeek = scheduleItem.date
 
 //                deleteButton.setOnClickListener {
 //                    scheduleItem.id?.let {
@@ -82,10 +77,35 @@ import javax.inject.Inject
 //                }
             }
 
-            titleTextView.text = title
-            descriptionTextView.text = description
-            startTimeTextView.text = startTime
+            titleTV.text = title
+            descriptionTV.text = description
+            startTimeTV.text = startTime
+            dayOfWeekTV.text = "${setDayOfWeek(dayOfWeek)},"
 
             return view
         }
+
+        private fun setDayOfWeek(day: String): String {
+            val year = day.substring(0, 4).toInt()
+            val month = day.substring(4, 5).toInt() - 1
+            val dayOfMonth = day.substring(5).toInt()
+
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.YEAR, year)
+                set(Calendar.MONTH, month)
+                set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            }
+
+            return when (calendar.get(Calendar.DAY_OF_WEEK)) {
+                Calendar.SUNDAY -> "Воскресенье"
+                Calendar.MONDAY -> "Понедельник"
+                Calendar.TUESDAY -> "Вторник"
+                Calendar.WEDNESDAY -> "Среда"
+                Calendar.THURSDAY -> "Четверг"
+                Calendar.FRIDAY -> "Пятница"
+                Calendar.SATURDAY -> "Суббота"
+                else -> "Неизвестно"
+            }
+        }
+
     }
