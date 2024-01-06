@@ -87,11 +87,10 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
 
     private fun updateSaveButtonState() {
         val isTitleFilled = title.isNotEmpty()
-        val isTextFilled = text.isNotEmpty()
         val isDateFilled = date.isNotEmpty()
         val isTimeStartFilled = timeStart.isNotEmpty()
 
-        val isEnabled = isTitleFilled && isTextFilled && isDateFilled && isTimeStartFilled
+        val isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
 
         saveButton.isEnabled = isEnabled
         saveButton.alpha = if (isEnabled) 1.0f else 0.5f

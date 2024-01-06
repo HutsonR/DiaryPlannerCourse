@@ -11,7 +11,7 @@ class UseCaseImpl @Inject constructor (
     private val repository: Repository
 ): UseCase {
     override suspend fun insert(item: ScheduleItem): Resource {
-        return if (item.text.isEmpty() || item.description.isEmpty() || item.startTime.isEmpty())
+        return if (item.text.isEmpty() || item.date.isEmpty() || item.startTime.isEmpty())
             Resource.Empty.Failed
         else {
             repository.insert(item)
