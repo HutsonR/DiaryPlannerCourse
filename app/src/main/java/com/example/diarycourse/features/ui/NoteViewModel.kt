@@ -18,9 +18,6 @@ class NoteViewModel @Inject constructor (
     private val useCase: UseCase
 ) : ViewModel() {
 
-    private val TAG = "debugTag"
-//    private val appContext: Context = application.applicationContext
-
     private val _dataList = MutableSharedFlow<List<ScheduleItem>>(
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
