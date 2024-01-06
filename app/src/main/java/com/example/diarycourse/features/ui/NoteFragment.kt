@@ -79,11 +79,6 @@ class NoteFragment : Fragment(), DialogListener {
     }
 
     private fun setAddButton() {
-        binding.fabAdd.setOnLongClickListener {
-            dateSelected = ""
-            viewModel.fetchData()
-            true
-        }
         binding.fabAdd.setOnClickListener {
             AddDialogFragment(R.layout.fragment_add).show(childFragmentManager, "add fragment")
         }
