@@ -44,8 +44,6 @@ class NoteFragment : Fragment(), DialogListener {
     private var dataList: MutableList<ScheduleItem> = mutableListOf()
     private var adapterList: MutableList<ScheduleItem> = mutableListOf()
     private var dateSelected: String = ""
-    private val cal = Calendar.getInstance()
-    private lateinit var calAdapter: CalendarAdapter
 
     companion object {
         fun newInstance() = NoteFragment()
@@ -67,7 +65,6 @@ class NoteFragment : Fragment(), DialogListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         collapsibleCalendar = binding.calendarView
-        calAdapter = CalendarAdapter(requireContext(), cal)
 
 //        viewModel.action.onEach(::handleAction).collectOnStart(viewLifecycleOwner)
 
@@ -128,7 +125,6 @@ class NoteFragment : Fragment(), DialogListener {
 
     private fun onFailed() {
         Toast.makeText(requireContext(), "Ошибка получения данных", Toast.LENGTH_SHORT).show()
-        countSchedules(adapterList)
     }
 
     private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
@@ -140,8 +136,8 @@ class NoteFragment : Fragment(), DialogListener {
             }
             return sortedData
         } else {
-            val day = calAdapter.getItem(collapsibleCalendar.todayItemPosition)
-            dateSelected = "${day.year}${(day.month).plus(1)}${day.day}"
+            val today = Calendar.getInstance()
+            dateSelected = "${today.get(Calendar.YEAR)}${(today.get(Calendar.MONTH).plus(1))}${today.get(Calendar.DAY_OF_MONTH)}"
             return sortItemsByDate(dataList)
         }
     }
@@ -162,12 +158,17 @@ class NoteFragment : Fragment(), DialogListener {
     }
 
     private fun updateEventsTag(dataList: List<ScheduleItem>) {
-        for (i in 0 until calAdapter.count) {
-            val day = calAdapter.getItem(i)
-            val dateSelected = "${day.year}${(day.month).plus(1)}${day.day}"
-            dataList.forEach {
-                if (it.date == dateSelected)
-                    collapsibleCalendar.addEventTag(day.year, day.month, day.day, ContextCompat.getColor(requireContext(), R.color.blue))
+        val processedDates = mutableSetOf<String>()
+        for (item in dataList) {
+            val date = item.date
+            if (processedDates.contains(date))
+                continue
+            else {
+                processedDates.add(date)
+                val year = date.substring(0, 4).toInt()
+                val month = date.substring(4, 5).toInt() - 1
+                val dayOfMonth = date.substring(5).toInt()
+                collapsibleCalendar.addEventTag(year, month, dayOfMonth, ContextCompat.getColor(requireContext(), R.color.blue))
             }
         }
     }
