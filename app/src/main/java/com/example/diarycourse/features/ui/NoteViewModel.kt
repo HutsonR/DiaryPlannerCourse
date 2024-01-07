@@ -30,6 +30,12 @@ class NoteViewModel @Inject constructor (
     )
     val result: SharedFlow<Resource> = _result.asSharedFlow()
 
+    private val _update = MutableSharedFlow<Resource>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val update: SharedFlow<Resource> = _update.asSharedFlow()
+
     fun fetchData() {
         viewModelScope.launch {
             _dataList.emitAll(useCase.getAll())
@@ -39,6 +45,12 @@ class NoteViewModel @Inject constructor (
     fun addData(data: ScheduleItem) {
         viewModelScope.launch {
             _result.emit(useCase.insert(data))
+        }
+    }
+
+    fun updateData(data: ScheduleItem) {
+        viewModelScope.launch {
+            _update.emit(useCase.update(data))
         }
     }
 

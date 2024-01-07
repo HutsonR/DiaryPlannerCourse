@@ -13,5 +13,5 @@ interface UseCase {
 
     suspend fun deleteAll()
 
-    suspend fun update(item: ScheduleItem)
+    suspend fun update(item: ScheduleItem): Resource
 }

@@ -36,8 +36,13 @@ class UseCaseImpl @Inject constructor (
         return repository.deleteAll()
     }
 
-    override suspend fun update(item: ScheduleItem) {
-        return repository.update(item)
+    override suspend fun update(item: ScheduleItem): Resource {
+        return if (item == null)
+            Resource.Empty.Failed
+        else {
+            repository.update(item)
+            Resource.Success
+        }
     }
 
 }

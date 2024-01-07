@@ -24,7 +24,6 @@ import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.adapter.ScheduleAdapter
 import com.example.diarycourse.features.dialogs.AddDialogFragment
 import com.example.diarycourse.features.dialogs.DialogListener
-import com.shrikanthravi.collapsiblecalendarview.data.CalendarAdapter
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
 import kotlinx.coroutines.launch
@@ -276,7 +275,7 @@ class NoteFragment : Fragment(), DialogListener {
         recyclerView = binding.recycleSchedule
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        adapter = ScheduleAdapter(adapterList)
+        adapter = ScheduleAdapter(adapterList, viewModel)
         recyclerView.adapter = adapter
     }
 

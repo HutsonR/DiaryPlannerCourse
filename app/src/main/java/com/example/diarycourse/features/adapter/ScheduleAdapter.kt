@@ -9,14 +9,22 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
+import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.dialogs.ScheduleItemBottomSheetFragment
+import com.example.diarycourse.features.ui.NoteViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
+class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: NoteViewModel) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatisticViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
         return StatisticViewHolder(view)
@@ -43,20 +51,17 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>) : Recy
         }
 
         holder.isCompleteButton.setOnClickListener {
-            // Изменение значения isCompleteTask
-            item.isCompleteTask = !item.isCompleteTask
+            CoroutineScope(Dispatchers.IO).launch {
+                val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
+                viewModel.updateData(data = updatedItem)
 
-            // Изменение фона кнопки в зависимости от значения isCompleteTask
-            if (item.isCompleteTask) {
-                val checkDrawable = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_main_check)
-                holder.isCompleteButton.setImageDrawable(checkDrawable)
-            } else {
-                val circleDrawable = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_main_complete_circle)
-                holder.isCompleteButton.setImageDrawable(circleDrawable)
+                viewModel.update.collect { result: Resource ->
+                    when (result) {
+                        is Resource.Success -> onSuccess(item, holder)
+                        is Resource.Empty.Failed -> onFailed(it)
+                    }
+                }
             }
-
-            // Дополнительно, вы можете уведомить адаптер о том, что данные изменились
-            notifyDataSetChanged()
         }
         if (item.isCompleteTask) {
             // Зачеркивание текста
@@ -90,6 +95,29 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>) : Recy
 
     override fun getItemCount(): Int {
         return adapterList.size
+    }
+
+    private suspend fun onSuccess(item: ScheduleItem, holder: StatisticViewHolder) {
+        withContext(Dispatchers.Main) {
+            // Изменение значения isCompleteTask
+            item.isCompleteTask = !item.isCompleteTask
+
+            // Изменение фона кнопки в зависимости от значения isCompleteTask
+            if (item.isCompleteTask) {
+                val checkDrawable = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_main_check)
+                holder.isCompleteButton.setImageDrawable(checkDrawable)
+            } else {
+                val circleDrawable = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_main_complete_circle)
+                holder.isCompleteButton.setImageDrawable(circleDrawable)
+            }
+
+            // Дополнительно, вы можете уведомить адаптер о том, что данные изменились
+            notifyDataSetChanged()
+        }
+    }
+
+    private fun onFailed(itemView: View) {
+        Toast.makeText(itemView.context, "Ошибка завершения", Toast.LENGTH_SHORT).show()
     }
 
     class StatisticViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
