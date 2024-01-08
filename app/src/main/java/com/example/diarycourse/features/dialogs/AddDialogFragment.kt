@@ -2,6 +2,7 @@ package com.example.diarycourse.features.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.opengl.Visibility
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -236,6 +237,18 @@ class AddDialogFragment(private val layoutResourceId: Int, private val viewModel
         }
     }
 
+    private fun viewClearTime() {
+        binding.addClearTimeTV.visibility = View.VISIBLE
+        binding.addClearTime.setOnClickListener {
+            binding.addClearTimeTV.visibility = View.GONE
+            timeEnd = ""
+            timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+            timeStart = ""
+            timeStartPickerTV.text = getString(R.string.add_date_time_blank)
+            updateSaveButtonState()
+        }
+    }
+
     private fun onFailed() {
         Toast.makeText(requireContext(), "Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT).show()
         dismiss()
@@ -307,6 +320,8 @@ class AddDialogFragment(private val layoutResourceId: Int, private val viewModel
             timeStart = formattedTime
             timeStartPickerTV.text = timeStart
             updateSaveButtonState()
+
+            viewClearTime()
         }
 
         timePicker.show(childFragmentManager, timePicker.toString())
@@ -321,7 +336,7 @@ class AddDialogFragment(private val layoutResourceId: Int, private val viewModel
             val selectedHour = timePicker.hour
             val selectedMinute = timePicker.minute
 
-            var selectedTimeForEnd = Calendar.getInstance()
+            val selectedTimeForEnd = Calendar.getInstance()
             selectedTimeForEnd.set(Calendar.HOUR_OF_DAY, selectedHour)
             selectedTimeForEnd.set(Calendar.MINUTE, selectedMinute)
 
@@ -330,6 +345,8 @@ class AddDialogFragment(private val layoutResourceId: Int, private val viewModel
             timeEnd = formattedTime
             timeEndPickerTV.text = timeEnd
             updateSaveButtonState()
+
+            viewClearTime()
         }
 
         timePicker.show(childFragmentManager, timePicker.toString())

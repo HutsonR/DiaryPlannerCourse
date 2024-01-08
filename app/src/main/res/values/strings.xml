@@ -13,6 +13,7 @@
     <string name="add_high_priority_task">Высокий приоритет</string>
     <string name="add_date_task">Дата</string>
     <string name="add_time_task_title">Время</string>
+    <string name="add_time_clear">Очистить</string>
     <string name="add_time_task_start">Начало</string>
     <string name="add_time_task_end">Конец</string>
     <string name="add_date_task_blank">Не выбрана</string>
@@ -34,4 +35,7 @@
     <string name="splash_uncomplete">Отменить</string>
     <string name="splash_edit">Редактировать</string>
     <string name="add_blank">На этот день нет записей</string>
+
+    <string name="close">Закрыть</string>
+    <string name="apply">Подтвердить</string>
 </resources>
