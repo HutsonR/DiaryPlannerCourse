@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_toast_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/round_corner_15"
+    android:paddingVertical="16dp"
+    android:paddingHorizontal="24dp"
+    android:layout_margin="16dp">
+
+    <TextView
+        android:id="@+id/customToastText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:text="Custom Toast Message" />
+</LinearLayout>

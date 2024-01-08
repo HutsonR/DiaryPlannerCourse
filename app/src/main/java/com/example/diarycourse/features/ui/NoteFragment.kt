@@ -2,9 +2,11 @@ package com.example.diarycourse.features.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -115,7 +117,7 @@ class NoteFragment : Fragment(), DialogListener {
     }
 
     private fun onFailed() {
-        Toast.makeText(requireContext(), "Ошибка получения данных", Toast.LENGTH_SHORT).show()
+        showCustomToast("Ошибка получения данных", Toast.LENGTH_SHORT)
     }
 
     private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
@@ -266,6 +268,20 @@ class NoteFragment : Fragment(), DialogListener {
             remainingMinutes > 0 -> "$remainingMinutes мин."
             else -> "0 мин."
         }
+    }
+
+    private fun showCustomToast(message: String, duration: Int) {
+        val inflater = layoutInflater
+        val layout = inflater.inflate(R.layout.custom_toast, binding.root.findViewById(R.id.custom_toast_layout))
+
+        val text = layout.findViewById<TextView>(R.id.customToastText)
+        text.text = message
+
+        val toast = Toast(requireContext())
+        toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 40)
+        toast.duration = duration
+        toast.view = layout
+        toast.show()
     }
 
     private fun setRecycler() {

@@ -6,6 +6,7 @@
     <color name="backgroundDark">#101010</color>
     <color name="black">#FFFFFFFF</color>
     <color name="white">#FF000000</color>
+    <color name="white_95">#F2121212</color>
     <color name="textGray">#8D95A4</color>
     <color name="iconGray">#8D95A4</color>
     <color name="scheduleIcon">#605F64</color>
