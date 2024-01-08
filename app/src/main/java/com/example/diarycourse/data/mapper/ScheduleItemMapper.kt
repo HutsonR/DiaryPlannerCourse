@@ -26,7 +26,7 @@ object ScheduleItemMapper {
             date = scheduleItem.date,
             startTime = scheduleItem.startTime,
             endTime = scheduleItem.endTime,
-            duration = scheduleItem.duration,
+            duration = scheduleItem.duration ?: "",
             isCompleteTask = scheduleItem.isCompleteTask
         )
     }

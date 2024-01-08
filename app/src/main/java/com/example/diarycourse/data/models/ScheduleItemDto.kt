@@ -10,7 +10,7 @@ data class ScheduleItemDto(
     val description: String,
     val date: String,
     val startTime: String,
-    val endTime: String?,
+    val endTime: String,
     val duration: String,
     var isCompleteTask: Boolean = false
 )

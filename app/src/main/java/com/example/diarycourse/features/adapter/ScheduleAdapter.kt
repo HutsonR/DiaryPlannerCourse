@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
@@ -24,7 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: NoteViewModel) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
+class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: NoteViewModel, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatisticViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
         return StatisticViewHolder(view)
@@ -36,10 +37,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
 
         holder.startTimeTextView.text = item.startTime
         holder.endTimeTextView.text = item.endTime
-
-        // Установка текста напоминания
         holder.contentTextView.text = item.text
-        // Установка длительности напоминания
         holder.durationTextView.text = item.duration
 
         if (item.isCompleteTask) {
@@ -50,19 +48,6 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             holder.isCompleteButton.setImageDrawable(circleDrawable)
         }
 
-        holder.isCompleteButton.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
-                viewModel.updateData(data = updatedItem)
-
-                viewModel.update.collect { result: Resource ->
-                    when (result) {
-                        is Resource.Success -> onSuccess(item, holder)
-                        is Resource.Empty.Failed -> onFailed(it)
-                    }
-                }
-            }
-        }
         if (item.isCompleteTask) {
             // Зачеркивание текста
             holder.contentTextView.paintFlags = holder.contentTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
@@ -79,7 +64,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
 
         holder.contentWrapper.setOnClickListener {
             // Show the Bottom Sheet with the entire model
-            val bottomSheetFragment = ScheduleItemBottomSheetFragment()
+            val bottomSheetFragment = ScheduleItemBottomSheetFragment(viewModel, fragmentManager)
 
             // Передайте всю модель в аргументы
             val args = Bundle()
@@ -90,6 +75,20 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
                 (holder.itemView.context as FragmentActivity).supportFragmentManager,
                 bottomSheetFragment.tag
             )
+        }
+
+        holder.isCompleteButton.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
+                viewModel.updateData(data = updatedItem)
+
+                viewModel.update.collect { result: Resource ->
+                    when (result) {
+                        is Resource.Success -> onSuccess(item, holder)
+                        is Resource.Empty.Failed -> onFailed(it)
+                    }
+                }
+            }
         }
     }
 

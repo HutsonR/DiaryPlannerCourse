@@ -1,9 +1,7 @@
 package com.example.diarycourse.features.ui
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,7 +65,6 @@ class NoteFragment : Fragment(), DialogListener {
 
 //        viewModel.action.onEach(::handleAction).collectOnStart(viewLifecycleOwner)
 
-//        viewModel.init()
         subscribeToFlow()
         viewModel.fetchData()
         setCalendarListener()
@@ -79,7 +76,7 @@ class NoteFragment : Fragment(), DialogListener {
 
     private fun setAddButton() {
         binding.fabAdd.setOnClickListener {
-            AddDialogFragment(R.layout.fragment_add).show(childFragmentManager, "add fragment")
+            AddDialogFragment(R.layout.fragment_add, viewModel).show(childFragmentManager, "add fragment")
         }
     }
 
@@ -187,12 +184,12 @@ class NoteFragment : Fragment(), DialogListener {
                 setSelectedDayOfWeek()
             }
 
-            override fun onItemClick(view: View) {}
+            override fun onItemClick(v: View) {}
             override fun onClickListener() {}
             override fun onDataUpdate() {}
             override fun onDayChanged() {}
             override fun onMonthChange() {}
-            override fun onWeekChange(i: Int) {}
+            override fun onWeekChange(position: Int) {}
         })
     }
 
@@ -275,7 +272,7 @@ class NoteFragment : Fragment(), DialogListener {
         recyclerView = binding.recycleSchedule
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        adapter = ScheduleAdapter(adapterList, viewModel)
+        adapter = ScheduleAdapter(adapterList, viewModel, childFragmentManager)
         recyclerView.adapter = adapter
     }
 
