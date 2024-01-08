@@ -8,23 +8,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import com.example.diarycourse.App
 import com.example.diarycourse.R
-import com.example.diarycourse.domain.domain_api.UseCase
 import com.example.diarycourse.domain.models.ScheduleItem
+import com.example.diarycourse.domain.util.Resource
+import com.example.diarycourse.features.ui.NoteViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.launch
 import java.util.Calendar
-import javax.inject.Inject
 
-    class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
+class ScheduleItemBottomSheetFragment(private val viewModel: NoteViewModel, private val fragmentManager: FragmentManager) : BottomSheetDialogFragment() {
 
         private lateinit var title: String
         private lateinit var dayOfWeek: String
         private lateinit var startTime: String
         private lateinit var description: String
 //        private lateinit var dialogListener: DialogListener
-        @Inject
-        lateinit var useCase: UseCase
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
@@ -50,31 +52,61 @@ import javax.inject.Inject
             val dayOfWeekTV: TextView = view.findViewById(R.id.schedule_sheet_day_of_week)
 
             val deleteButton: Button = view.findViewById(R.id.schedule_sheet_buttonDelete)
+            val completeButton: Button = view.findViewById(R.id.schedule_sheet_buttonComplete)
+            val editButton: Button = view.findViewById(R.id.schedule_sheet_buttonEdit)
 
             // Получите модель из аргументов
-            val scheduleItem = arguments?.getParcelable<ScheduleItem>("scheduleItem")
+            val parcelItem = arguments?.getParcelable<ScheduleItem>("scheduleItem")
 
             // Теперь вы можете использовать все поля модели
-            if (scheduleItem != null) {
-                title = scheduleItem.text
-                description = scheduleItem.description
-                startTime = scheduleItem.startTime
-                dayOfWeek = scheduleItem.date
+            if (parcelItem != null) {
+                title = parcelItem.text
+                description = parcelItem.description
+                startTime = parcelItem.startTime
+                dayOfWeek = parcelItem.date
 
-//                deleteButton.setOnClickListener {
-//                    scheduleItem.id?.let {
-//                        lifecycleScope.launch {
-//                            val result = useCase.deleteById(it)
-//                            if (result is Resource.Success) {
-//                                dialogListener.onScheduleItemDeleted(true)
-//                                dismiss()
-//                            } else if (result is Resource.Empty.Failed) {
-//                                dialogListener.onScheduleItemDeleted(false)
-//                                Toast.makeText(requireContext(), "Ошибка удаления", Toast.LENGTH_SHORT).show()
-//                            }
-//                        }
-//                    }
-//                }
+                if (parcelItem.isCompleteTask)
+                    completeButton.text = getString(R.string.splash_uncomplete)
+
+                deleteButton.setOnClickListener {
+                    parcelItem.id?.let {
+                        lifecycleScope.launch {
+                            viewModel.deleteItem(parcelItem.id)
+
+                            viewModel.result.collect { result: Resource ->
+                                when (result) {
+                                    is Resource.Success -> dismiss()
+                                    is Resource.Empty.Failed -> onFailed()
+                                }
+                            }
+                        }
+                    }
+                }
+                completeButton.setOnClickListener {
+                    lifecycleScope.launch {
+                        val updatedItem = parcelItem.copy(isCompleteTask = !parcelItem.isCompleteTask)
+                        viewModel.updateData(data = updatedItem)
+
+                        viewModel.update.collect { result: Resource ->
+                            when (result) {
+                                is Resource.Success -> dismiss()
+                                is Resource.Empty.Failed -> onFailed()
+                            }
+                        }
+                    }
+                }
+                editButton.setOnClickListener {
+                    val addDialogFragment = AddDialogFragment(R.layout.fragment_add, viewModel)
+                    // Передайте всю модель в аргументы
+                    val args = Bundle()
+                    args.putParcelable("scheduleItem", parcelItem)
+                    addDialogFragment.arguments = args
+
+                    addDialogFragment.show(fragmentManager, "add fragment")
+
+                    dismiss()
+                }
+
             }
 
             titleTV.text = title
@@ -106,6 +138,10 @@ import javax.inject.Inject
                 Calendar.SATURDAY -> "Суббота"
                 else -> "Неизвестно"
             }
+        }
+
+        private fun onFailed() {
+            Toast.makeText(requireContext(), "Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT).show()
         }
 
     }

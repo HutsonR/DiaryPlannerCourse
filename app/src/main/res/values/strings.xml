@@ -5,6 +5,7 @@
 
     <!--  Add Task  -->
     <string name="add_title">Добавить план на день</string>
+    <string name="add_title_edit">Редактировать план</string>
     <string name="add_title_task">Введите запись</string>
     <string name="add_desc_task">Описание</string>
     <string name="add_low_priority_task">Обычный приоритет</string>
@@ -30,6 +31,7 @@
     <!--  Splash  -->
     <string name="splash_delete">Удалить</string>
     <string name="splash_complete">Завершить</string>
+    <string name="splash_uncomplete">Отменить</string>
     <string name="splash_edit">Редактировать</string>
     <string name="add_blank">На этот день нет записей</string>
 </resources>

@@ -21,6 +21,7 @@
             app:textColor="@color/black"
             app:selectedItem_textColor="@color/white"
             app:todayItem_textColor="@color/red"
+            android:animateLayoutChanges="true"
             app:selectedItem_background="@drawable/circle_primary_background"
             app:buttonLeft_drawableTintColor="@color/black"
             app:buttonRight_drawableTintColor="@color/black"

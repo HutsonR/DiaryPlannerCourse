@@ -5,32 +5,49 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.example.diarycourse.R
 import com.example.diarycourse.databinding.FragmentAddBinding
+import com.example.diarycourse.domain.models.ScheduleItem
+import com.example.diarycourse.domain.util.Resource
+import com.example.diarycourse.features.ui.NoteViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import kotlinx.coroutines.launch
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 
-class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
+class AddDialogFragment(private val layoutResourceId: Int, private val viewModel: NoteViewModel) : DialogFragment() {
     private val TAG = "debugTag"
     private lateinit var binding: FragmentAddBinding
+    private var parcelItem: ScheduleItem? = null
+    private var previousTitle: String = ""
+    private var previousText: String = ""
+    private var previousDate: String = ""
+    private var previousTimeStart: String = ""
+    private var previousTimeEnd: String = ""
     private var title: String = ""
     private var text: String = ""
     private var date: String = ""
     private var timeStart: String  = ""
     private var timeEnd: String = ""
-    private lateinit var titleEditText: TextView
-    private lateinit var textEditText: TextView
+    private lateinit var titleEditTV: TextView
+    private lateinit var textEditTV: TextView
+    private lateinit var datePickerTV: TextView
+    private lateinit var timeStartPickerTV: TextView
+    private lateinit var timeEndPickerTV: TextView
     private lateinit var dialogListener: DialogListener
     private lateinit var saveButton: ImageButton
     private lateinit var cancelButton: ImageButton
@@ -39,7 +56,7 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         try {
-            dialogListener = parentFragment as DialogListener
+            dialogListener = requireParentFragment() as DialogListener
         } catch (e: ClassCastException) {
             throw ClassCastException("Parent fragment must implement DialogListener")
         }
@@ -57,11 +74,16 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        titleEditTV = binding.addTitleTask
+        textEditTV = binding.addDeskTask
+        datePickerTV = binding.datePickerText
+        timeStartPickerTV = binding.timeStartPickerText
+        timeEndPickerTV = binding.timeEndPickerText
+
         saveButton = binding.addSave
         cancelButton = binding.addClose
         saveButton.setOnClickListener {
             handleSaveButtonClicked()
-            dismiss()
         }
         cancelButton.setOnClickListener {
             dismiss()
@@ -72,6 +94,30 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
         binding.datePicker.setOnClickListener { showDatePicker() }
         binding.timeStartPicker.setOnClickListener { showTimePickerForStart() }
         binding.timeEndPicker.setOnClickListener { showTimePickerForEnd() }
+
+        // Если имеется модель (фрагмент открыт для редактирования)
+        parcelItem = arguments?.getParcelable("scheduleItem")
+        if (parcelItem != null) {
+            binding.titleAddFragment.text = getString(R.string.add_title_edit)
+
+            title = parcelItem!!.text
+            text = parcelItem!!.description
+            date = parcelItem!!.date
+            timeStart = parcelItem!!.startTime
+            timeEnd = parcelItem!!.endTime
+
+            previousTitle = title
+            previousText = text
+            previousDate = date
+            previousTimeStart = timeStart
+            previousTimeEnd = timeEnd
+
+            titleEditTV.text = parcelItem!!.text
+            textEditTV.text = parcelItem!!.description
+            datePickerTV.text = formatDate(parcelItem!!.date)
+            timeStartPickerTV.text = parcelItem!!.startTime
+            timeEndPickerTV.text = parcelItem!!.endTime.ifEmpty { getString(R.string.add_date_time_blank) }
+        }
 
         // Изначально деактивируем кнопку "Сохранить"
         updateSaveButtonState()
@@ -86,24 +132,117 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
     }
 
     private fun updateSaveButtonState() {
-        val isTitleFilled = title.isNotEmpty()
-        val isDateFilled = date.isNotEmpty()
-        val isTimeStartFilled = timeStart.isNotEmpty()
+        if (parcelItem != null) {
+            // Для редактирования элемента
+            val isTitleChanged = title != previousTitle
+            val isDateChanged = date != previousDate
+            val isTimeStartChanged = timeStart != previousTimeStart
+            val isTextChanged = text != previousText
+            val isTimeEndChanged = timeEnd != previousTimeEnd
 
-        val isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
+            val isEnabled = (isTitleChanged || isDateChanged || isTimeStartChanged || isTextChanged || isTimeEndChanged) &&
+                    title.isNotEmpty() && date.isNotEmpty() && timeStart.isNotEmpty()
 
-        saveButton.isEnabled = isEnabled
-        saveButton.alpha = if (isEnabled) 1.0f else 0.5f
+            saveButton.isEnabled = isEnabled
+            saveButton.alpha = if (isEnabled) 1.0f else 0.5f
+        } else {
+            // По умолчанию обычное добавление элемента
+            val isTitleFilled = title.isNotEmpty()
+            val isDateFilled = date.isNotEmpty()
+            val isTimeStartFilled = timeStart.isNotEmpty()
+
+            val isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
+
+            saveButton.isEnabled = isEnabled
+            saveButton.alpha = if (isEnabled) 1.0f else 0.5f
+        }
     }
 
-
     private fun handleSaveButtonClicked() {
-        dialogListener.onConfirmAddDialogResult(title, text, date, timeStart, timeEnd)
+        if (parcelItem != null) {
+            // Для редактирования элемента
+            lifecycleScope.launch {
+                val updatedItem = parcelItem!!.copy(
+                    text = title,
+                    description = text,
+                    date = date,
+                    startTime = timeStart,
+                    endTime = timeEnd,
+                    duration = calculateDuration(timeStart, timeEnd),
+                    isCompleteTask = parcelItem!!.isCompleteTask
+                )
+//                Log.d(TAG, "text $title, description $text, date $date, timeEnd $timeEnd")
+                viewModel.updateData(data = updatedItem)
+
+                viewModel.update.collect { result: Resource ->
+                    when (result) {
+                        is Resource.Success -> dismiss()
+                        is Resource.Empty.Failed -> onFailed()
+                    }
+                }
+            }
+        } else {
+            // По умолчанию обычное добавление элемента
+            dialogListener.onConfirmAddDialogResult(title, text, date, timeStart, timeEnd)
+            dismiss()
+        }
+    }
+
+    private fun formatDate(inputDateString: String): String {
+        // Определение формата входной строки в зависимости от её длины
+        val inputFormat = if (inputDateString.length == 6) {
+            SimpleDateFormat("yyyyMd", Locale.getDefault())
+        } else {
+            SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+        }
+
+        // Парсинг входной строки в объект Date
+        return try {
+            val date = inputFormat.parse(inputDateString)
+
+            // Форматирование даты в требуемый формат
+            val outputFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+            outputFormat.format(date)
+        } catch (e: ParseException) {
+            e.printStackTrace()
+            "Invalid Date"
+        }
+    }
+
+    private fun calculateDuration(startTime: String, endTime: String): String {
+        if (endTime.isEmpty()) {
+            return "бессрочно"
+        }
+
+        val startParts = startTime.split(":")
+        val endParts = endTime.split(":")
+
+        val startHours = startParts[0].toInt()
+        val startMinutes = startParts[1].toInt()
+
+        val endHours = endParts[0].toInt()
+        val endMinutes = endParts[1].toInt()
+
+        val durationMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes)
+
+        val durationHours = durationMinutes / 60
+        val remainingMinutes = durationMinutes % 60
+
+        return when {
+            durationHours > 0 && remainingMinutes > 0 -> "$durationHours ч. $remainingMinutes мин."
+            durationHours > 0 -> "$durationHours ч."
+            remainingMinutes > 0 -> "$remainingMinutes мин."
+            else -> "0 мин."
+        }
+    }
+
+    private fun onFailed() {
+        Toast.makeText(requireContext(), "Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT).show()
+        dismiss()
     }
 
     private fun titleEditText() {
-        titleEditText = binding.addTitleTask
-        titleEditText.addTextChangedListener(object : TextWatcher {
+        titleEditTV.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -116,8 +255,7 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
     }
 
     private fun deskEditText() {
-        textEditText = binding.addDeskTask
-        textEditText.addTextChangedListener(object : TextWatcher {
+        textEditTV.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -143,7 +281,7 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
             val dateFormatForUser = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
             val formattedDateForUser = selectedDate.time.let { dateFormatForUser.format(it) }
             date = formattedDate
-            binding.datePickerText.text = formattedDateForUser
+            datePickerTV.text = formattedDateForUser
             updateSaveButtonState()
         }
 
@@ -167,7 +305,7 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
             val formattedTime = selectedTimeForStart.time.let { it1 -> timeFormat.format(it1) }
             timeStart = formattedTime
-            binding.timeStartPickerText.text = formattedTime
+            timeStartPickerTV.text = timeStart
             updateSaveButtonState()
         }
 
@@ -190,12 +328,11 @@ class AddDialogFragment(private val layoutResourceId: Int) : DialogFragment() {
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
             val formattedTime = selectedTimeForEnd.time.let { it1 -> timeFormat.format(it1) }
             timeEnd = formattedTime
-            binding.timeEndPickerText.text = formattedTime
+            timeEndPickerTV.text = timeEnd
             updateSaveButtonState()
         }
 
         timePicker.show(childFragmentManager, timePicker.toString())
     }
-
 
 }
