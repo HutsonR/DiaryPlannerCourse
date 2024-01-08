@@ -54,6 +54,12 @@ class NoteViewModel @Inject constructor (
         }
     }
 
+    fun deleteItem(itemId: Int) {
+        viewModelScope.launch {
+            _result.emit(useCase.deleteById(itemId))
+        }
+    }
+
     class NoteViewModelFactory @Inject constructor(
         private val useCase: UseCase
     ) : ViewModelProvider.Factory {
