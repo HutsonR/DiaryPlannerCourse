@@ -96,13 +96,13 @@ class ScheduleItemBottomSheetFragment(private val viewModel: NoteViewModel, priv
                     }
                 }
                 editButton.setOnClickListener {
-                    val addDialogFragment = AddDialogFragment(R.layout.fragment_add, viewModel)
+                    val taskDialogFragment = TaskDialogFragment(R.layout.fragment_add, viewModel)
                     // Передайте всю модель в аргументы
                     val args = Bundle()
                     args.putParcelable("scheduleItem", parcelItem)
-                    addDialogFragment.arguments = args
+                    taskDialogFragment.arguments = args
 
-                    addDialogFragment.show(fragmentManager, "add fragment")
+                    taskDialogFragment.show(fragmentManager, "add fragment")
 
                     dismiss()
                 }

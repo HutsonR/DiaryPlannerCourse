@@ -2,11 +2,9 @@ package com.example.diarycourse.features.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.opengl.Visibility
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +28,7 @@ import java.util.Calendar
 import java.util.Locale
 
 
-class AddDialogFragment(private val layoutResourceId: Int, private val viewModel: NoteViewModel) : DialogFragment() {
+class TaskDialogFragment(private val layoutResourceId: Int, private val viewModel: NoteViewModel) : DialogFragment() {
     private val TAG = "debugTag"
     private lateinit var binding: FragmentAddBinding
     private var parcelItem: ScheduleItem? = null

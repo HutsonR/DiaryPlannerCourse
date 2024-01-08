@@ -20,7 +20,7 @@ import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.databinding.FragmentNoteBinding
 import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.adapter.ScheduleAdapter
-import com.example.diarycourse.features.dialogs.AddDialogFragment
+import com.example.diarycourse.features.dialogs.TaskDialogFragment
 import com.example.diarycourse.features.dialogs.DialogListener
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
@@ -76,7 +76,7 @@ class NoteFragment : Fragment(), DialogListener {
 
     private fun setAddButton() {
         binding.fabAdd.setOnClickListener {
-            AddDialogFragment(R.layout.fragment_add, viewModel).show(childFragmentManager, "add fragment")
+            TaskDialogFragment(R.layout.fragment_add, viewModel).show(childFragmentManager, "add fragment")
         }
     }
 
