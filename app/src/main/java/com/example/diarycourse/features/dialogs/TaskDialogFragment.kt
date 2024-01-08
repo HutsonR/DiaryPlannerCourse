@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,8 @@ import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 
@@ -187,15 +190,18 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         }
     }
 
+    private fun onFailed() {
+        showCustomToast("Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT)
+        dismiss()
+    }
+
     private fun formatDate(inputDateString: String): String {
-        // Определение формата входной строки в зависимости от её длины
         val inputFormat = if (inputDateString.length == 6) {
             SimpleDateFormat("yyyyMd", Locale.getDefault())
         } else {
             SimpleDateFormat("yyyyMMdd", Locale.getDefault())
         }
 
-        // Парсинг входной строки в объект Date
         return try {
             val date = inputFormat.parse(inputDateString)
 
@@ -239,19 +245,53 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         binding.addClearTimeTV.visibility = View.VISIBLE
         binding.addClearTime.setOnClickListener {
             binding.addClearTimeTV.visibility = View.GONE
-            timeEnd = ""
-            timeEndPickerTV.text = getString(R.string.add_date_time_blank)
             timeStart = ""
             timeStartPickerTV.text = getString(R.string.add_date_time_blank)
+            timeEnd = ""
+            timeEndPickerTV.text = getString(R.string.add_date_time_blank)
             updateSaveButtonState()
         }
     }
 
-    private fun onFailed() {
-        Toast.makeText(requireContext(), "Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT).show()
-        dismiss()
+    private fun checkTime() {
+        val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
+
+        if (timeStart.isNotEmpty() && timeEnd.isNotEmpty()) {
+            val startTime = LocalTime.parse(timeStart, timeFormat)
+            val endTime = LocalTime.parse(timeEnd, timeFormat)
+
+            if (startTime.isAfter(endTime)) {
+                showCustomToast("Начальное время не может быть больше конечного", Toast.LENGTH_SHORT)
+                timeStart = ""
+                timeStartPickerTV.text = getString(R.string.add_date_time_blank)
+                timeEnd = ""
+                timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+                binding.addClearTimeTV.visibility = View.GONE
+            } else {
+                showCustomToast("Если начальное время равно конечному, то конечное можно не указывать", Toast.LENGTH_SHORT)
+                timeEnd = ""
+                timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+            }
+        }
+
+        updateSaveButtonState()
     }
 
+    private fun showCustomToast(message: String, duration: Int) {
+        val inflater = layoutInflater
+        val layout = inflater.inflate(R.layout.custom_toast, binding.root.findViewById(R.id.custom_toast_layout))
+
+        val text = layout.findViewById<TextView>(R.id.customToastText)
+        text.text = message
+
+        val toast = Toast(requireContext())
+        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 80)
+        toast.duration = duration
+        toast.view = layout
+        toast.show()
+    }
+
+//    Listeners
     private fun titleEditText() {
         titleEditTV.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -314,12 +354,11 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             selectedTimeForStart.set(Calendar.MINUTE, selectedMinute)
 
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val formattedTime = selectedTimeForStart.time.let { it1 -> timeFormat.format(it1) }
+            val formattedTime = selectedTimeForStart.time.let { timeFormat.format(it) }
             timeStart = formattedTime
             timeStartPickerTV.text = timeStart
-            updateSaveButtonState()
-
             viewClearTime()
+            checkTime()
         }
 
         timePicker.show(childFragmentManager, timePicker.toString())
@@ -339,12 +378,11 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             selectedTimeForEnd.set(Calendar.MINUTE, selectedMinute)
 
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val formattedTime = selectedTimeForEnd.time.let { it1 -> timeFormat.format(it1) }
+            val formattedTime = selectedTimeForEnd.time.let { timeFormat.format(it) }
             timeEnd = formattedTime
             timeEndPickerTV.text = timeEnd
-            updateSaveButtonState()
-
             viewClearTime()
+            checkTime()
         }
 
         timePicker.show(childFragmentManager, timePicker.toString())

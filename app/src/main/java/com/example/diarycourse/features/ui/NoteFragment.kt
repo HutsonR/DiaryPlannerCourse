@@ -278,7 +278,7 @@ class NoteFragment : Fragment(), DialogListener {
         text.text = message
 
         val toast = Toast(requireContext())
-        toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 40)
+        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 80)
         toast.duration = duration
         toast.view = layout
         toast.show()
