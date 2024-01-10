@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.dialogs
+package com.example.diarycourse.features.ui.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
