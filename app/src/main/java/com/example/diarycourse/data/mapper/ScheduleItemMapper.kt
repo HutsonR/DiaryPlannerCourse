@@ -2,6 +2,7 @@ package com.example.diarycourse.data.mapper
 
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.data.models.ScheduleItemDto
+import com.example.diarycourse.features.ui.utils.Color
 
 object ScheduleItemMapper {
 
@@ -14,6 +15,7 @@ object ScheduleItemMapper {
             startTime = scheduleItemDto.startTime,
             endTime = scheduleItemDto.endTime,
             duration = scheduleItemDto.duration,
+            color = getColorEnum(scheduleItemDto.color),
             isCompleteTask = scheduleItemDto.isCompleteTask
         )
     }
@@ -26,8 +28,17 @@ object ScheduleItemMapper {
             date = scheduleItem.date,
             startTime = scheduleItem.startTime,
             endTime = scheduleItem.endTime,
-            duration = scheduleItem.duration ?: "",
+            duration = scheduleItem.duration,
+            color = scheduleItem.color.name,
             isCompleteTask = scheduleItem.isCompleteTask
         )
+    }
+
+    private fun getColorEnum(colorString: String): Color {
+        return try {
+            Color.valueOf(colorString)
+        } catch (e: IllegalArgumentException) {
+            Color.BLUE
+        }
     }
 }

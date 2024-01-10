@@ -15,4 +15,14 @@
         <item name="android:colorBackground">@color/primary</item> <!-- Задний фон -->
     </style>
 
+    <style name="MaterialCalendarPickerTheme" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/primaryPicker</item>
+        <item name="android:colorBackground">@color/bgDialog</item>
+    </style>
+
+    <style name="MaterialTimePickerTheme" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <item name="colorPrimary">@color/primaryPicker</item>
+        <item name="android:colorBackground">@color/bgDialog</item>
+    </style>
+
 </resources>

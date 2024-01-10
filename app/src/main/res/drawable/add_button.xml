@@ -4,10 +4,10 @@
         android:state_checked="true"
         android:state_pressed="true" />
     <item
-        android:drawable="@drawable/add_background_border"
+        android:drawable="@drawable/add_button_regular"
         android:state_pressed="true" />
     <item
-        android:drawable="@drawable/add_background_border"
+        android:drawable="@drawable/add_round_corner"
         android:state_checked="true" />
     <item
         android:drawable="@drawable/add_button_regular" />

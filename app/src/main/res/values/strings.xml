@@ -16,6 +16,7 @@
     <string name="add_time_clear">Очистить</string>
     <string name="add_time_task_start">Начало</string>
     <string name="add_time_task_end">Конец</string>
+    <string name="add_color_task">Цвет</string>
     <string name="add_date_task_blank">Не выбрана</string>
     <string name="add_date_time_blank">Нет</string>
 

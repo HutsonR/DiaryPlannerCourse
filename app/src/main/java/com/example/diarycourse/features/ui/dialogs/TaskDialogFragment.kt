@@ -5,20 +5,25 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.diarycourse.R
 import com.example.diarycourse.databinding.FragmentAddBinding
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.ui.NoteViewModel
+import com.example.diarycourse.features.ui.utils.Color
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -34,17 +39,21 @@ import java.util.Locale
 class TaskDialogFragment(private val layoutResourceId: Int, private val viewModel: NoteViewModel) : DialogFragment() {
     private val TAG = "debugTag"
     private lateinit var binding: FragmentAddBinding
+    private var dataList: MutableList<ScheduleItem> = mutableListOf()
+    private var sortedDataByDate: MutableList<ScheduleItem> = mutableListOf()
     private var parcelItem: ScheduleItem? = null
     private var previousTitle: String = ""
     private var previousText: String = ""
     private var previousDate: String = ""
     private var previousTimeStart: String = ""
     private var previousTimeEnd: String = ""
+    private var previousColor: Color = Color.BLUE
     private var title: String = ""
     private var text: String = ""
     private var date: String = ""
     private var timeStart: String  = ""
     private var timeEnd: String = ""
+    private var color: Color = Color.BLUE
     private lateinit var titleEditTV: TextView
     private lateinit var textEditTV: TextView
     private lateinit var datePickerTV: TextView
@@ -91,11 +100,13 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             dismiss()
         }
 
+//        fetchData()
         titleEditText()
         deskEditText()
         binding.datePicker.setOnClickListener { showDatePicker() }
         binding.timeStartPicker.setOnClickListener { showTimePickerForStart() }
-        binding.timeEndPicker.setOnClickListener { showTimePickerForEnd() }
+        colorPicker()
+        binding.timeEndPicker.alpha = 0.5f
 
         // Если имеется модель (фрагмент открыт для редактирования)
         parcelItem = arguments?.getParcelable("scheduleItem")
@@ -107,18 +118,25 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             date = parcelItem!!.date
             timeStart = parcelItem!!.startTime
             timeEnd = parcelItem!!.endTime
+            color = parcelItem!!.color
 
             previousTitle = title
             previousText = text
             previousDate = date
             previousTimeStart = timeStart
             previousTimeEnd = timeEnd
+            previousColor = color
 
             titleEditTV.text = parcelItem!!.text
             textEditTV.text = parcelItem!!.description
+            Log.d(TAG, "date $date")
             datePickerTV.text = formatDate(parcelItem!!.date)
+            Log.d(TAG, "formatDate ${datePickerTV.text}")
             timeStartPickerTV.text = parcelItem!!.startTime
             timeEndPickerTV.text = parcelItem!!.endTime.ifEmpty { getString(R.string.add_date_time_blank) }
+            setColor()
+            // Для активации кнопки конца времени
+            checkTime()
         }
 
         // Изначально деактивируем кнопку "Сохранить"
@@ -141,8 +159,9 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             val isTimeStartChanged = timeStart != previousTimeStart
             val isTextChanged = text != previousText
             val isTimeEndChanged = timeEnd != previousTimeEnd
+            val isColorChanged = color != previousColor
 
-            val isEnabled = (isTitleChanged || isDateChanged || isTimeStartChanged || isTextChanged || isTimeEndChanged) &&
+            val isEnabled = (isTitleChanged || isDateChanged || isTimeStartChanged || isTextChanged || isTimeEndChanged || isColorChanged) &&
                     title.isNotEmpty() && date.isNotEmpty() && timeStart.isNotEmpty()
 
             saveButton.isEnabled = isEnabled
@@ -171,6 +190,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
                     startTime = timeStart,
                     endTime = timeEnd,
                     duration = calculateDuration(timeStart, timeEnd),
+                    color = color,
                     isCompleteTask = parcelItem!!.isCompleteTask
                 )
 //                Log.d(TAG, "text $title, description $text, date $date, timeEnd $timeEnd")
@@ -185,7 +205,8 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             }
         } else {
             // По умолчанию обычное добавление элемента
-            dialogListener.onConfirmAddDialogResult(title, text, date, timeStart, timeEnd)
+            dialogListener.onConfirmAddDialogResult(title, text, date, timeStart, timeEnd, color)
+            Log.d(TAG, "color add $color")
             dismiss()
         }
     }
@@ -193,6 +214,17 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private fun onFailed() {
         showCustomToast("Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT)
         dismiss()
+    }
+
+    private fun fetchData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.dataList.collect { scheduleItems: List<ScheduleItem> ->
+                dataList.apply {
+                    clear()
+                    addAll(scheduleItems)
+                }
+            }
+        }
     }
 
     private fun formatDate(inputDateString: String): String {
@@ -249,32 +281,88 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             timeStartPickerTV.text = getString(R.string.add_date_time_blank)
             timeEnd = ""
             timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+            checkTime()
             updateSaveButtonState()
         }
     }
 
     private fun checkTime() {
         val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
-
         if (timeStart.isNotEmpty() && timeEnd.isNotEmpty()) {
-            val startTime = LocalTime.parse(timeStart, timeFormat)
-            val endTime = LocalTime.parse(timeEnd, timeFormat)
+            Log.d(TAG, "dataList $dataList")
+            val currentStartTime = LocalTime.parse(timeStart, timeFormat)
+            val currentEndTime = LocalTime.parse(timeEnd, timeFormat)
+//            Проверка между временами в выбранной дате
+//            if (date.isNotEmpty()) {
+//
+//                dataList.forEach {
+//                    if (it.date == date)
+//                        sortedDataByDate.add(it)
+//                }
+//
+//                val sortedDateByTime = sortedDataByDate.sortedBy { it.startTime }
+//                var isComplete = false
+//                var prevTask: ScheduleItem = sortedDateByTime.first()
+//
+//                sortedDateByTime.drop(1).forEach {
+//                    val startTimeItem = LocalTime.parse(it.startTime, timeFormat)
+//                    val endTimeItem = LocalTime.parse(prevTask.endTime, timeFormat)
+//
+//                    if (currentStartTime.isAfter(endTimeItem) && currentEndTime.isBefore(startTimeItem)) {
+//                        timeEnd = ""
+//                        timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+//                        timeStart = ""
+//                        timeStartPickerTV.text = getString(R.string.add_date_time_blank)
+//                        showCustomToast("Конечное время пересекается с задачей (начинается на $startTimeItem, оканчивается на $endTimeItem)", Toast.LENGTH_SHORT)
+//                        isComplete = true
+//                        return@forEach
+//                    }
+//                    prevTask = it
+//                }
+//                if (isComplete)
+//                    showCustomToast("Все в порядке", Toast.LENGTH_SHORT)
+//            }
 
-            if (startTime.isAfter(endTime)) {
+//            Проверка между двумя временами в окне добавления
+            if (currentStartTime.isAfter(currentEndTime)) {
                 showCustomToast("Начальное время не может быть больше конечного", Toast.LENGTH_SHORT)
                 timeStart = ""
                 timeStartPickerTV.text = getString(R.string.add_date_time_blank)
                 timeEnd = ""
                 timeEndPickerTV.text = getString(R.string.add_date_time_blank)
                 binding.addClearTimeTV.visibility = View.GONE
-            } else {
-                showCustomToast("Если начальное время равно конечному, то конечное можно не указывать", Toast.LENGTH_SHORT)
+            } else if (currentStartTime == currentEndTime) {
+                showCustomToast("Если начальное время одинаково с конечным, то конечное можно не писать", Toast.LENGTH_SHORT)
                 timeEnd = ""
                 timeEndPickerTV.text = getString(R.string.add_date_time_blank)
             }
         }
 
+        if (timeStart.isNotEmpty()) {
+            binding.timeEndPicker.alpha = 1f
+            binding.timeEndPicker.setOnClickListener { showTimePickerForEnd() }
+        } else {
+            binding.timeEndPicker.alpha = 0.5f
+            binding.timeEndPicker.setOnClickListener {  }
+        }
+
         updateSaveButtonState()
+    }
+
+    private fun setColor() {
+        val colorToSet = parcelItem?.color ?: Color.BLUE
+
+        // Пройти по всем RadioButton в группе и установить isChecked для соответствующего цвета
+        for (i in 0 until binding.colorPicker.childCount) {
+            val radioButton = binding.colorPicker.getChildAt(i) as? RadioButton
+            val colorTag = radioButton?.tag as? String
+            val colorEnum = colorTag?.let { getColorEnum(it) }
+
+            if (colorEnum == colorToSet) {
+                radioButton.isChecked = true
+                break
+            }
+        }
     }
 
     private fun showCustomToast(message: String, duration: Int) {
@@ -321,6 +409,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private fun showDatePicker() {
         val builder = MaterialDatePicker.Builder.datePicker()
         builder.setTitleText("Выберите дату")
+        builder.setTheme(R.style.MaterialCalendarPickerTheme)
 
         val datePicker = builder.build()
 
@@ -333,7 +422,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             val formattedDateForUser = selectedDate.time.let { dateFormatForUser.format(it) }
             date = formattedDate
             datePickerTV.text = formattedDateForUser
-            updateSaveButtonState()
+            checkTime()
         }
 
         datePicker.show(childFragmentManager, datePicker.toString())
@@ -343,6 +432,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         val timePicker = MaterialTimePicker.Builder()
             .setTimeFormat(TimeFormat.CLOCK_24H)
             .setTitleText("Выберите время начала задачи")
+            .setTheme(R.style.MaterialTimePickerTheme)
             .build()
 
         timePicker.addOnPositiveButtonClickListener {
@@ -367,6 +457,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         val timePicker = MaterialTimePicker.Builder()
             .setTimeFormat(TimeFormat.CLOCK_24H)
             .setTitleText("Выберите время окончания задачи")
+            .setTheme(R.style.MaterialTimePickerTheme)
             .build()
 
         timePicker.addOnPositiveButtonClickListener {
@@ -386,6 +477,25 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         }
 
         timePicker.show(childFragmentManager, timePicker.toString())
+    }
+
+    private fun colorPicker() {
+        binding.colorPicker.setOnCheckedChangeListener { _, checkedId ->
+            val selectedRadioButton: RadioButton = view?.findViewById(checkedId) ?: return@setOnCheckedChangeListener
+            val selectedColorTag: String = selectedRadioButton.tag as String
+
+            val selectedColor: Color = getColorEnum(selectedColorTag)
+            color = selectedColor
+
+            updateSaveButtonState()
+        }
+    }
+    private fun getColorEnum(colorString: String): Color {
+        return try {
+            Color.valueOf(colorString)
+        } catch (e: IllegalArgumentException) {
+            Color.BLUE
+        }
     }
 
 }

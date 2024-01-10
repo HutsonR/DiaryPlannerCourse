@@ -209,6 +209,79 @@
                             android:text="@string/add_date_time_blank" />
                     </LinearLayout>
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_color_task"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/textGray"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <RadioGroup
+                        android:id="@+id/colorPicker"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_horizontal">
+                        <RadioButton
+                            android:id="@+id/radio_blue"
+                            android:checked="true"
+                            android:background="@drawable/add_button"
+                            android:backgroundTint="@color/blue"
+                            android:button="@drawable/add_button"
+                            android:tag="BLUE"
+                            android:textAlignment="center"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginEnd="16dp" />
+                        <RadioButton
+                            android:id="@+id/radio_green"
+                            android:background="@drawable/add_button"
+                            android:backgroundTint="@color/green"
+                            android:button="@drawable/add_button"
+                            android:tag="GREEN"
+                            android:textAlignment="center"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginEnd="16dp" />
+                        <RadioButton
+                            android:id="@+id/radio_yellow"
+                            android:background="@drawable/add_button"
+                            android:backgroundTint="@color/yellow"
+                            android:button="@drawable/add_button"
+                            android:tag="YELLOW"
+                            android:textAlignment="center"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginEnd="16dp" />
+                        <RadioButton
+                            android:id="@+id/radio_purple"
+                            android:background="@drawable/add_button"
+                            android:backgroundTint="@color/purple"
+                            android:button="@drawable/add_button"
+                            android:tag="PURPLE"
+                            android:textAlignment="center"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginEnd="16dp" />
+                        <RadioButton
+                            android:id="@+id/radio_pink"
+                            android:background="@drawable/add_button"
+                            android:backgroundTint="@color/pink"
+                            android:button="@drawable/add_button"
+                            android:tag="PINK"
+                            android:textAlignment="center"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginEnd="16dp" />
+                    </RadioGroup>
+                </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 

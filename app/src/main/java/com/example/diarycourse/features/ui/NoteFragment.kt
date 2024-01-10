@@ -21,9 +21,10 @@ import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.databinding.FragmentNoteBinding
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.adapter.ScheduleAdapter
-import com.example.diarycourse.features.dialogs.TaskDialogFragment
-import com.example.diarycourse.features.dialogs.DialogListener
+import com.example.diarycourse.features.ui.adapter.ScheduleAdapter
+import com.example.diarycourse.features.ui.dialogs.TaskDialogFragment
+import com.example.diarycourse.features.ui.dialogs.DialogListener
+import com.example.diarycourse.features.ui.utils.Color
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
 import kotlinx.coroutines.launch
@@ -298,7 +299,8 @@ class NoteFragment : Fragment(), DialogListener {
         text: String,
         date: String,
         timeStart: String,
-        timeEnd: String
+        timeEnd: String,
+        color: Color
     ) {
         val data = ScheduleItem(
             text = title,
@@ -307,6 +309,7 @@ class NoteFragment : Fragment(), DialogListener {
             startTime = timeStart,
             endTime = timeEnd,
             duration = calculateDuration(timeStart, timeEnd),
+            color = color,
             isCompleteTask = false
         )
         viewModel.addData(data)
