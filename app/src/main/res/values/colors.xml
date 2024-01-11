@@ -27,6 +27,7 @@
     <color name="blue">#BAEEFF</color>
     <color name="green">#BAFFD6</color>
     <color name="yellow">#F1FFBA</color>
+    <color name="redDialog">#FFBABA</color>
     <color name="purple">#DFACFA</color>
     <color name="pink">#FFBAF8</color>
 </resources>

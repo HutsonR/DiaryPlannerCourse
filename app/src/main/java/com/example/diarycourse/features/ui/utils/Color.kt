@@ -1,5 +1,5 @@
 package com.example.diarycourse.features.ui.utils
 
 enum class Color {
-    BLUE, GREEN, YELLOW, PURPLE, PINK
+    BLUE, GREEN, YELLOW, RED, PURPLE, PINK
 }

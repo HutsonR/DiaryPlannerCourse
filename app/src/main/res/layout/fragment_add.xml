@@ -261,6 +261,16 @@
                             android:layout_height="28dp"
                             android:layout_marginEnd="16dp" />
                         <RadioButton
+                            android:id="@+id/radio_red"
+                            android:background="@drawable/add_button"
+                            android:backgroundTint="@color/redDialog"
+                            android:button="@drawable/add_button"
+                            android:tag="RED"
+                            android:textAlignment="center"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginEnd="16dp" />
+                        <RadioButton
                             android:id="@+id/radio_purple"
                             android:background="@drawable/add_button"
                             android:backgroundTint="@color/purple"
@@ -278,8 +288,7 @@
                             android:tag="PINK"
                             android:textAlignment="center"
                             android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:layout_marginEnd="16dp" />
+                            android:layout_height="28dp" />
                     </RadioGroup>
                 </LinearLayout>
             </LinearLayout>

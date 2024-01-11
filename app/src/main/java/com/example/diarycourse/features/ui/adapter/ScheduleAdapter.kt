@@ -41,6 +41,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             Color.BLUE to ContextCompat.getColor(holder.itemView.context, R.color.blue),
             Color.GREEN to ContextCompat.getColor(holder.itemView.context, R.color.green),
             Color.YELLOW to ContextCompat.getColor(holder.itemView.context, R.color.yellow),
+            Color.RED to ContextCompat.getColor(holder.itemView.context, R.color.redDialog),
             Color.PURPLE to ContextCompat.getColor(holder.itemView.context, R.color.purple),
             Color.PINK to ContextCompat.getColor(holder.itemView.context, R.color.pink)
         )
