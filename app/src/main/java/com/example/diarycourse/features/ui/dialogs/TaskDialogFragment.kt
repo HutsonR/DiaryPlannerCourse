@@ -129,9 +129,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
 
             titleEditTV.text = parcelItem!!.text
             textEditTV.text = parcelItem!!.description
-            Log.d(TAG, "date $date")
-            datePickerTV.text = formatDate(parcelItem!!.date)
-            Log.d(TAG, "formatDate ${datePickerTV.text}")
+            datePickerTV.text = parcelItem!!.date
             timeStartPickerTV.text = parcelItem!!.startTime
             timeEndPickerTV.text = parcelItem!!.endTime.ifEmpty { getString(R.string.add_date_time_blank) }
             setColor()
@@ -193,7 +191,6 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
                     color = color,
                     isCompleteTask = parcelItem!!.isCompleteTask
                 )
-//                Log.d(TAG, "text $title, description $text, date $date, timeEnd $timeEnd")
                 viewModel.updateData(data = updatedItem)
 
                 viewModel.update.collect { result: Resource ->
@@ -214,36 +211,6 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private fun onFailed() {
         showCustomToast("Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT)
         dismiss()
-    }
-
-    private fun fetchData() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.dataList.collect { scheduleItems: List<ScheduleItem> ->
-                dataList.apply {
-                    clear()
-                    addAll(scheduleItems)
-                }
-            }
-        }
-    }
-
-    private fun formatDate(inputDateString: String): String {
-        val inputFormat = if (inputDateString.length == 6) {
-            SimpleDateFormat("yyyyMd", Locale.getDefault())
-        } else {
-            SimpleDateFormat("yyyyMMdd", Locale.getDefault())
-        }
-
-        return try {
-            val date = inputFormat.parse(inputDateString)
-
-            // Форматирование даты в требуемый формат
-            val outputFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
-            outputFormat.format(date)
-        } catch (e: ParseException) {
-            e.printStackTrace()
-            "Invalid Date"
-        }
     }
 
     private fun calculateDuration(startTime: String, endTime: String): String {
@@ -416,12 +383,10 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         datePicker.addOnPositiveButtonClickListener { selectedTimestamp ->
             val selectedDate = Calendar.getInstance()
             selectedDate.timeInMillis = selectedTimestamp
-            val dateFormat = SimpleDateFormat("yyyyMd", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
             val formattedDate = selectedDate.time.let { dateFormat.format(it) }
-            val dateFormatForUser = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
-            val formattedDateForUser = selectedDate.time.let { dateFormatForUser.format(it) }
             date = formattedDate
-            datePickerTV.text = formattedDateForUser
+            datePickerTV.text = formattedDate
             checkTime()
         }
 

@@ -2,6 +2,7 @@ package com.example.diarycourse.features.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -28,7 +29,9 @@ import com.example.diarycourse.features.ui.utils.Color
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 class NoteFragment : Fragment(), DialogListener {
@@ -123,8 +126,10 @@ class NoteFragment : Fragment(), DialogListener {
 
     private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
         val sortedData: MutableList<ScheduleItem> = mutableListOf()
+        Log.d(TAG, "dateSelected $dateSelected")
         if (dateSelected.isNotEmpty()) {
             dataList.forEach {
+                Log.d(TAG, "item date ${it.date}")
                 if (it.date == dateSelected)
                     sortedData.add(it)
             }
@@ -159,10 +164,10 @@ class NoteFragment : Fragment(), DialogListener {
                 continue
             else {
                 processedDates.add(date)
-                val year = date.substring(0, 4).toInt()
-                val month = date.substring(4, 5).toInt() - 1
-                val dayOfMonth = date.substring(5).toInt()
-                collapsibleCalendar.addEventTag(year, month, dayOfMonth, ContextCompat.getColor(requireContext(), R.color.blue))
+                val dayOfMonth = date.substring(0, 2).toInt()
+                val month = date.substring(3, 5).toInt() - 1
+                val year = date.substring(6).toInt()
+                collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, ContextCompat.getColor(requireContext(), R.color.blue))
             }
         }
     }
@@ -182,7 +187,15 @@ class NoteFragment : Fragment(), DialogListener {
         collapsibleCalendar.setCalendarListener(object : CollapsibleCalendar.CalendarListener {
             override fun onDaySelect() {
                 val day = collapsibleCalendar.selectedDay
-                dateSelected = "${day?.year}${(day?.month)?.plus(1)}${day?.day}"
+                val dateFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+                dateSelected = if (day != null) {
+                    val calendar = Calendar.getInstance()
+                    calendar.set(day.year, day.month, day.day)
+                    dateFormat.format(calendar.time)
+                } else {
+                    val currentDate = Calendar.getInstance().time
+                    dateFormat.format(currentDate)
+                }
                 sortItems(dataList)
                 setSelectedDayOfWeek()
             }

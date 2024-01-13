@@ -6,7 +6,7 @@ import com.example.diarycourse.features.ui.utils.Color
 
 object ScheduleItemMapper {
 
-    fun fromDto(scheduleItemDto: ScheduleItemDto): ScheduleItem {
+    fun mapTo(scheduleItemDto: ScheduleItemDto): ScheduleItem {
         return ScheduleItem(
             id = scheduleItemDto.id,
             text = scheduleItemDto.text,
@@ -20,7 +20,7 @@ object ScheduleItemMapper {
         )
     }
 
-    fun toDto(scheduleItem: ScheduleItem): ScheduleItemDto {
+    fun mapTo(scheduleItem: ScheduleItem): ScheduleItemDto {
         return ScheduleItemDto(
             id = scheduleItem.id ?: 0,
             text = scheduleItem.text,

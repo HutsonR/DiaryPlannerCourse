@@ -13,14 +13,14 @@ class RepositoryImpl @Inject constructor (
     private val scheduleItemDao: ScheduleItemDao
 ): Repository {
     override suspend fun insert(item: ScheduleItem) {
-        val scheduleItemDto = ScheduleItemMapper.toDto(item)
+        val scheduleItemDto = ScheduleItemMapper.mapTo(item)
         return scheduleItemDao.insert(scheduleItemDto)
     }
 
     override suspend fun getAll(): Flow<List<ScheduleItem>> {
         val scheduleItemDtos: Flow<List<ScheduleItemDto>> = scheduleItemDao.getAll()
         val scheduleItems: Flow<List<ScheduleItem>> = scheduleItemDtos.map { dtoList ->
-            dtoList.map { ScheduleItemMapper.fromDto(it) }
+            dtoList.map { ScheduleItemMapper.mapTo(it) }
         }
         return scheduleItems
     }
@@ -34,7 +34,7 @@ class RepositoryImpl @Inject constructor (
     }
 
     override suspend fun update(item: ScheduleItem) {
-        val scheduleItemDto = ScheduleItemMapper.toDto(item)
+        val scheduleItemDto = ScheduleItemMapper.mapTo(item)
         return scheduleItemDao.update(scheduleItemDto)
     }
 

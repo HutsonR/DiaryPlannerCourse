@@ -3,6 +3,7 @@ package com.example.diarycourse.features.ui.dialogs
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +22,7 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class ScheduleItemBottomSheetFragment(private val viewModel: NoteViewModel, private val fragmentManager: FragmentManager) : BottomSheetDialogFragment() {
-
+        private val TAG = "debugTag"
         private lateinit var title: String
         private lateinit var dayOfWeek: String
         private lateinit var startTime: String
@@ -118,12 +119,12 @@ class ScheduleItemBottomSheetFragment(private val viewModel: NoteViewModel, priv
         }
 
         private fun setDayOfWeek(day: String): String {
-            val year = day.substring(0, 4).toInt()
-            val month = day.substring(4, 5).toInt() - 1
-            val dayOfMonth = day.substring(5).toInt()
+            val dayOfMonth = day.substring(0, 2).toInt()
+            val month = day.substring(3, 5).toInt() - 1
+            val year = day.substring(6).toInt()
 
             val calendar = Calendar.getInstance().apply {
-                set(Calendar.YEAR, year)
+                set(Calendar.YEAR, "20$year".toInt())
                 set(Calendar.MONTH, month)
                 set(Calendar.DAY_OF_MONTH, dayOfMonth)
             }
