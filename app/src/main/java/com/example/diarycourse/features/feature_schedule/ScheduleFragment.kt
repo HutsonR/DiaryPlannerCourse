@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.ui
+package com.example.diarycourse.features.feature_schedule
 
 import android.content.Context
 import android.os.Bundle
@@ -20,12 +20,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.diarycourse.App
 import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
-import com.example.diarycourse.databinding.FragmentNoteBinding
+import com.example.diarycourse.databinding.FragmentScheduleBinding
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.ui.adapter.ScheduleAdapter
-import com.example.diarycourse.features.ui.dialogs.TaskDialogFragment
-import com.example.diarycourse.features.ui.dialogs.DialogListener
-import com.example.diarycourse.features.ui.utils.Color
+import com.example.diarycourse.features.feature_schedule.adapter.ScheduleAdapter
+import com.example.diarycourse.features.feature_schedule.dialogs.TaskDialogFragment
+import com.example.diarycourse.features.feature_schedule.dialogs.DialogListener
+import com.example.diarycourse.features.feature_schedule.utils.Color
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
 import kotlinx.coroutines.launch
@@ -34,11 +34,11 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class NoteFragment : Fragment(), DialogListener {
+class ScheduleFragment : Fragment(), DialogListener {
     private val TAG = "debugTag"
-    private lateinit var binding: FragmentNoteBinding
-    @Inject lateinit var notesViewModelFactory: Lazy<NoteViewModel.NoteViewModelFactory>
-    private val viewModel: NoteViewModel by viewModels {
+    private lateinit var binding: FragmentScheduleBinding
+    @Inject lateinit var notesViewModelFactory: Lazy<ScheduleViewModel.NoteViewModelFactory>
+    private val viewModel: ScheduleViewModel by viewModels {
         notesViewModelFactory.get()
     }
     private lateinit var collapsibleCalendar: CollapsibleCalendar
@@ -49,7 +49,7 @@ class NoteFragment : Fragment(), DialogListener {
     private var dateSelected: String = ""
 
     companion object {
-        fun newInstance() = NoteFragment()
+        fun newInstance() = ScheduleFragment()
     }
 
     override fun onAttach(context: Context) {
@@ -61,7 +61,7 @@ class NoteFragment : Fragment(), DialogListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentNoteBinding.inflate(inflater)
+        binding = FragmentScheduleBinding.inflate(inflater)
         return binding.root
     }
 
@@ -135,8 +135,9 @@ class NoteFragment : Fragment(), DialogListener {
             }
             return sortedData
         } else {
-            val today = Calendar.getInstance()
-            dateSelected = "${today.get(Calendar.YEAR)}${(today.get(Calendar.MONTH).plus(1))}${today.get(Calendar.DAY_OF_MONTH)}"
+            val today = Calendar.getInstance().time
+            val dateFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+            dateSelected = dateFormat.format(today)
             return sortItemsByDate(dataList)
         }
     }

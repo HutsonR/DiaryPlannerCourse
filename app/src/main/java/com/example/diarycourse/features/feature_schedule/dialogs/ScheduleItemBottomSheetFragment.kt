@@ -1,9 +1,8 @@
-package com.example.diarycourse.features.ui.dialogs
+package com.example.diarycourse.features.feature_schedule.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,12 +15,12 @@ import com.example.diarycourse.App
 import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.ui.NoteViewModel
+import com.example.diarycourse.features.feature_schedule.ScheduleViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-class ScheduleItemBottomSheetFragment(private val viewModel: NoteViewModel, private val fragmentManager: FragmentManager) : BottomSheetDialogFragment() {
+class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, private val fragmentManager: FragmentManager) : BottomSheetDialogFragment() {
         private val TAG = "debugTag"
         private lateinit var title: String
         private lateinit var dayOfWeek: String

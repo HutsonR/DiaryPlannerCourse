@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.ui.dialogs
+package com.example.diarycourse.features.feature_schedule.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,20 +15,17 @@ import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.example.diarycourse.R
 import com.example.diarycourse.databinding.FragmentAddBinding
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.ui.NoteViewModel
-import com.example.diarycourse.features.ui.utils.Color
+import com.example.diarycourse.features.feature_schedule.ScheduleViewModel
+import com.example.diarycourse.features.feature_schedule.utils.Color
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.launch
-import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -36,7 +33,7 @@ import java.util.Calendar
 import java.util.Locale
 
 
-class TaskDialogFragment(private val layoutResourceId: Int, private val viewModel: NoteViewModel) : DialogFragment() {
+class TaskDialogFragment(private val layoutResourceId: Int, private val viewModel: ScheduleViewModel) : DialogFragment() {
     private val TAG = "debugTag"
     private lateinit var binding: FragmentAddBinding
     private var dataList: MutableList<ScheduleItem> = mutableListOf()

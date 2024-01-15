@@ -1,6 +1,6 @@
-package com.example.diarycourse.features.ui.dialogs
+package com.example.diarycourse.features.feature_schedule.dialogs
 
-import com.example.diarycourse.features.ui.utils.Color
+import com.example.diarycourse.features.feature_schedule.utils.Color
 
 interface DialogListener {
     fun onConfirmAddDialogResult(title: String, text: String, date: String, timeStart: String, timeEnd: String, color: Color)

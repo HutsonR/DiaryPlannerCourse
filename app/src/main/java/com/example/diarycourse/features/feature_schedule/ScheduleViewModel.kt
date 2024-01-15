@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.ui
+package com.example.diarycourse.features.feature_schedule
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class NoteViewModel @Inject constructor (
+class ScheduleViewModel @Inject constructor (
     private val useCase: UseCase
 ) : ViewModel() {
 
@@ -65,7 +65,7 @@ class NoteViewModel @Inject constructor (
     ) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return NoteViewModel(useCase) as T
+            return ScheduleViewModel(useCase) as T
         }
     }
 

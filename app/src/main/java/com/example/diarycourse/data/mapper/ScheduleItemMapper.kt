@@ -2,7 +2,7 @@ package com.example.diarycourse.data.mapper
 
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.data.models.ScheduleItemDto
-import com.example.diarycourse.features.ui.utils.Color
+import com.example.diarycourse.features.feature_schedule.utils.Color
 
 object ScheduleItemMapper {
 

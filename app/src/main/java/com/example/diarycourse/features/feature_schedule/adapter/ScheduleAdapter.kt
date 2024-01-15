@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.ui.adapter
+package com.example.diarycourse.features.feature_schedule.adapter
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
@@ -11,24 +11,22 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.ui.dialogs.ScheduleItemBottomSheetFragment
-import com.example.diarycourse.features.ui.NoteViewModel
-import com.example.diarycourse.features.ui.utils.Color
+import com.example.diarycourse.features.feature_schedule.dialogs.ScheduleItemBottomSheetFragment
+import com.example.diarycourse.features.feature_schedule.ScheduleViewModel
+import com.example.diarycourse.features.feature_schedule.utils.Color
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: NoteViewModel, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
+class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: ScheduleViewModel, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatisticViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
         return StatisticViewHolder(view)

@@ -2,7 +2,7 @@ package com.example.diarycourse
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.diarycourse.features.ui.NoteFragment
+import com.example.diarycourse.features.feature_schedule.ScheduleFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -10,7 +10,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container, NoteFragment.newInstance())
+                .replace(R.id.container, ScheduleFragment.newInstance())
                 .commitNow()
         }
     }

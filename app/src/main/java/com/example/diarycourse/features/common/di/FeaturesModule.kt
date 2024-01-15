@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.di
+package com.example.diarycourse.features.common.di
 
 import com.example.diarycourse.data.repository_api.Repository
 import com.example.diarycourse.domain.domain_api.UseCase
