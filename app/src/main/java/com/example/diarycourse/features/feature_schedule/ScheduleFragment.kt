@@ -9,25 +9,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.diarycourse.App
 import com.example.diarycourse.R
+import com.example.diarycourse.databinding.FragmentHomeBinding
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.databinding.FragmentScheduleBinding
 import com.example.diarycourse.domain.util.Resource
+import com.example.diarycourse.features.common.SharedViewModel
 import com.example.diarycourse.features.feature_schedule.adapter.ScheduleAdapter
 import com.example.diarycourse.features.feature_schedule.dialogs.TaskDialogFragment
 import com.example.diarycourse.features.feature_schedule.dialogs.DialogListener
 import com.example.diarycourse.features.feature_schedule.utils.Color
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -36,12 +39,16 @@ import javax.inject.Inject
 
 class ScheduleFragment : Fragment(), DialogListener {
     private val TAG = "debugTag"
-    private lateinit var binding: FragmentScheduleBinding
-    @Inject lateinit var notesViewModelFactory: Lazy<ScheduleViewModel.NoteViewModelFactory>
-    private val viewModel: ScheduleViewModel by viewModels {
-        notesViewModelFactory.get()
+    private var _binding: FragmentScheduleBinding? = null
+    private val binding get() = _binding!!
+    @Inject lateinit var sharedViewModelFactory: Lazy<SharedViewModel.SharedViewModelFactory>
+    private val sharedViewModel: SharedViewModel by viewModels {
+        sharedViewModelFactory.get()
     }
-    private lateinit var collapsibleCalendar: CollapsibleCalendar
+    @Inject lateinit var scheduleViewModelFactory: Lazy<ScheduleViewModel.ScheduleViewModelFactory>
+    private val viewModel: ScheduleViewModel by viewModels {
+        scheduleViewModelFactory.get()
+    }
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ScheduleAdapter
     private var dataList: MutableList<ScheduleItem> = mutableListOf()
@@ -60,22 +67,21 @@ class ScheduleFragment : Fragment(), DialogListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentScheduleBinding.inflate(inflater)
-        return binding.root
+    ): View? {
+        _binding = FragmentScheduleBinding.inflate(inflater, container, false)
+        return _binding?.root
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        collapsibleCalendar = binding.calendarView
-
-//        viewModel.action.onEach(::handleAction).collectOnStart(viewLifecycleOwner)
 
         subscribeToFlow()
         viewModel.fetchData()
-        setCalendarListener()
-        setDayOfWeek()
-        setSelectedDayButtons()
         setAddButton()
         setRecycler()
     }
@@ -94,14 +100,15 @@ class ScheduleFragment : Fragment(), DialogListener {
                         clear()
                         addAll(scheduleItems)
                     }
+                    sharedViewModel.updateScheduleDataList(dataList)
                     sortItems(dataList)
-                    updateEventsTag(dataList)
+                    Log.d(TAG, "$dataList")
+                    Log.d(TAG, "$adapterList")
                     adapter.notifyDataSetChanged()
                     countSchedules(adapterList)
                 }
             }
         }
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
                 viewModel.result.collect { result: Resource ->
@@ -112,11 +119,19 @@ class ScheduleFragment : Fragment(), DialogListener {
                 }
             }
         }
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+            viewModel.selectedDateLiveData.observe(viewLifecycleOwner, Observer { date ->
+                Log.d(TAG, "selectedDate $date")
+                dateSelected = date
+                Log.d(TAG, "selectedDate $dateSelected")
+                sortItems(dataList)
+                Log.d(TAG, "selectedDate $dateSelected")
+            })
+        }
     }
 
     private fun onSuccess() {
         viewModel.fetchData()
-        updateEventsTag(dataList)
         countSchedules(adapterList)
     }
 
@@ -155,106 +170,16 @@ class ScheduleFragment : Fragment(), DialogListener {
         }
         adapter.notifyDataSetChanged()
         countSchedules(adapterList)
-    }
 
-    private fun updateEventsTag(dataList: List<ScheduleItem>) {
-        val processedDates = mutableSetOf<String>()
-        for (item in dataList) {
-            val date = item.date
-            if (processedDates.contains(date))
-                continue
-            else {
-                processedDates.add(date)
-                val dayOfMonth = date.substring(0, 2).toInt()
-                val month = date.substring(3, 5).toInt() - 1
-                val year = date.substring(6).toInt()
-                collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, ContextCompat.getColor(requireContext(), R.color.blue))
-            }
-        }
+        sharedViewModel.updateScheduleDataList(adapterList)
     }
 
     // Подсчет кол-ва записей на день
     private fun countSchedules(dataList: List<ScheduleItem>) {
-        binding.countSchedules.text = dataList.size.toString()
         if (dataList.isEmpty()) {
             binding.scheduleBlank.visibility = View.VISIBLE
         } else {
             binding.scheduleBlank.visibility = View.GONE
-        }
-    }
-
-    // Обработка нажатий календаря
-    private fun setCalendarListener() {
-        collapsibleCalendar.setCalendarListener(object : CollapsibleCalendar.CalendarListener {
-            override fun onDaySelect() {
-                val day = collapsibleCalendar.selectedDay
-                val dateFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
-                dateSelected = if (day != null) {
-                    val calendar = Calendar.getInstance()
-                    calendar.set(day.year, day.month, day.day)
-                    dateFormat.format(calendar.time)
-                } else {
-                    val currentDate = Calendar.getInstance().time
-                    dateFormat.format(currentDate)
-                }
-                sortItems(dataList)
-                setSelectedDayOfWeek()
-            }
-
-            override fun onItemClick(v: View) {}
-            override fun onClickListener() {}
-            override fun onDataUpdate() {}
-            override fun onDayChanged() {}
-            override fun onMonthChange() {}
-            override fun onWeekChange(position: Int) {}
-        })
-    }
-
-    // Установка дня недели при запуске приложения
-    private fun setDayOfWeek() {
-        val calendar = Calendar.getInstance()
-        val dayOfWeek = when (calendar.get(Calendar.DAY_OF_WEEK)) {
-            Calendar.SUNDAY -> "Воскресенье"
-            Calendar.MONDAY -> "Понедельник"
-            Calendar.TUESDAY -> "Вторник"
-            Calendar.WEDNESDAY -> "Среда"
-            Calendar.THURSDAY -> "Четверг"
-            Calendar.FRIDAY -> "Пятница"
-            Calendar.SATURDAY -> "Суббота"
-            else -> "Неизвестно"
-        }
-        binding.textDayOfWeek.text = dayOfWeek
-    }
-
-    // Установка дня недели при выборе
-    private fun setSelectedDayOfWeek() {
-        collapsibleCalendar.selectedDay?.let { selectedDate ->
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.YEAR, selectedDate.year)
-                set(Calendar.MONTH, selectedDate.month)
-                set(Calendar.DAY_OF_MONTH, selectedDate.day)
-            }
-            val dayOfWeek = when (calendar.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.SUNDAY -> "Воскресенье"
-                Calendar.MONDAY -> "Понедельник"
-                Calendar.TUESDAY -> "Вторник"
-                Calendar.WEDNESDAY -> "Среда"
-                Calendar.THURSDAY -> "Четверг"
-                Calendar.FRIDAY -> "Пятница"
-                Calendar.SATURDAY -> "Суббота"
-                else -> "Неизвестно"
-            }
-            binding.textDayOfWeek.text = dayOfWeek
-        }
-    }
-
-    // Обработка переключения дней в календаре с помощью кнопок
-    private fun setSelectedDayButtons() {
-        binding.dayBackButton.setOnClickListener {
-            collapsibleCalendar.prevDay()
-        }
-        binding.dayNextButton.setOnClickListener {
-            collapsibleCalendar.nextDay()
         }
     }
 

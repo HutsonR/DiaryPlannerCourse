@@ -22,6 +22,8 @@
     <color name="bottom_sheet_button_background">#F4F4F4</color>
     <color name="bottom_sheet_divider">#CDCDCD</color>
 
+    <color name="bgNote">#DFDFDF</color>
+
     <color name="primaryPicker">#378BC3</color>
 
     <color name="blue">#BAEEFF</color>

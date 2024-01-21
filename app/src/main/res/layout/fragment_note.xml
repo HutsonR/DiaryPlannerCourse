@@ -1,13 +1,23 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+     android:layout_width="match_parent"
+     android:layout_height="match_parent">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:textColor="@color/black"
-        android:text="Заметки"
-        android:textSize="20sp"/>
+        android:orientation="vertical"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        android:padding="16dp"
+        android:background="@drawable/round_corner_20"
+        android:backgroundTint="@color/bgNote">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="start"
+            android:textColor="@color/black"
+            android:text="Заметка"
+            android:textSize="14sp"/>
+    </LinearLayout>
 
 </FrameLayout>
