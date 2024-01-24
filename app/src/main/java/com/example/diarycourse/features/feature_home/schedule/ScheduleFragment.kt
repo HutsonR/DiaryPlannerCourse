@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.feature_schedule
+package com.example.diarycourse.features.feature_home.schedule
 
 import android.content.Context
 import android.os.Bundle
@@ -10,27 +10,24 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.diarycourse.App
 import com.example.diarycourse.R
-import com.example.diarycourse.databinding.FragmentHomeBinding
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.databinding.FragmentScheduleBinding
 import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.common.SharedViewModel
-import com.example.diarycourse.features.feature_schedule.adapter.ScheduleAdapter
-import com.example.diarycourse.features.feature_schedule.dialogs.TaskDialogFragment
-import com.example.diarycourse.features.feature_schedule.dialogs.DialogListener
-import com.example.diarycourse.features.feature_schedule.utils.Color
-import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
+import com.example.diarycourse.features.feature_home.schedule.adapter.ScheduleAdapter
+import com.example.diarycourse.features.feature_home.schedule.dialogs.TaskDialogFragment
+import com.example.diarycourse.features.feature_home.schedule.dialogs.DialogListener
+import com.example.diarycourse.features.feature_home.schedule.utils.Color
 import dagger.Lazy
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -41,10 +38,6 @@ class ScheduleFragment : Fragment(), DialogListener {
     private val TAG = "debugTag"
     private var _binding: FragmentScheduleBinding? = null
     private val binding get() = _binding!!
-    @Inject lateinit var sharedViewModelFactory: Lazy<SharedViewModel.SharedViewModelFactory>
-    private val sharedViewModel: SharedViewModel by viewModels {
-        sharedViewModelFactory.get()
-    }
     @Inject lateinit var scheduleViewModelFactory: Lazy<ScheduleViewModel.ScheduleViewModelFactory>
     private val viewModel: ScheduleViewModel by viewModels {
         scheduleViewModelFactory.get()
@@ -80,6 +73,7 @@ class ScheduleFragment : Fragment(), DialogListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setFragmentListener()
         subscribeToFlow()
         viewModel.fetchData()
         setAddButton()
@@ -92,6 +86,25 @@ class ScheduleFragment : Fragment(), DialogListener {
         }
     }
 
+    private fun setFragmentListener() {
+        setFragmentResultListener("dateKey") { key, bundle ->
+            val requestValue = bundle.getString("dateSelected")
+            Log.d("debugTag", "requestValue Schedule $requestValue")
+            if (requestValue != null) {
+                dateSelected = requestValue
+                sortItems(dataList)
+            }
+        }
+    }
+
+    private fun sendDataList(dataList: List<ScheduleItem>) {
+        val bundle = Bundle().apply {
+            putParcelableArrayList("dataList", ArrayList(dataList))
+        }
+
+        parentFragmentManager.setFragmentResult("dataListKey", bundle)
+    }
+
     private fun subscribeToFlow() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -100,10 +113,9 @@ class ScheduleFragment : Fragment(), DialogListener {
                         clear()
                         addAll(scheduleItems)
                     }
-                    sharedViewModel.updateScheduleDataList(dataList)
                     sortItems(dataList)
-                    Log.d(TAG, "$dataList")
-                    Log.d(TAG, "$adapterList")
+                    Log.d(TAG, "dataList $dataList")
+                    Log.d(TAG, "adapterList $adapterList")
                     adapter.notifyDataSetChanged()
                     countSchedules(adapterList)
                 }
@@ -118,15 +130,6 @@ class ScheduleFragment : Fragment(), DialogListener {
                     }
                 }
             }
-        }
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-            viewModel.selectedDateLiveData.observe(viewLifecycleOwner, Observer { date ->
-                Log.d(TAG, "selectedDate $date")
-                dateSelected = date
-                Log.d(TAG, "selectedDate $dateSelected")
-                sortItems(dataList)
-                Log.d(TAG, "selectedDate $dateSelected")
-            })
         }
     }
 
@@ -171,7 +174,7 @@ class ScheduleFragment : Fragment(), DialogListener {
         adapter.notifyDataSetChanged()
         countSchedules(adapterList)
 
-        sharedViewModel.updateScheduleDataList(adapterList)
+        sendDataList(adapterList)
     }
 
     // Подсчет кол-ва записей на день

@@ -3,7 +3,7 @@ package com.example.diarycourse.data.repository_api
 import com.example.diarycourse.domain.models.ScheduleItem
 import kotlinx.coroutines.flow.Flow
 
-interface Repository {
+interface ScheduleRepository {
     suspend fun insert(item: ScheduleItem)
 
     suspend fun getAll(): Flow<List<ScheduleItem>>

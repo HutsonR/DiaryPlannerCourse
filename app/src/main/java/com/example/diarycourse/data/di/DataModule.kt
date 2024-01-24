@@ -3,6 +3,7 @@ package com.example.diarycourse.data.di
 import android.app.Application
 import androidx.room.Room
 import com.example.diarycourse.data.database.AppDatabase
+import com.example.diarycourse.data.database.NoteItemDao
 import com.example.diarycourse.data.database.ScheduleItemDao
 import dagger.Module
 import dagger.Provides
@@ -25,5 +26,9 @@ class DataModule {
     @Provides
     fun provideScheduleItemDao(appDatabase: AppDatabase): ScheduleItemDao {
         return appDatabase.scheduleItemDao
+    }
+    @Provides
+    fun provideNoteItemDao(appDatabase: AppDatabase): NoteItemDao {
+        return appDatabase.noteItemDao
     }
 }

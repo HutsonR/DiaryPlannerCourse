@@ -4,7 +4,7 @@ import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
 import kotlinx.coroutines.flow.Flow
 
-interface UseCase {
+interface ScheduleUseCase {
     suspend fun insert(item: ScheduleItem): Resource
 
     suspend fun getAll(): Flow<List<ScheduleItem>>

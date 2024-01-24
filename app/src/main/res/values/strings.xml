@@ -37,6 +37,10 @@
     <string name="splash_edit">Редактировать</string>
     <string name="add_blank">На этот день нет записей</string>
 
+    <!--  NoteDialog  -->
+    <string name="note">Заметка</string>
+
     <string name="close">Закрыть</string>
     <string name="apply">Подтвердить</string>
+
 </resources>

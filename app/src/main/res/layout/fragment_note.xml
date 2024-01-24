@@ -3,20 +3,22 @@
      android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/noteWrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginVertical="20dp"
         android:padding="16dp"
         android:background="@drawable/round_corner_20"
         android:backgroundTint="@color/bgNote">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="start"
             android:textColor="@color/black"
-            android:text="Заметка"
+            android:text="@string/note"
             android:textSize="14sp"/>
     </LinearLayout>
 

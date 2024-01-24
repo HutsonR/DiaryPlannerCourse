@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.feature_schedule.dialogs
+package com.example.diarycourse.features.feature_home.schedule.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,7 +15,7 @@ import com.example.diarycourse.App
 import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.feature_schedule.ScheduleViewModel
+import com.example.diarycourse.features.feature_home.schedule.ScheduleViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 import java.util.Calendar

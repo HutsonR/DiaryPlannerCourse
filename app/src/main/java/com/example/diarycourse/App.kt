@@ -1,8 +1,7 @@
 package com.example.diarycourse
 
 import android.app.Application
-import com.example.diarycourse.features.AppComponent
-import com.example.diarycourse.features.DaggerAppComponent
+import com.example.diarycourse.DaggerAppComponent
 
 class App: Application() {
     val appComponent: AppComponent by lazy {

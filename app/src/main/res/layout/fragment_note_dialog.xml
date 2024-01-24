@@ -1,0 +1,75 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/bgDialog">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingVertical="20dp"
+        android:paddingHorizontal="15dp"
+        tools:ignore="UselessParent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <ImageButton
+                    android:id="@+id/add_close"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/bgDialog"
+                    app:srcCompat="@drawable/ic_add_close"
+                    tools:ignore="SpeakableTextPresentCheck"
+                    android:contentDescription="@string/close" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+            <ImageButton
+                android:id="@+id/add_save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/bgDialog"
+                app:srcCompat="@drawable/ic_add_check"
+                tools:ignore="SpeakableTextPresentCheck"
+                android:contentDescription="@string/apply" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/titleAddFragment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/note"
+                android:textSize="21sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp" />
+
+            <EditText
+                android:id="@+id/noteBody"
+                android:gravity="start"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/note_background"
+                android:textColor="@color/black"
+                android:textColorHint="@color/textGray"
+                android:hint="@string/note"
+                android:inputType="textCapSentences|textMultiLine"
+                android:textSize="14sp"
+                android:textAppearance="?attr/textAppearanceBody1"
+                tools:ignore="TouchTargetSizeCheck"
+                android:autofillHints="" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

@@ -5,7 +5,7 @@
     android:background="@color/backgroundMain"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".features.feature_schedule.ScheduleFragment">
+    tools:context=".features.feature_home.schedule.ScheduleFragment">
 
     <LinearLayout
         android:id="@+id/mainWrapper"

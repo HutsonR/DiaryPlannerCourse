@@ -12,23 +12,20 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.diarycourse.App
 import com.example.diarycourse.R
 import com.example.diarycourse.databinding.FragmentHomeBinding
 import com.example.diarycourse.domain.models.ScheduleItem
-import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.common.SharedViewModel
-import com.example.diarycourse.features.feature_note.NoteFragment
-import com.example.diarycourse.features.feature_schedule.ScheduleFragment
-import com.example.diarycourse.features.feature_schedule.ScheduleViewModel
-import com.example.diarycourse.features.feature_schedule.adapter.ScheduleAdapter
+import com.example.diarycourse.features.feature_home.note.NoteFragment
+import com.example.diarycourse.features.feature_home.schedule.ScheduleFragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
@@ -38,11 +35,10 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class HomeFragment : Fragment() {
+class HomeFragment @Inject constructor() : Fragment() {
     private val TAG = "debugTag"
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-
     @Inject
     lateinit var homeViewModelFactory: Lazy<HomeViewModel.HomeViewModelFactory>
     private val viewModel: HomeViewModel by viewModels {
@@ -51,8 +47,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var collapsibleCalendar: CollapsibleCalendar
     private var dataList: MutableList<ScheduleItem> = mutableListOf()
-    private var adapterList: MutableList<ScheduleItem> = mutableListOf()
-    private var dateSelected: String = ""
+    var dateSelected: String = ""
     private var defaultTabIndex = 0
 
     companion object {
@@ -76,6 +71,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         collapsibleCalendar = binding.calendarView
 
+        setFragmentListener()
         subscribeToFlow()
         viewModel.fetchData()
         setCalendarListener()
@@ -159,6 +155,25 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun setFragmentListener() {
+        setFragmentResultListener("dataListKey") { key, bundle ->
+            val requestValue = bundle.getParcelableArrayList<ScheduleItem>("dataList")
+            Log.d("debugTag", "requestValue Home $requestValue")
+            if (requestValue != null) {
+                countSchedules(requestValue)
+            }
+        }
+    }
+
+    private fun sendDateSelected(dateSelected: String) {
+        val bundle = Bundle().apply {
+            putString("dateSelected", dateSelected)
+        }
+
+        parentFragmentManager.setFragmentResult("dateKey", bundle)
+        parentFragmentManager.setFragmentResult("dateKeyNote", bundle)
+    }
+
     // Обработка нажатий календаря
     private fun setCalendarListener() {
         collapsibleCalendar.setCalendarListener(object : CollapsibleCalendar.CalendarListener {
@@ -173,7 +188,7 @@ class HomeFragment : Fragment() {
                     val currentDate = Calendar.getInstance().time
                     dateFormat.format(currentDate)
                 }
-                viewModel.updateSelectedDate(dateSelected)
+                sendDateSelected(dateSelected)
                 setSelectedDayOfWeek()
             }
 
