@@ -18,7 +18,7 @@ class NoteUseCaseImpl @Inject constructor (
         }
     }
 
-    override fun getNote(date: String): NoteItem {
+    override fun getNote(date: String): NoteItem? {
         return noteRepository.getNote(date)
     }
 

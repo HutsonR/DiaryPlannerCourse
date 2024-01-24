@@ -26,17 +26,10 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
         private lateinit var dayOfWeek: String
         private lateinit var startTime: String
         private lateinit var description: String
-//        private lateinit var dialogListener: DialogListener
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
             (context.applicationContext as App).appComponent.inject(this)
-
-//            try {
-//                dialogListener = parentFragment as DialogListener
-//            } catch (e: ClassCastException) {
-//                throw ClassCastException("Parent fragment must implement DialogListener")
-//            }
         }
 
         @SuppressLint("MissingInflatedId")
@@ -141,7 +134,7 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
         }
 
         private fun onFailed() {
-            Toast.makeText(requireContext(), "Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.error), Toast.LENGTH_SHORT).show()
         }
 
     }

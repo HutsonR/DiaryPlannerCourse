@@ -14,11 +14,12 @@
         android:backgroundTint="@color/bgNote">
 
         <TextView
+            android:id="@+id/noteText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="start"
             android:textColor="@color/black"
-            android:text="@string/note"
+            android:text="@string/note_blank"
             android:textSize="14sp"/>
     </LinearLayout>
 

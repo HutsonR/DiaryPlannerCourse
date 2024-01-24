@@ -2,13 +2,9 @@ package com.example.diarycourse.features.feature_home
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -23,7 +19,6 @@ import com.example.diarycourse.App
 import com.example.diarycourse.R
 import com.example.diarycourse.databinding.FragmentHomeBinding
 import com.example.diarycourse.domain.models.ScheduleItem
-import com.example.diarycourse.features.common.SharedViewModel
 import com.example.diarycourse.features.feature_home.note.NoteFragment
 import com.example.diarycourse.features.feature_home.schedule.ScheduleFragment
 import com.google.android.material.tabs.TabLayoutMediator
@@ -123,9 +118,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun setFragmentListener() {
-        setFragmentResultListener("dataListKey") { key, bundle ->
+        setFragmentResultListener("dataListKey") { _, bundle ->
             val requestValue = bundle.getParcelableArrayList<ScheduleItem>("dataList")
-            Log.d("debugTag", "requestValue Home $requestValue")
             if (requestValue != null) {
                 countSchedules(requestValue)
             }

@@ -1,7 +1,9 @@
 package com.example.diarycourse.data.repository_impl
 
+import android.util.Log
 import com.example.diarycourse.data.database.NoteItemDao
 import com.example.diarycourse.data.mapper.Mapper
+import com.example.diarycourse.data.models.NoteItemDto
 import com.example.diarycourse.data.models.ScheduleItemDto
 import com.example.diarycourse.data.repository_api.NoteRepository
 import com.example.diarycourse.domain.models.NoteItem
@@ -20,9 +22,11 @@ class NoteRepositoryImpl @Inject constructor (
         return noteItemDao.insert(noteItemDto)
     }
 
-    override fun getNote(date: String): NoteItem {
-        val noteItemDto = noteItemDao.getNote(date)
-        return mapper.mapTo(noteItemDto)
+    override fun getNote(date: String): NoteItem? {
+        val noteItemDto: NoteItemDto? = noteItemDao.getNote(date)
+        return if (noteItemDto != null) {
+            mapper.mapTo(noteItemDto)
+        } else null
     }
 
     override suspend fun update(item: NoteItem) {

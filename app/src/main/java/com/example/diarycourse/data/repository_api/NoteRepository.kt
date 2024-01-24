@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface NoteRepository {
     suspend fun insert(item: NoteItem)
 
-    fun getNote(date: String): NoteItem
+    fun getNote(date: String): NoteItem?
 
     suspend fun update(item: NoteItem)
 }

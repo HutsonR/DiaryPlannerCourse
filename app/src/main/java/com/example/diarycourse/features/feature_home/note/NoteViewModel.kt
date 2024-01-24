@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.diarycourse.domain.domain_api.NoteUseCase
 import com.example.diarycourse.domain.models.NoteItem
+import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,11 +18,23 @@ class NoteViewModel @Inject constructor (
     private val useCase: NoteUseCase
 ) : ViewModel() {
 
+    private val _data = MutableSharedFlow<NoteItem>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val data: SharedFlow<NoteItem> = _data.asSharedFlow()
+
     private val _result = MutableSharedFlow<Resource>(
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val result: SharedFlow<Resource> = _result.asSharedFlow()
+
+    fun fetchData(date: String) {
+        viewModelScope.launch {
+            useCase.getNote(date)?.let { _data.emit(it) }
+        }
+    }
 
     fun addData(data: NoteItem) {
         viewModelScope.launch {

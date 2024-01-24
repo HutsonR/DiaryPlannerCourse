@@ -3,6 +3,8 @@ package com.example.diarycourse.features.feature_home.note.dialogs
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -43,7 +45,7 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(STYLE_NORMAL, android.R.style.Theme_DeviceDefault_Dialog_NoActionBar)
+        setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
     }
 
     @SuppressLint("MissingInflatedId")
@@ -64,8 +66,10 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
             dismiss()
         }
 
+        textListener()
+
         // Если имеется модель (фрагмент открыт для редактирования)
-        parcelItem = arguments?.getParcelable("scheduleItem")
+        parcelItem = arguments?.getParcelable("noteItem")
         if (parcelItem != null) {
             text = parcelItem!!.text
             previousText = text
@@ -81,7 +85,7 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
     override fun onStart() {
         super.onStart()
         val width = ViewGroup.LayoutParams.MATCH_PARENT
-        val height = ViewGroup.LayoutParams.WRAP_CONTENT
+        val height = ViewGroup.LayoutParams.MATCH_PARENT
         dialog!!.window?.setLayout(width, height)
     }
 
@@ -125,7 +129,7 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
     }
 
     private fun onFailed() {
-        showCustomToast("Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT)
+        showCustomToast(getString(R.string.error), Toast.LENGTH_SHORT)
         dismiss()
     }
 
@@ -144,5 +148,16 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
     }
 
 //    Listeners
+    private fun textListener() {
+        textEditTV.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                text = s.toString()
+                updateSaveButtonState()
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
 }

@@ -2,7 +2,6 @@ package com.example.diarycourse.features.feature_home.schedule
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -22,7 +21,6 @@ import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.databinding.FragmentScheduleBinding
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.common.SharedViewModel
 import com.example.diarycourse.features.feature_home.schedule.adapter.ScheduleAdapter
 import com.example.diarycourse.features.feature_home.schedule.dialogs.TaskDialogFragment
 import com.example.diarycourse.features.feature_home.schedule.dialogs.DialogListener
@@ -87,9 +85,8 @@ class ScheduleFragment : Fragment(), DialogListener {
     }
 
     private fun setFragmentListener() {
-        setFragmentResultListener("dateKey") { key, bundle ->
+        setFragmentResultListener("dateKey") { _, bundle ->
             val requestValue = bundle.getString("dateSelected")
-            Log.d("debugTag", "requestValue Schedule $requestValue")
             if (requestValue != null) {
                 dateSelected = requestValue
                 sortItems(dataList)
@@ -114,8 +111,6 @@ class ScheduleFragment : Fragment(), DialogListener {
                         addAll(scheduleItems)
                     }
                     sortItems(dataList)
-                    Log.d(TAG, "dataList $dataList")
-                    Log.d(TAG, "adapterList $adapterList")
                     adapter.notifyDataSetChanged()
                     countSchedules(adapterList)
                 }
@@ -139,15 +134,13 @@ class ScheduleFragment : Fragment(), DialogListener {
     }
 
     private fun onFailed() {
-        showCustomToast("Ошибка получения данных", Toast.LENGTH_SHORT)
+        showCustomToast(getString(R.string.fetch_error), Toast.LENGTH_SHORT)
     }
 
     private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
         val sortedData: MutableList<ScheduleItem> = mutableListOf()
-        Log.d(TAG, "dateSelected $dateSelected")
         if (dateSelected.isNotEmpty()) {
             dataList.forEach {
-                Log.d(TAG, "item date ${it.date}")
                 if (it.date == dateSelected)
                     sortedData.add(it)
             }
@@ -256,10 +249,5 @@ class ScheduleFragment : Fragment(), DialogListener {
         )
         viewModel.addData(data)
     }
-
-//    override fun onScheduleItemDeleted(isDelete: Boolean) {
-//        if (isDelete)
-//            viewModel.fetchData()
-//    }
 
 }
