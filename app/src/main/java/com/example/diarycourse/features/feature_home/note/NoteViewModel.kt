@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class NoteViewModel @Inject constructor (
-    private val useCase: NoteUseCase
+    private val noteUseCase: NoteUseCase
 ) : ViewModel() {
 
     private val _data = MutableSharedFlow<NoteItem>(
@@ -32,19 +32,25 @@ class NoteViewModel @Inject constructor (
 
     fun fetchData(date: String) {
         viewModelScope.launch {
-            useCase.getNote(date)?.let { _data.emit(it) }
+            noteUseCase.getNote(date)?.let { _data.emit(it) }
         }
     }
 
     fun addData(data: NoteItem) {
         viewModelScope.launch {
-            _result.emit(useCase.insert(data))
+            _result.emit(noteUseCase.insert(data))
         }
     }
 
     fun updateData(data: NoteItem) {
         viewModelScope.launch {
-            _result.emit(useCase.update(data))
+            _result.emit(noteUseCase.update(data))
+        }
+    }
+
+    fun deleteItem(itemId: Int) {
+        viewModelScope.launch {
+            _result.emit(noteUseCase.deleteById(itemId))
         }
     }
 

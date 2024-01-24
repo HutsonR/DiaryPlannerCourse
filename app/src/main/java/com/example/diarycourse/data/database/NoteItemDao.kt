@@ -17,6 +17,9 @@ interface NoteItemDao {
     @Query("SELECT * FROM note_items WHERE date = :date")
     fun getNote(date: String): NoteItemDto
 
+    @Query("DELETE FROM note_items WHERE id = :itemId")
+    suspend fun deleteById(itemId: Int)
+
     @Update
     fun update(item: NoteItemDto)
 }

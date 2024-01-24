@@ -10,5 +10,7 @@ interface NoteRepository {
 
     fun getNote(date: String): NoteItem?
 
+    suspend fun deleteById(itemId: Int)
+
     suspend fun update(item: NoteItem)
 }

@@ -108,6 +108,7 @@ class NoteFragment : Fragment(), NoteDialogListener {
     }
 
     private fun onSuccess() {
+        resetValue()
         viewModel.fetchData(dateSelected)
     }
 
@@ -117,7 +118,10 @@ class NoteFragment : Fragment(), NoteDialogListener {
 
     private fun setNoteText() {
         note?.let {
-            binding.noteText.text = it.text
+            val noteText = it.text
+            if (noteText.isEmpty()) {
+                it.id?.let { id -> viewModel.deleteItem(id) }
+            } else binding.noteText.text = it.text
         }
     }
 

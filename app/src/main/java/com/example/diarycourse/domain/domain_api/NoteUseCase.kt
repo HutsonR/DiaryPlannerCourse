@@ -11,5 +11,7 @@ interface NoteUseCase {
 
     fun getNote(date: String): NoteItem?
 
+    suspend fun deleteById(itemId: Int): Resource
+
     suspend fun update(item: NoteItem): Resource
 }

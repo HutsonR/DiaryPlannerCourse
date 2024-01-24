@@ -22,6 +22,15 @@ class NoteUseCaseImpl @Inject constructor (
         return noteRepository.getNote(date)
     }
 
+    override suspend fun deleteById(itemId: Int): Resource {
+        return if (itemId == null)
+            Resource.Empty.Failed
+        else {
+            noteRepository.deleteById(itemId)
+            Resource.Success
+        }
+    }
+
     override suspend fun update(item: NoteItem): Resource {
         return if (item == null)
             Resource.Empty.Failed

@@ -29,6 +29,10 @@ class NoteRepositoryImpl @Inject constructor (
         } else null
     }
 
+    override suspend fun deleteById(itemId: Int) {
+        return noteItemDao.deleteById(itemId)
+    }
+
     override suspend fun update(item: NoteItem) {
         val noteItemDto = mapper.mapTo(item)
         return noteItemDao.update(noteItemDto)
