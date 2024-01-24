@@ -35,7 +35,7 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class HomeFragment @Inject constructor() : Fragment() {
+class HomeFragment : Fragment() {
     private val TAG = "debugTag"
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
@@ -99,40 +99,7 @@ class HomeFragment @Inject constructor() : Fragment() {
                 }
             }
         }
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                viewModel.fetchAdapterList().collect { scheduleItems: List<ScheduleItem> ->
-//                    Log.d(TAG, "Сработал collect в HomeFragment")
-//                    adapterList.apply {
-//                        clear()
-//                        addAll(scheduleItems)
-//                    }
-//                    countSchedules(adapterList)
-//                }
-//            }
-//        }
-//
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            viewLifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
-//                viewModel.result.collect { result: Resource ->
-//                    when (result) {
-//                        is Resource.Success -> onSuccess()
-//                        is Resource.Empty.Failed -> onFailed()
-//                    }
-//                }
-//            }
-//        }
     }
-
-//    private fun onSuccess() {
-//        viewModel.fetchData()
-//        updateEventsTag(dataList)
-//        countSchedules(adapterList)
-//    }
-//
-//    private fun onFailed() {
-//        showCustomToast("Ошибка получения данных", Toast.LENGTH_SHORT)
-//    }
 
     // Подсчет кол-ва записей на день
     private fun countSchedules(dataList: List<ScheduleItem>) {
@@ -247,20 +214,6 @@ class HomeFragment @Inject constructor() : Fragment() {
         binding.dayNextButton.setOnClickListener {
             collapsibleCalendar.nextDay()
         }
-    }
-
-    private fun showCustomToast(message: String, duration: Int) {
-        val inflater = layoutInflater
-        val layout = inflater.inflate(R.layout.custom_toast, binding.root.findViewById(R.id.custom_toast_layout))
-
-        val text = layout.findViewById<TextView>(R.id.customToastText)
-        text.text = message
-
-        val toast = Toast(requireContext())
-        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 80)
-        toast.duration = duration
-        toast.view = layout
-        toast.show()
     }
 
     // Инициализация TabsLayout и отображение фрагментов
