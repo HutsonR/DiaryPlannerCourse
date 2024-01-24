@@ -59,7 +59,7 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
                 dayOfWeek = parcelItem.date
 
                 if (parcelItem.isCompleteTask)
-                    completeButton.text = getString(R.string.splash_uncomplete)
+                    completeButton.text = getString(R.string.button_uncomplete)
 
                 deleteButton.setOnClickListener {
                     parcelItem.id?.let {
@@ -96,7 +96,6 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
                     taskDialogFragment.arguments = args
 
                     taskDialogFragment.show(fragmentManager, "add fragment")
-
                     dismiss()
                 }
 

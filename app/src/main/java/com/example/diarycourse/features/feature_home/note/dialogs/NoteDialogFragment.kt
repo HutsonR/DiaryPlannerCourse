@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -32,6 +33,7 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
     private lateinit var dialogListener: NoteDialogListener
     private lateinit var saveButton: ImageButton
     private lateinit var cancelButton: ImageButton
+    private lateinit var deleteButton: Button
 
     //  проверка, что активити, вызывающая DialogFragment, реализует интерфейс DialogListener
     override fun onAttach(context: Context) {
@@ -57,14 +59,16 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         textEditTV = binding.noteBody
 
-        saveButton = binding.addSave
-        cancelButton = binding.addClose
+        saveButton = binding.btnSave
+        cancelButton = binding.btnClose
+        deleteButton = binding.btnDelete
         saveButton.setOnClickListener {
             handleSaveButtonClicked()
         }
         cancelButton.setOnClickListener {
             dismiss()
         }
+        deleteButton.visibility = View.GONE
 
         textListener()
 
@@ -75,12 +79,20 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
             previousText = text
 
             textEditTV.text = parcelItem!!.text
+
+            deleteButton.visibility = View.VISIBLE
+            binding.viewOffsetHelper.visibility = View.GONE
+            deleteButton.setOnClickListener {
+                lifecycleScope.launch {
+                    parcelItem!!.id?.let { id -> viewModel.deleteItem(id) }
+                    dismiss()
+                }
+            }
         }
 
         // Изначально деактивируем кнопку "Сохранить"
         updateSaveButtonState()
     }
-
 
     override fun onStart() {
         super.onStart()
@@ -113,13 +125,7 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
                     text = text,
                 )
                 viewModel.updateData(data = updatedItem)
-
-                viewModel.result.collect { result: Resource ->
-                    when (result) {
-                        is Resource.Success -> dismiss()
-                        is Resource.Empty.Failed -> onFailed()
-                    }
-                }
+                dismiss()
             }
         } else {
             // По умолчанию обычное добавление элемента

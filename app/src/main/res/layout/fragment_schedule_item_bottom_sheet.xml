@@ -84,18 +84,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Удалить"
+                android:text="@string/button_delete"
                 android:drawableLeft="@drawable/ic_sheet_trash"
                 android:textColor="@color/black"
-                android:layout_marginRight="4dp"
+                android:layout_marginEnd="4dp"
                 android:backgroundTint="@color/bottom_sheet_button_background" />
             <Button
                 android:id="@+id/schedule_sheet_buttonComplete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Завершить"
-                android:layout_marginLeft="4dp"
+                android:text="@string/button_complete"
+                android:layout_marginStart="4dp"
                 android:drawableLeft="@drawable/ic_sheet_check"
                 android:textColor="@color/black"
                 android:backgroundTint="@color/bottom_sheet_button_background" />
@@ -105,7 +105,7 @@
             android:layout_marginTop="4dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Редактировать"
+            android:text="@string/button_edit"
             android:drawableLeft="@drawable/ic_sheet_edit"
             android:textColor="@color/black"
             android:backgroundTint="@color/bottom_sheet_button_background" />
