@@ -5,20 +5,17 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.example.diarycourse.R
 import com.example.diarycourse.databinding.FragmentNoteDialogBinding
 import com.example.diarycourse.domain.models.NoteItem
-import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.feature_home.note.NoteViewModel
 import kotlinx.coroutines.launch
 
@@ -132,25 +129,6 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
             dialogListener.onConfirmAddDialogResult(text)
             dismiss()
         }
-    }
-
-    private fun onFailed() {
-        showCustomToast(getString(R.string.error), Toast.LENGTH_SHORT)
-        dismiss()
-    }
-
-    private fun showCustomToast(message: String, duration: Int) {
-        val inflater = layoutInflater
-        val layout = inflater.inflate(R.layout.custom_toast, binding.root.findViewById(R.id.custom_toast_layout))
-
-        val text = layout.findViewById<TextView>(R.id.customToastText)
-        text.text = message
-
-        val toast = Toast(requireContext())
-        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 80)
-        toast.duration = duration
-        toast.view = layout
-        toast.show()
     }
 
 //    Listeners

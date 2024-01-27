@@ -63,11 +63,6 @@ class ScheduleFragment : Fragment(), DialogListener {
         return _binding?.root
     }
 
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -78,36 +73,9 @@ class ScheduleFragment : Fragment(), DialogListener {
         setRecycler()
     }
 
-    private fun setAddButton() {
-        binding.fabAdd.setOnClickListener {
-            TaskDialogFragment(R.layout.fragment_add, viewModel).show(childFragmentManager, "add fragment")
-        }
-    }
-
-    private fun setFragmentListener() {
-        setFragmentResultListener("dateKey") { _, bundle ->
-            val requestValue = bundle.getString("dateSelected")
-            if (requestValue != null) {
-                dateSelected = requestValue
-                sortItems(dataList)
-            }
-        }
-    }
-
-    private fun sendDataList(dataList: List<ScheduleItem>) {
-        val bundle = Bundle().apply {
-            putParcelableArrayList("dataList", ArrayList(dataList))
-        }
-
-        parentFragmentManager.setFragmentResult("dataListKey", bundle)
-    }
-
-    private fun sendItemDate(date: String) {
-        val bundle = Bundle().apply {
-            putString("date", date)
-        }
-
-        parentFragmentManager.setFragmentResult("itemAddedDateKey", bundle)
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     private fun subscribeToFlow() {
@@ -143,6 +111,36 @@ class ScheduleFragment : Fragment(), DialogListener {
 
     private fun onFailed() {
         showCustomToast(getString(R.string.fetch_error), Toast.LENGTH_SHORT)
+    }
+
+    private fun setFragmentListener() {
+        setFragmentResultListener("dateKey") { _, bundle ->
+            val requestValue = bundle.getString("dateSelected")
+            if (requestValue != null) {
+                dateSelected = requestValue
+                sortItems(dataList)
+            }
+        }
+    }
+
+    private fun sendDataList(dataList: List<ScheduleItem>) {
+        val bundle = Bundle().apply {
+            putParcelableArrayList("dataList", ArrayList(dataList))
+        }
+        parentFragmentManager.setFragmentResult("dataListKey", bundle)
+    }
+
+    private fun sendItemDate(date: String) {
+        val bundle = Bundle().apply {
+            putString("date", date)
+        }
+        parentFragmentManager.setFragmentResult("itemAddedDateKey", bundle)
+    }
+
+    private fun setAddButton() {
+        binding.fabAdd.setOnClickListener {
+            TaskDialogFragment(R.layout.fragment_add, viewModel).show(childFragmentManager, "add fragment")
+        }
     }
 
     private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
@@ -214,6 +212,14 @@ class ScheduleFragment : Fragment(), DialogListener {
         }
     }
 
+    private fun setRecycler() {
+        recyclerView = binding.recycleSchedule
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+
+        adapter = ScheduleAdapter(adapterList, viewModel, childFragmentManager)
+        recyclerView.adapter = adapter
+    }
+
     private fun showCustomToast(message: String, duration: Int) {
         val inflater = layoutInflater
         val layout = inflater.inflate(R.layout.custom_toast, binding.root.findViewById(R.id.custom_toast_layout))
@@ -226,14 +232,6 @@ class ScheduleFragment : Fragment(), DialogListener {
         toast.duration = duration
         toast.view = layout
         toast.show()
-    }
-
-    private fun setRecycler() {
-        recyclerView = binding.recycleSchedule
-        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-
-        adapter = ScheduleAdapter(adapterList, viewModel, childFragmentManager)
-        recyclerView.adapter = adapter
     }
 
     // Получение данных из диалога добавления расписания

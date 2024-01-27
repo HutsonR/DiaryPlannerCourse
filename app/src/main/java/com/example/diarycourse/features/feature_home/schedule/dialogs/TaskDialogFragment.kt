@@ -36,7 +36,6 @@ import java.util.Locale
 class TaskDialogFragment(private val layoutResourceId: Int, private val viewModel: ScheduleViewModel) : DialogFragment() {
     private val TAG = "debugTag"
     private lateinit var binding: FragmentAddBinding
-    private var dataList: MutableList<ScheduleItem> = mutableListOf()
     private var parcelItem: ScheduleItem? = null
     private var previousTitle: String = ""
     private var previousText: String = ""

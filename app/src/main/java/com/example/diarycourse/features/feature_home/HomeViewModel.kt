@@ -29,10 +29,6 @@ class HomeViewModel @Inject constructor (
         }
     }
 
-//    fun fetchAdapterList() {
-//        val selectedData: StateFlow<String> = sharedUseCase.selectedDateFlow
-//    }
-
     class HomeViewModelFactory @Inject constructor(
         private val scheduleUseCase: ScheduleUseCase
     ) : ViewModelProvider.Factory {

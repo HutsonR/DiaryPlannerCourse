@@ -59,11 +59,6 @@ class NoteFragment : Fragment(), NoteDialogListener {
         return _binding?.root
     }
 
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -75,15 +70,9 @@ class NoteFragment : Fragment(), NoteDialogListener {
         openNote()
     }
 
-    private fun setFragmentListener() {
-        setFragmentResultListener("dateKeyNote") { _, bundle ->
-            val requestValue = bundle.getString("dateSelected")
-            if (requestValue != null) {
-                dateSelected = requestValue
-                resetValue()
-                viewModel.fetchData(dateSelected)
-            }
-        }
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     private fun subscribeToFlow() {
@@ -114,6 +103,17 @@ class NoteFragment : Fragment(), NoteDialogListener {
 
     private fun onFailed() {
         showCustomToast(getString(R.string.fetch_error), Toast.LENGTH_SHORT)
+    }
+
+    private fun setFragmentListener() {
+        setFragmentResultListener("dateKeyNote") { _, bundle ->
+            val requestValue = bundle.getString("dateSelected")
+            if (requestValue != null) {
+                dateSelected = requestValue
+                resetValue()
+                viewModel.fetchData(dateSelected)
+            }
+        }
     }
 
     private fun setNoteText() {

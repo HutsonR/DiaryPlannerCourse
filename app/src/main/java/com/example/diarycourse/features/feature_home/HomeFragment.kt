@@ -96,27 +96,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // Подсчет кол-ва записей на день
-    private fun countSchedules(dataList: List<ScheduleItem>) {
-        binding.countSchedules.text = dataList.size.toString()
-    }
-
-    private fun updateEventsTag(dataList: List<ScheduleItem>) {
-        val processedDates = mutableSetOf<String>()
-        for (item in dataList) {
-            val date = item.date
-            if (processedDates.contains(date))
-                continue
-            else {
-                processedDates.add(date)
-                val dayOfMonth = date.substring(0, 2).toInt()
-                val month = date.substring(3, 5).toInt() - 1
-                val year = date.substring(6).toInt()
-                collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, ContextCompat.getColor(requireContext(), R.color.blue))
-            }
-        }
-    }
-
     private fun setFragmentListener() {
         setFragmentResultListener("dataListKey") { _, bundle ->
             val requestValue = bundle.getParcelableArrayList<ScheduleItem>("dataList")
@@ -142,6 +121,27 @@ class HomeFragment : Fragment() {
 
         parentFragmentManager.setFragmentResult("dateKey", bundle)
         parentFragmentManager.setFragmentResult("dateKeyNote", bundle)
+    }
+
+    // Подсчет кол-ва записей на день
+    private fun countSchedules(dataList: List<ScheduleItem>) {
+        binding.countSchedules.text = dataList.size.toString()
+    }
+
+    private fun updateEventsTag(dataList: List<ScheduleItem>) {
+        val processedDates = mutableSetOf<String>()
+        for (item in dataList) {
+            val date = item.date
+            if (processedDates.contains(date))
+                continue
+            else {
+                processedDates.add(date)
+                val dayOfMonth = date.substring(0, 2).toInt()
+                val month = date.substring(3, 5).toInt() - 1
+                val year = date.substring(6).toInt()
+                collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, ContextCompat.getColor(requireContext(), R.color.blue))
+            }
+        }
     }
 
     // Обработка нажатий календаря
