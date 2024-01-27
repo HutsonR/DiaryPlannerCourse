@@ -1,16 +1,15 @@
-package com.example.diarycourse.features.feature_schedule
+package com.example.diarycourse.features.feature_home.schedule
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -22,11 +21,10 @@ import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.databinding.FragmentScheduleBinding
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.feature_schedule.adapter.ScheduleAdapter
-import com.example.diarycourse.features.feature_schedule.dialogs.TaskDialogFragment
-import com.example.diarycourse.features.feature_schedule.dialogs.DialogListener
-import com.example.diarycourse.features.feature_schedule.utils.Color
-import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
+import com.example.diarycourse.features.feature_home.schedule.adapter.ScheduleAdapter
+import com.example.diarycourse.features.feature_home.schedule.dialogs.TaskDialogFragment
+import com.example.diarycourse.features.feature_home.schedule.dialogs.DialogListener
+import com.example.diarycourse.features.feature_home.schedule.utils.Color
 import dagger.Lazy
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -36,12 +34,12 @@ import javax.inject.Inject
 
 class ScheduleFragment : Fragment(), DialogListener {
     private val TAG = "debugTag"
-    private lateinit var binding: FragmentScheduleBinding
-    @Inject lateinit var notesViewModelFactory: Lazy<ScheduleViewModel.NoteViewModelFactory>
+    private var _binding: FragmentScheduleBinding? = null
+    private val binding get() = _binding!!
+    @Inject lateinit var scheduleViewModelFactory: Lazy<ScheduleViewModel.ScheduleViewModelFactory>
     private val viewModel: ScheduleViewModel by viewModels {
-        notesViewModelFactory.get()
+        scheduleViewModelFactory.get()
     }
-    private lateinit var collapsibleCalendar: CollapsibleCalendar
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ScheduleAdapter
     private var dataList: MutableList<ScheduleItem> = mutableListOf()
@@ -60,22 +58,22 @@ class ScheduleFragment : Fragment(), DialogListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentScheduleBinding.inflate(inflater)
-        return binding.root
+    ): View? {
+        _binding = FragmentScheduleBinding.inflate(inflater, container, false)
+        return _binding?.root
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        collapsibleCalendar = binding.calendarView
 
-//        viewModel.action.onEach(::handleAction).collectOnStart(viewLifecycleOwner)
-
+        setFragmentListener()
         subscribeToFlow()
         viewModel.fetchData()
-        setCalendarListener()
-        setDayOfWeek()
-        setSelectedDayButtons()
         setAddButton()
         setRecycler()
     }
@@ -84,6 +82,32 @@ class ScheduleFragment : Fragment(), DialogListener {
         binding.fabAdd.setOnClickListener {
             TaskDialogFragment(R.layout.fragment_add, viewModel).show(childFragmentManager, "add fragment")
         }
+    }
+
+    private fun setFragmentListener() {
+        setFragmentResultListener("dateKey") { _, bundle ->
+            val requestValue = bundle.getString("dateSelected")
+            if (requestValue != null) {
+                dateSelected = requestValue
+                sortItems(dataList)
+            }
+        }
+    }
+
+    private fun sendDataList(dataList: List<ScheduleItem>) {
+        val bundle = Bundle().apply {
+            putParcelableArrayList("dataList", ArrayList(dataList))
+        }
+
+        parentFragmentManager.setFragmentResult("dataListKey", bundle)
+    }
+
+    private fun sendItemDate(date: String) {
+        val bundle = Bundle().apply {
+            putString("date", date)
+        }
+
+        parentFragmentManager.setFragmentResult("itemAddedDateKey", bundle)
     }
 
     private fun subscribeToFlow() {
@@ -95,13 +119,11 @@ class ScheduleFragment : Fragment(), DialogListener {
                         addAll(scheduleItems)
                     }
                     sortItems(dataList)
-                    updateEventsTag(dataList)
                     adapter.notifyDataSetChanged()
                     countSchedules(adapterList)
                 }
             }
         }
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
                 viewModel.result.collect { result: Resource ->
@@ -116,20 +138,17 @@ class ScheduleFragment : Fragment(), DialogListener {
 
     private fun onSuccess() {
         viewModel.fetchData()
-        updateEventsTag(dataList)
         countSchedules(adapterList)
     }
 
     private fun onFailed() {
-        showCustomToast("Ошибка получения данных", Toast.LENGTH_SHORT)
+        showCustomToast(getString(R.string.fetch_error), Toast.LENGTH_SHORT)
     }
 
     private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
         val sortedData: MutableList<ScheduleItem> = mutableListOf()
-        Log.d(TAG, "dateSelected $dateSelected")
         if (dateSelected.isNotEmpty()) {
             dataList.forEach {
-                Log.d(TAG, "item date ${it.date}")
                 if (it.date == dateSelected)
                     sortedData.add(it)
             }
@@ -155,106 +174,16 @@ class ScheduleFragment : Fragment(), DialogListener {
         }
         adapter.notifyDataSetChanged()
         countSchedules(adapterList)
-    }
 
-    private fun updateEventsTag(dataList: List<ScheduleItem>) {
-        val processedDates = mutableSetOf<String>()
-        for (item in dataList) {
-            val date = item.date
-            if (processedDates.contains(date))
-                continue
-            else {
-                processedDates.add(date)
-                val dayOfMonth = date.substring(0, 2).toInt()
-                val month = date.substring(3, 5).toInt() - 1
-                val year = date.substring(6).toInt()
-                collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, ContextCompat.getColor(requireContext(), R.color.blue))
-            }
-        }
+        sendDataList(adapterList)
     }
 
     // Подсчет кол-ва записей на день
     private fun countSchedules(dataList: List<ScheduleItem>) {
-        binding.countSchedules.text = dataList.size.toString()
         if (dataList.isEmpty()) {
             binding.scheduleBlank.visibility = View.VISIBLE
         } else {
             binding.scheduleBlank.visibility = View.GONE
-        }
-    }
-
-    // Обработка нажатий календаря
-    private fun setCalendarListener() {
-        collapsibleCalendar.setCalendarListener(object : CollapsibleCalendar.CalendarListener {
-            override fun onDaySelect() {
-                val day = collapsibleCalendar.selectedDay
-                val dateFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
-                dateSelected = if (day != null) {
-                    val calendar = Calendar.getInstance()
-                    calendar.set(day.year, day.month, day.day)
-                    dateFormat.format(calendar.time)
-                } else {
-                    val currentDate = Calendar.getInstance().time
-                    dateFormat.format(currentDate)
-                }
-                sortItems(dataList)
-                setSelectedDayOfWeek()
-            }
-
-            override fun onItemClick(v: View) {}
-            override fun onClickListener() {}
-            override fun onDataUpdate() {}
-            override fun onDayChanged() {}
-            override fun onMonthChange() {}
-            override fun onWeekChange(position: Int) {}
-        })
-    }
-
-    // Установка дня недели при запуске приложения
-    private fun setDayOfWeek() {
-        val calendar = Calendar.getInstance()
-        val dayOfWeek = when (calendar.get(Calendar.DAY_OF_WEEK)) {
-            Calendar.SUNDAY -> "Воскресенье"
-            Calendar.MONDAY -> "Понедельник"
-            Calendar.TUESDAY -> "Вторник"
-            Calendar.WEDNESDAY -> "Среда"
-            Calendar.THURSDAY -> "Четверг"
-            Calendar.FRIDAY -> "Пятница"
-            Calendar.SATURDAY -> "Суббота"
-            else -> "Неизвестно"
-        }
-        binding.textDayOfWeek.text = dayOfWeek
-    }
-
-    // Установка дня недели при выборе
-    private fun setSelectedDayOfWeek() {
-        collapsibleCalendar.selectedDay?.let { selectedDate ->
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.YEAR, selectedDate.year)
-                set(Calendar.MONTH, selectedDate.month)
-                set(Calendar.DAY_OF_MONTH, selectedDate.day)
-            }
-            val dayOfWeek = when (calendar.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.SUNDAY -> "Воскресенье"
-                Calendar.MONDAY -> "Понедельник"
-                Calendar.TUESDAY -> "Вторник"
-                Calendar.WEDNESDAY -> "Среда"
-                Calendar.THURSDAY -> "Четверг"
-                Calendar.FRIDAY -> "Пятница"
-                Calendar.SATURDAY -> "Суббота"
-                else -> "Неизвестно"
-            }
-            binding.textDayOfWeek.text = dayOfWeek
-        }
-    }
-
-    // Обработка переключения дней в календаре с помощью кнопок
-    private fun setSelectedDayButtons() {
-        binding.dayBackButton.setOnClickListener {
-            collapsibleCalendar.prevDay()
-        }
-        binding.dayNextButton.setOnClickListener {
-            collapsibleCalendar.nextDay()
         }
     }
 
@@ -327,11 +256,7 @@ class ScheduleFragment : Fragment(), DialogListener {
             isCompleteTask = false
         )
         viewModel.addData(data)
+        sendItemDate(data.date)
     }
-
-//    override fun onScheduleItemDeleted(isDelete: Boolean) {
-//        if (isDelete)
-//            viewModel.fetchData()
-//    }
 
 }

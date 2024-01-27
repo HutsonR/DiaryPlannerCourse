@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.feature_schedule.dialogs
+package com.example.diarycourse.features.feature_home.schedule.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -20,8 +20,8 @@ import com.example.diarycourse.R
 import com.example.diarycourse.databinding.FragmentAddBinding
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.feature_schedule.ScheduleViewModel
-import com.example.diarycourse.features.feature_schedule.utils.Color
+import com.example.diarycourse.features.feature_home.schedule.ScheduleViewModel
+import com.example.diarycourse.features.feature_home.schedule.utils.Color
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -37,7 +37,6 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private val TAG = "debugTag"
     private lateinit var binding: FragmentAddBinding
     private var dataList: MutableList<ScheduleItem> = mutableListOf()
-    private var sortedDataByDate: MutableList<ScheduleItem> = mutableListOf()
     private var parcelItem: ScheduleItem? = null
     private var previousTitle: String = ""
     private var previousText: String = ""
@@ -200,13 +199,12 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         } else {
             // По умолчанию обычное добавление элемента
             dialogListener.onConfirmAddDialogResult(title, text, date, timeStart, timeEnd, color)
-            Log.d(TAG, "color add $color")
             dismiss()
         }
     }
 
     private fun onFailed() {
-        showCustomToast("Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT)
+        showCustomToast(getString(R.string.error), Toast.LENGTH_SHORT)
         dismiss()
     }
 
@@ -253,7 +251,6 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private fun checkTime() {
         val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
         if (timeStart.isNotEmpty() && timeEnd.isNotEmpty()) {
-            Log.d(TAG, "dataList $dataList")
             val currentStartTime = LocalTime.parse(timeStart, timeFormat)
             val currentEndTime = LocalTime.parse(timeEnd, timeFormat)
 //            Проверка между временами в выбранной дате

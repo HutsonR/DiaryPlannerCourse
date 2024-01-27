@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.feature_schedule.dialogs
+package com.example.diarycourse.features.feature_home.schedule.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,7 +15,7 @@ import com.example.diarycourse.App
 import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.feature_schedule.ScheduleViewModel
+import com.example.diarycourse.features.feature_home.schedule.ScheduleViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -26,17 +26,10 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
         private lateinit var dayOfWeek: String
         private lateinit var startTime: String
         private lateinit var description: String
-//        private lateinit var dialogListener: DialogListener
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
             (context.applicationContext as App).appComponent.inject(this)
-
-//            try {
-//                dialogListener = parentFragment as DialogListener
-//            } catch (e: ClassCastException) {
-//                throw ClassCastException("Parent fragment must implement DialogListener")
-//            }
         }
 
         @SuppressLint("MissingInflatedId")
@@ -66,7 +59,7 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
                 dayOfWeek = parcelItem.date
 
                 if (parcelItem.isCompleteTask)
-                    completeButton.text = getString(R.string.splash_uncomplete)
+                    completeButton.text = getString(R.string.button_uncomplete)
 
                 deleteButton.setOnClickListener {
                     parcelItem.id?.let {
@@ -103,7 +96,6 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
                     taskDialogFragment.arguments = args
 
                     taskDialogFragment.show(fragmentManager, "add fragment")
-
                     dismiss()
                 }
 
@@ -141,7 +133,7 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
         }
 
         private fun onFailed() {
-            Toast.makeText(requireContext(), "Возникла ошибка, попробуйте позже", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.error), Toast.LENGTH_SHORT).show()
         }
 
     }

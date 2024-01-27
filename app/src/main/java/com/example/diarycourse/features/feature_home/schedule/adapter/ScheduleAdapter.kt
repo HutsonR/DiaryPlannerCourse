@@ -1,4 +1,4 @@
-package com.example.diarycourse.features.feature_schedule.adapter
+package com.example.diarycourse.features.feature_home.schedule.adapter
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
@@ -18,9 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
-import com.example.diarycourse.features.feature_schedule.dialogs.ScheduleItemBottomSheetFragment
-import com.example.diarycourse.features.feature_schedule.ScheduleViewModel
-import com.example.diarycourse.features.feature_schedule.utils.Color
+import com.example.diarycourse.features.feature_home.schedule.ScheduleViewModel
+import com.example.diarycourse.features.feature_home.schedule.dialogs.ScheduleItemBottomSheetFragment
+import com.example.diarycourse.features.feature_home.schedule.utils.Color
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

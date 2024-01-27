@@ -1,7 +1,7 @@
 package com.example.diarycourse.domain.models
 
 import android.os.Parcelable
-import com.example.diarycourse.features.feature_schedule.utils.Color
+import com.example.diarycourse.features.feature_home.schedule.utils.Color
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize

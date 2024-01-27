@@ -1,10 +1,27 @@
 package com.example.diarycourse.data.mapper
 
+import com.example.diarycourse.data.models.NoteItemDto
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.data.models.ScheduleItemDto
-import com.example.diarycourse.features.feature_schedule.utils.Color
+import com.example.diarycourse.domain.models.NoteItem
+import com.example.diarycourse.features.feature_home.schedule.utils.Color
 
-object ScheduleItemMapper {
+object Mapper {
+
+    fun mapTo(noteItemDto: NoteItemDto): NoteItem {
+        return NoteItem(
+            id = noteItemDto.id,
+            text = noteItemDto.text,
+            date = noteItemDto.date
+        )
+    }
+    fun mapTo(noteItem: NoteItem): NoteItemDto {
+        return NoteItemDto(
+            id = noteItem.id ?: 0,
+            text = noteItem.text,
+            date = noteItem.date,
+        )
+    }
 
     fun mapTo(scheduleItemDto: ScheduleItemDto): ScheduleItem {
         return ScheduleItem(
@@ -19,7 +36,6 @@ object ScheduleItemMapper {
             isCompleteTask = scheduleItemDto.isCompleteTask
         )
     }
-
     fun mapTo(scheduleItem: ScheduleItem): ScheduleItemDto {
         return ScheduleItemDto(
             id = scheduleItem.id ?: 0,
@@ -33,6 +49,7 @@ object ScheduleItemMapper {
             isCompleteTask = scheduleItem.isCompleteTask
         )
     }
+
 
     private fun getColorEnum(colorString: String): Color {
         return try {
