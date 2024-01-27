@@ -18,7 +18,7 @@ class NoteRepositoryImpl @Inject constructor (
 
     private val mapper = Mapper
     override suspend fun insert(item: NoteItem) {
-        val noteItemDto = mapper.mapTo(item)
+        val noteItemDto = mapper.mapFrom(item)
         return noteItemDao.insert(noteItemDto)
     }
 
@@ -34,7 +34,7 @@ class NoteRepositoryImpl @Inject constructor (
     }
 
     override suspend fun update(item: NoteItem) {
-        val noteItemDto = mapper.mapTo(item)
+        val noteItemDto = mapper.mapFrom(item)
         return noteItemDao.update(noteItemDto)
     }
 

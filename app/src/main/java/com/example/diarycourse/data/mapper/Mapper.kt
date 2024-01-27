@@ -15,7 +15,7 @@ object Mapper {
             date = noteItemDto.date
         )
     }
-    fun mapTo(noteItem: NoteItem): NoteItemDto {
+    fun mapFrom(noteItem: NoteItem): NoteItemDto {
         return NoteItemDto(
             id = noteItem.id ?: 0,
             text = noteItem.text,
@@ -36,7 +36,7 @@ object Mapper {
             isCompleteTask = scheduleItemDto.isCompleteTask
         )
     }
-    fun mapTo(scheduleItem: ScheduleItem): ScheduleItemDto {
+    fun mapFrom(scheduleItem: ScheduleItem): ScheduleItemDto {
         return ScheduleItemDto(
             id = scheduleItem.id ?: 0,
             text = scheduleItem.text,

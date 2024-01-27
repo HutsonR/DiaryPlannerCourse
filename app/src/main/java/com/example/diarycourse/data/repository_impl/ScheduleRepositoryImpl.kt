@@ -15,7 +15,7 @@ class ScheduleRepositoryImpl @Inject constructor (
 
     private val mapper = Mapper
     override suspend fun insert(item: ScheduleItem) {
-        val scheduleItemDto = mapper.mapTo(item)
+        val scheduleItemDto = mapper.mapFrom(item)
         return scheduleItemDao.insert(scheduleItemDto)
     }
 
@@ -36,7 +36,7 @@ class ScheduleRepositoryImpl @Inject constructor (
     }
 
     override suspend fun update(item: ScheduleItem) {
-        val scheduleItemDto = mapper.mapTo(item)
+        val scheduleItemDto = mapper.mapFrom(item)
         return scheduleItemDao.update(scheduleItemDto)
     }
 
