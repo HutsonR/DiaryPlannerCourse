@@ -124,6 +124,15 @@ class HomeFragment : Fragment() {
                 countSchedules(requestValue)
             }
         }
+        setFragmentResultListener("itemAddedDateKey") { _, bundle ->
+            val requestValue = bundle.getString("date")
+            if (requestValue != null) {
+                val dayOfMonth = requestValue.substring(0, 2).toInt()
+                val month = requestValue.substring(3, 5).toInt() - 1
+                val year = requestValue.substring(6).toInt()
+                collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, ContextCompat.getColor(requireContext(), R.color.blue))
+            }
+        }
     }
 
     private fun sendDateSelected(dateSelected: String) {

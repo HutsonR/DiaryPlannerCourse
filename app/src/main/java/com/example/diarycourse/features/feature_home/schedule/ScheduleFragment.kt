@@ -102,6 +102,14 @@ class ScheduleFragment : Fragment(), DialogListener {
         parentFragmentManager.setFragmentResult("dataListKey", bundle)
     }
 
+    private fun sendItemDate(date: String) {
+        val bundle = Bundle().apply {
+            putString("date", date)
+        }
+
+        parentFragmentManager.setFragmentResult("itemAddedDateKey", bundle)
+    }
+
     private fun subscribeToFlow() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -248,6 +256,7 @@ class ScheduleFragment : Fragment(), DialogListener {
             isCompleteTask = false
         )
         viewModel.addData(data)
+        sendItemDate(data.date)
     }
 
 }
