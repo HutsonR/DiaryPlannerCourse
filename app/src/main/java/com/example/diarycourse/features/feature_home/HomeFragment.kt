@@ -93,7 +93,6 @@ class HomeFragment : Fragment() {
                 viewModel.dataList.combine(viewModel.noteList) { scheduleItems, noteItems ->
                     Pair(scheduleItems, noteItems)
                 }.collect { (scheduleItems, noteItems) ->
-                    Log.d(TAG, "dataList and noteList collect")
                     dataList.apply {
                         clear()
                         addAll(scheduleItems)
@@ -143,9 +142,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateEventsTag(dataList: List<ScheduleItem>, noteList: List<NoteItem>) {
-        Log.d(TAG, "updateEventsTag")
-        Log.d(TAG, "noteList count: ${noteList.size} elements: $noteList")
-
         val color = ContextCompat.getColor(requireContext(), R.color.blue)
         val processedDates = mutableSetOf<String>()
 

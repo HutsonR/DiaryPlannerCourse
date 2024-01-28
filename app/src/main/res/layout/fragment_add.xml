@@ -75,17 +75,19 @@
                 </LinearLayout>
                 <EditText
                     android:id="@+id/addDeskTask"
-                    android:layout_marginTop="10dp"
                     android:gravity="start"
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
+                    android:layout_marginTop="10dp"
                     android:background="@drawable/add_background_border"
                     android:textColor="@color/black"
                     android:textColorHint="@color/textGray"
                     android:hint="@string/add_desc_task"
                     android:inputType="textCapSentences|textMultiLine"
                     android:textSize="14sp"
-                    tools:ignore="TouchTargetSizeCheck" />
+                    android:textAppearance="?attr/textAppearanceBody1"
+                    tools:ignore="TouchTargetSizeCheck"
+                    android:autofillHints="" />
 
                 <LinearLayout
                     android:id="@+id/datePicker"
