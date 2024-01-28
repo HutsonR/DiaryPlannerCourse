@@ -1,5 +1,6 @@
 package com.example.diarycourse.data.repository_impl
 
+import android.provider.ContactsContract.CommonDataKinds.Note
 import android.util.Log
 import com.example.diarycourse.data.database.NoteItemDao
 import com.example.diarycourse.data.mapper.Mapper
@@ -27,6 +28,14 @@ class NoteRepositoryImpl @Inject constructor (
         return if (noteItemDto != null) {
             mapper.mapTo(noteItemDto)
         } else null
+    }
+
+    override suspend fun getAll(): Flow<List<NoteItem>> {
+        val noteItemDtos: Flow<List<NoteItemDto>> = noteItemDao.getAll()
+        val noteItems: Flow<List<NoteItem>> = noteItemDtos.map { dtoList ->
+            dtoList.map { mapper.mapTo(it) }
+        }
+        return noteItems
     }
 
     override suspend fun deleteById(itemId: Int) {

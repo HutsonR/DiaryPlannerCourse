@@ -3,7 +3,9 @@ package com.example.diarycourse.domain.domain_impl
 import com.example.diarycourse.data.repository_api.NoteRepository
 import com.example.diarycourse.domain.domain_api.NoteUseCase
 import com.example.diarycourse.domain.models.NoteItem
+import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class NoteUseCaseImpl @Inject constructor (
@@ -20,6 +22,10 @@ class NoteUseCaseImpl @Inject constructor (
 
     override fun getNote(date: String): NoteItem? {
         return noteRepository.getNote(date)
+    }
+
+    override suspend fun getAll(): Flow<List<NoteItem>> {
+        return noteRepository.getAll()
     }
 
     override suspend fun deleteById(itemId: Int): Resource {

@@ -2,7 +2,7 @@ package com.example.diarycourse.domain.models
 
 import android.os.Parcelable
 import com.example.diarycourse.features.feature_home.schedule.utils.Color
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ScheduleItem(

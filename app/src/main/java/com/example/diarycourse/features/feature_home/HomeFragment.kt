@@ -2,6 +2,8 @@ package com.example.diarycourse.features.feature_home
 
 import android.content.Context
 import android.os.Bundle
+import android.provider.ContactsContract.CommonDataKinds.Note
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,12 +20,15 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.diarycourse.App
 import com.example.diarycourse.R
 import com.example.diarycourse.databinding.FragmentHomeBinding
+import com.example.diarycourse.domain.models.NoteItem
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.features.feature_home.note.NoteFragment
 import com.example.diarycourse.features.feature_home.schedule.ScheduleFragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -42,6 +47,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var collapsibleCalendar: CollapsibleCalendar
     private var dataList: MutableList<ScheduleItem> = mutableListOf()
+    private var noteList: MutableList<NoteItem> = mutableListOf()
     var dateSelected: String = ""
     private var defaultTabIndex = 0
 
@@ -66,15 +72,14 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         collapsibleCalendar = binding.calendarView
 
+        initViewPager()
+
         setFragmentListener()
         subscribeToFlow()
         viewModel.fetchData()
         setCalendarListener()
         setDayOfWeek()
         setSelectedDayButtons()
-
-        initViewPager()
-        initTabLayout()
     }
 
     override fun onDestroyView() {
@@ -85,12 +90,21 @@ class HomeFragment : Fragment() {
     private fun subscribeToFlow() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.dataList.collect { scheduleItems: List<ScheduleItem> ->
+                viewModel.dataList.combine(viewModel.noteList) { scheduleItems, noteItems ->
+                    Pair(scheduleItems, noteItems)
+                }.collect { (scheduleItems, noteItems) ->
+                    Log.d(TAG, "dataList and noteList collect")
                     dataList.apply {
                         clear()
                         addAll(scheduleItems)
                     }
-                    updateEventsTag(dataList)
+                    noteList.apply {
+                        clear()
+                        addAll(noteItems)
+                    }
+                    launch(Dispatchers.Main) {
+                        updateEventsTag(dataList, noteList)
+                    }
                 }
             }
         }
@@ -128,21 +142,36 @@ class HomeFragment : Fragment() {
         binding.countSchedules.text = dataList.size.toString()
     }
 
-    private fun updateEventsTag(dataList: List<ScheduleItem>) {
+    private fun updateEventsTag(dataList: List<ScheduleItem>, noteList: List<NoteItem>) {
+        Log.d(TAG, "updateEventsTag")
+        Log.d(TAG, "noteList count: ${noteList.size} elements: $noteList")
+
+        val color = ContextCompat.getColor(requireContext(), R.color.blue)
         val processedDates = mutableSetOf<String>()
-        for (item in dataList) {
-            val date = item.date
-            if (processedDates.contains(date))
+
+        fun addEventTag(date: String) {
+            val dayOfMonth = date.substring(0, 2).toInt()
+            val month = date.substring(3, 5).toInt() - 1
+            val year = date.substring(6).toInt()
+            collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, color)
+        }
+
+        for (item in dataList + noteList) {
+            val date = when (item) {
+                is ScheduleItem -> item.date
+                is NoteItem -> item.date
+                else -> continue // Пропустить элементы, не являющиеся ни ScheduleItem, ни NoteItem
+            }
+
+            if (processedDates.contains(date)) {
                 continue
-            else {
+            } else {
                 processedDates.add(date)
-                val dayOfMonth = date.substring(0, 2).toInt()
-                val month = date.substring(3, 5).toInt() - 1
-                val year = date.substring(6).toInt()
-                collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, ContextCompat.getColor(requireContext(), R.color.blue))
+                addEventTag(date)
             }
         }
     }
+
 
     // Обработка нажатий календаря
     private fun setCalendarListener() {
@@ -221,16 +250,14 @@ class HomeFragment : Fragment() {
 
     // Инициализация TabsLayout и отображение фрагментов
     private fun initViewPager() {
-        binding.mainViewPager.adapter = SimpleFragmentPagerAdapter(requireActivity())
+        binding.mainViewPager.adapter = FragmentPagerAdapter(requireActivity())
         binding.mainViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
             override fun onPageSelected(position: Int) {}
             override fun onPageScrollStateChanged(state: Int) {}
         })
-    }
 
-    // инициализация всех добавленных табов (не изменять)
-    private fun initTabLayout() {
+        // инициализация всех добавленных табов (не изменять)
         // Находим, где будем отображать тексты табов
         val tabLayout = binding.mainTabLayout
         // Находим, где будем менять фрагменты на выбранный в табе
@@ -239,7 +266,7 @@ class HomeFragment : Fragment() {
         val tabTitles = arrayOf("Распорядок", "Заметка")
 
         // viewPager меняет отображаемый фрагмент при выборе нужного таба с помощью SimpleFragmentPagerAdapter
-        viewPager.adapter = SimpleFragmentPagerAdapter(requireActivity())
+        viewPager.adapter = FragmentPagerAdapter(requireActivity())
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = tabTitles[position]
         }.attach()
@@ -248,7 +275,7 @@ class HomeFragment : Fragment() {
     }
 
     // Переключение между фрагментами из табов
-    private inner class SimpleFragmentPagerAdapter(fragmentActivity: FragmentActivity) :
+    private inner class FragmentPagerAdapter(fragmentActivity: FragmentActivity) :
         FragmentStateAdapter(fragmentActivity) {
         // Перечисление всех фрагментов (столько же, сколько и табов)
         private val fragment = arrayOf(ScheduleFragment(), NoteFragment())
