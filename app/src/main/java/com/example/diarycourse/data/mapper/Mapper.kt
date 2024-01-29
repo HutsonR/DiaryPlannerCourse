@@ -1,10 +1,12 @@
 package com.example.diarycourse.data.mapper
 
+import android.util.Log
 import com.example.diarycourse.data.models.NoteItemDto
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.data.models.ScheduleItemDto
 import com.example.diarycourse.domain.models.NoteItem
 import com.example.diarycourse.features.feature_home.schedule.utils.Color
+import com.example.diarycourse.features.feature_home.schedule.utils.Priority
 
 object Mapper {
 
@@ -33,7 +35,8 @@ object Mapper {
             endTime = scheduleItemDto.endTime,
             duration = scheduleItemDto.duration,
             color = getColorEnum(scheduleItemDto.color),
-            isCompleteTask = scheduleItemDto.isCompleteTask
+            isCompleteTask = scheduleItemDto.isCompleteTask,
+            priority = getPriorityEnum(scheduleItemDto.priority)
         )
     }
     fun mapFrom(scheduleItem: ScheduleItem): ScheduleItemDto {
@@ -46,16 +49,24 @@ object Mapper {
             endTime = scheduleItem.endTime,
             duration = scheduleItem.duration,
             color = scheduleItem.color.name,
-            isCompleteTask = scheduleItem.isCompleteTask
+            isCompleteTask = scheduleItem.isCompleteTask,
+            priority = scheduleItem.priority.name
         )
     }
-
 
     private fun getColorEnum(colorString: String): Color {
         return try {
             Color.valueOf(colorString)
         } catch (e: IllegalArgumentException) {
             Color.BLUE
+        }
+    }
+
+    private fun getPriorityEnum(priorityString: String): Priority {
+        return try {
+            Priority.valueOf(priorityString)
+        } catch (e: IllegalArgumentException) {
+            Priority.STANDARD
         }
     }
 }

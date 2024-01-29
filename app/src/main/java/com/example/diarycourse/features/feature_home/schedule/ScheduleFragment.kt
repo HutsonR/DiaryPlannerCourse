@@ -2,6 +2,7 @@ package com.example.diarycourse.features.feature_home.schedule
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +26,7 @@ import com.example.diarycourse.features.feature_home.schedule.adapter.ScheduleAd
 import com.example.diarycourse.features.feature_home.schedule.dialogs.TaskDialogFragment
 import com.example.diarycourse.features.feature_home.schedule.dialogs.DialogListener
 import com.example.diarycourse.features.feature_home.schedule.utils.Color
+import com.example.diarycourse.features.feature_home.schedule.utils.Priority
 import dagger.Lazy
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -86,6 +88,7 @@ class ScheduleFragment : Fragment(), DialogListener {
                         clear()
                         addAll(scheduleItems)
                     }
+                    Log.d(TAG, " dataList $dataList")
                     sortItems(dataList)
                     adapter.notifyDataSetChanged()
                     countSchedules(adapterList)
@@ -239,6 +242,7 @@ class ScheduleFragment : Fragment(), DialogListener {
         title: String,
         text: String,
         date: String,
+        priority: Priority,
         timeStart: String,
         timeEnd: String,
         color: Color
@@ -247,6 +251,7 @@ class ScheduleFragment : Fragment(), DialogListener {
             text = title,
             description = text,
             date = date,
+            priority = priority,
             startTime = timeStart,
             endTime = timeEnd,
             duration = calculateDuration(timeStart, timeEnd),

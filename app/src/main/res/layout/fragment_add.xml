@@ -75,17 +75,19 @@
                 </LinearLayout>
                 <EditText
                     android:id="@+id/addDeskTask"
-                    android:layout_marginTop="10dp"
                     android:gravity="start"
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
+                    android:layout_marginTop="10dp"
                     android:background="@drawable/add_background_border"
                     android:textColor="@color/black"
                     android:textColorHint="@color/textGray"
                     android:hint="@string/add_desc_task"
                     android:inputType="textCapSentences|textMultiLine"
                     android:textSize="14sp"
-                    tools:ignore="TouchTargetSizeCheck" />
+                    android:textAppearance="?attr/textAppearanceBody1"
+                    tools:ignore="TouchTargetSizeCheck"
+                    android:autofillHints="" />
 
                 <LinearLayout
                     android:id="@+id/datePicker"
@@ -100,7 +102,7 @@
                         android:layout_height="wrap_content"
                         app:srcCompat="@drawable/ic_add_calendar" />
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
                         android:textStyle="normal"
@@ -117,6 +119,43 @@
                         android:textColor="@color/textGray"
                         android:text="@string/add_date_task_blank" />
                 </LinearLayout>
+
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/priorityPicker"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:background="@drawable/add_background"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:layout_marginTop="10dp"-->
+<!--                    android:gravity="center_vertical">-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        app:srcCompat="@drawable/ic_add_flag" />-->
+<!--                    <TextView-->
+<!--                        android:id="@+id/priorityPickerText"-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:textSize="14sp"-->
+<!--                        android:textStyle="normal"-->
+<!--                        android:layout_marginStart="10dp"-->
+<!--                        android:textColor="@color/black"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:text="@string/add_medium_priority_task" />-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        app:srcCompat="@drawable/ic_down_arrow" />-->
+<!--                </LinearLayout>-->
+                <Spinner
+                    android:id="@+id/prioritySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/add_background"
+                    android:layout_marginTop="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
+                    android:entries="@array/priority_array" />
 
                 <LinearLayout
                     android:id="@+id/addClearTime"

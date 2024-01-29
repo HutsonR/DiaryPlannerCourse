@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -21,6 +23,7 @@ import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.feature_home.schedule.ScheduleViewModel
 import com.example.diarycourse.features.feature_home.schedule.dialogs.ScheduleItemBottomSheetFragment
 import com.example.diarycourse.features.feature_home.schedule.utils.Color
+import com.example.diarycourse.features.feature_home.schedule.utils.Priority
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,39 +48,65 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
         )
         val itemColorInt = colorMap[item.color]
 
-        holder.startTimeTextView.text = item.startTime
-        holder.endTimeTextView.text = item.endTime
-        holder.contentTextView.text = item.text
-        holder.durationTextView.text = item.duration
-        holder.color.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
-        holder.isCompleteButton.setImageDrawable(
-            ContextCompat.getDrawable(
-                holder.itemView.context,
-                if (item.isCompleteTask) R.drawable.ic_main_check else R.drawable.ic_main_complete_circle
-            )
-        )
+        val density = holder.itemView.context.resources.displayMetrics.density
+        val dpToPx = { dp: Float -> (dp * density + 0.5f).toInt() }
 
-        if (item.isCompleteTask) {
-            holder.contentTextView.paintFlags = holder.contentTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            holder.contentWrapper.alpha = 0.5f
+        val layoutParams = holder.scheduleItem.layoutParams as ViewGroup.MarginLayoutParams
+        if (position == itemCount - 1) {
+            layoutParams.bottomMargin = dpToPx(120f)
         } else {
-            holder.contentTextView.paintFlags = holder.contentTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            holder.contentWrapper.alpha = 1.0f
+            layoutParams.bottomMargin = dpToPx(10f)
         }
+        holder.scheduleItem.layoutParams = layoutParams
 
-        holder.contentWrapper.setOnClickListener {
-            showBottomSheet(item, holder)
-        }
+        with(holder) {
+            startTimeTextView.text = item.startTime
+            endTimeTextView.text = item.endTime
+            contentTextView.text = item.text
+            durationTextView.text = item.duration
+            priorityTextView.text = getPriorityString(item.priority)
 
-        holder.isCompleteButton.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
-                viewModel.updateData(data = updatedItem)
+            if (item.priority == Priority.IMPORTANT) {
+                val primaryColor = ContextCompat.getColor(holder.itemView.context, R.color.primary)
+                val flagActive = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_flag_small_active)
+                priorityTextView.setTextColor(primaryColor)
+                priorityIcon.setImageDrawable(flagActive)
+            } else {
+                val grayColor = ContextCompat.getColor(holder.itemView.context, R.color.textGray)
+                val flagInactive = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_flag_small)
+                priorityTextView.setTextColor(grayColor)
+                priorityIcon.setImageDrawable(flagInactive)
+            }
+            color.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
+            isCompleteButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    holder.itemView.context,
+                    if (item.isCompleteTask) R.drawable.ic_main_check else R.drawable.ic_main_complete_circle
+                )
+            )
 
-                viewModel.update.collect { result: Resource ->
-                    when (result) {
-                        is Resource.Success -> onSuccess(item, holder)
-                        is Resource.Empty.Failed -> onFailed(it)
+            if (item.isCompleteTask) {
+                contentTextView.paintFlags = contentTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                contentWrapper.alpha = 0.5f
+            } else {
+                contentTextView.paintFlags = contentTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                contentWrapper.alpha = 1.0f
+            }
+
+            contentWrapper.setOnClickListener {
+                showBottomSheet(item, holder)
+            }
+
+            isCompleteButton.setOnClickListener {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
+                    viewModel.updateData(data = updatedItem)
+
+                    viewModel.update.collect { result: Resource ->
+                        when (result) {
+                            is Resource.Success -> onSuccess(item, holder)
+                            is Resource.Empty.Failed -> onFailed(it)
+                        }
                     }
                 }
             }
@@ -86,6 +115,13 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
 
     override fun getItemCount(): Int {
         return adapterList.size
+    }
+
+    private fun getPriorityString(priority: Priority): String {
+        return when (priority) {
+            Priority.STANDARD -> "Обычное"
+            Priority.IMPORTANT -> "Важное"
+        }
     }
 
     private suspend fun onSuccess(item: ScheduleItem, holder: StatisticViewHolder) {
@@ -123,12 +159,15 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
     }
 
     class StatisticViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val scheduleItem: LinearLayout = itemView.findViewById(R.id.scheduleItem)
         val contentWrapper: LinearLayout = itemView.findViewById(R.id.contentWrapper)
         val startTimeTextView: TextView = itemView.findViewById(R.id.start_time)
         val endTimeTextView: TextView = itemView.findViewById(R.id.end_time)
         val contentTextView: TextView = itemView.findViewById(R.id.schedule_text)
         val durationTextView: TextView = itemView.findViewById(R.id.schedule_duration)
         val color: LinearLayout = itemView.findViewById(R.id.schedule_oval_background)
+        val priorityIcon: ImageView = itemView.findViewById(R.id.priorityIcon)
+        val priorityTextView: TextView = itemView.findViewById(R.id.priorityText)
         val isCompleteButton: ImageButton = itemView.findViewById(R.id.complete_schedule_button)
     }
 
