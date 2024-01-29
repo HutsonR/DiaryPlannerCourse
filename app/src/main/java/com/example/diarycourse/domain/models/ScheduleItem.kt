@@ -2,6 +2,7 @@ package com.example.diarycourse.domain.models
 
 import android.os.Parcelable
 import com.example.diarycourse.features.feature_home.schedule.utils.Color
+import com.example.diarycourse.features.feature_home.schedule.utils.Priority
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -14,5 +15,6 @@ data class ScheduleItem(
     val endTime: String,
     val duration: String,
     val color: Color,
-    var isCompleteTask: Boolean = false
+    var isCompleteTask: Boolean = false,
+    val priority: Priority
 ) : Parcelable

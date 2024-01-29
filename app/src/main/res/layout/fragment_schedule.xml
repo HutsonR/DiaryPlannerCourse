@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:background="@color/backgroundMain"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".features.feature_home.schedule.ScheduleFragment">
 
     <LinearLayout
@@ -19,8 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="34dp"
-            android:layout_marginBottom="100dp"/>
+            android:layout_marginTop="24dp"/>
 
         <TextView
             android:id="@+id/scheduleBlank"
@@ -29,7 +27,7 @@
             android:text="@string/add_blank"
             android:textSize="16sp"
             android:layout_gravity="center"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="80dp"
             android:textColor="@color/textGray" />
 
     </LinearLayout>

@@ -1,5 +1,6 @@
 package com.example.diarycourse.data.repository_impl
 
+import android.util.Log
 import com.example.diarycourse.data.database.ScheduleItemDao
 import com.example.diarycourse.data.mapper.Mapper
 import com.example.diarycourse.domain.models.ScheduleItem

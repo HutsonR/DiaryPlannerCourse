@@ -8,9 +8,9 @@
     <string name="add_title_edit">Редактировать запись</string>
     <string name="add_title_task">Введите запись</string>
     <string name="add_desc_task">Описание</string>
-    <string name="add_low_priority_task">Обычный приоритет</string>
-    <string name="add_medium_priority_task">Средний приоритет</string>
-    <string name="add_high_priority_task">Высокий приоритет</string>
+<!--    <string name="add_low_priority_task">Низкий приоритет</string>-->
+    <string name="add_medium_priority_task">Обычный приоритет</string>
+<!--    <string name="add_high_priority_task">Высокий приоритет</string>-->
     <string name="add_date_task">Дата</string>
     <string name="add_time_task_title">Время</string>
     <string name="add_time_clear">Очистить</string>
@@ -26,7 +26,6 @@
     <string name="main_task_tab">Распорядок</string>
     <string name="main_note_tab">Заметка</string>
     <string name="main_low_priority">Обычное</string>
-    <string name="main_medium_priority">Среднее</string>
     <string name="main_high_priority">Важное</string>
     <string name="main_break">Перерыв</string>
     <string name="main_add_task">Добавить задачу</string>

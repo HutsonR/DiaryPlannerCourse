@@ -6,7 +6,7 @@ import com.example.diarycourse.data.models.NoteItemDto
 import com.example.diarycourse.data.models.ScheduleItemDto
 import com.example.diarycourse.domain.models.ScheduleItem
 
-@Database(entities = [ScheduleItemDto::class, NoteItemDto::class], version = 7)
+@Database(entities = [ScheduleItemDto::class, NoteItemDto::class], version = 8)
 abstract class AppDatabase : RoomDatabase() {
     abstract val scheduleItemDao: ScheduleItemDao
     abstract val noteItemDao: NoteItemDao

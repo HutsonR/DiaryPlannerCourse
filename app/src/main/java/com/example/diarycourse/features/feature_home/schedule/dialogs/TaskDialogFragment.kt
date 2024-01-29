@@ -10,6 +10,8 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.RadioButton
 import android.widget.TextView
@@ -22,6 +24,8 @@ import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.feature_home.schedule.ScheduleViewModel
 import com.example.diarycourse.features.feature_home.schedule.utils.Color
+import com.example.diarycourse.features.feature_home.schedule.utils.Priority
+import com.example.diarycourse.features.feature_home.schedule.utils.PriorityAdapter
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -40,12 +44,14 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private var previousTitle: String = ""
     private var previousText: String = ""
     private var previousDate: String = ""
+    private var previousPriority: Priority = Priority.STANDARD
     private var previousTimeStart: String = ""
     private var previousTimeEnd: String = ""
     private var previousColor: Color = Color.BLUE
     private var title: String = ""
     private var text: String = ""
     private var date: String = ""
+    private var priority: Priority = Priority.STANDARD
     private var timeStart: String  = ""
     private var timeEnd: String = ""
     private var color: Color = Color.BLUE
@@ -83,6 +89,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         titleEditTV = binding.addTitleTask
         textEditTV = binding.addDeskTask
         datePickerTV = binding.datePickerText
+//        priorityPickerTV = binding.priorityPickerText
         timeStartPickerTV = binding.timeStartPickerText
         timeEndPickerTV = binding.timeEndPickerText
 
@@ -111,6 +118,8 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             title = parcelItem!!.text
             text = parcelItem!!.description
             date = parcelItem!!.date
+            Log.d(TAG, "parcel item priority ${parcelItem!!.priority}")
+            priority = parcelItem!!.priority
             timeStart = parcelItem!!.startTime
             timeEnd = parcelItem!!.endTime
             color = parcelItem!!.color
@@ -118,6 +127,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             previousTitle = title
             previousText = text
             previousDate = date
+            previousPriority = priority
             previousTimeStart = timeStart
             previousTimeEnd = timeEnd
             previousColor = color
@@ -131,6 +141,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             // Для активации кнопки конца времени
             checkTime()
         }
+        showPriorityPicker()
 
         // Изначально деактивируем кнопку "Сохранить"
         updateSaveButtonState()
@@ -153,8 +164,9 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             val isTextChanged = text != previousText
             val isTimeEndChanged = timeEnd != previousTimeEnd
             val isColorChanged = color != previousColor
+            val isPriorityChanged = priority != previousPriority
 
-            val isEnabled = (isTitleChanged || isDateChanged || isTimeStartChanged || isTextChanged || isTimeEndChanged || isColorChanged) &&
+            val isEnabled = (isTitleChanged || isDateChanged || isTimeStartChanged || isTextChanged || isTimeEndChanged || isColorChanged || isPriorityChanged) &&
                     title.isNotEmpty() && date.isNotEmpty() && timeStart.isNotEmpty()
 
             saveButton.isEnabled = isEnabled
@@ -180,6 +192,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
                     text = title,
                     description = text,
                     date = date,
+                    priority = priority,
                     startTime = timeStart,
                     endTime = timeEnd,
                     duration = calculateDuration(timeStart, timeEnd),
@@ -197,7 +210,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             }
         } else {
             // По умолчанию обычное добавление элемента
-            dialogListener.onConfirmAddDialogResult(title, text, date, timeStart, timeEnd, color)
+            dialogListener.onConfirmAddDialogResult(title, text, date, priority, timeStart, timeEnd, color)
             dismiss()
         }
     }
@@ -384,6 +397,50 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         }
 
         datePicker.show(childFragmentManager, datePicker.toString())
+    }
+
+    private fun showPriorityPicker() {
+        val items = resources.getStringArray(R.array.priority_array).toList()
+        val adapter = PriorityAdapter(requireContext(), items)
+
+        val prioritySpinner = binding.prioritySpinner
+        prioritySpinner.adapter = adapter
+
+        if (parcelItem != null) {
+            val position = items.indexOf(getPriorityString(priority))
+            if (position != -1) {
+                prioritySpinner.setSelection(position)
+            }
+        }
+
+        prioritySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val currentPriority = parent?.getItemAtPosition(position).toString()
+                val selectedPriority: Priority = getPriorityEnum(currentPriority)
+                priority = selectedPriority
+                updateSaveButtonState()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+    private fun getPriorityEnum(priorityString: String): Priority {
+        return when (priorityString) {
+            "Обычный приоритет" -> Priority.STANDARD
+            "Высокий приоритет" -> Priority.IMPORTANT
+            else -> Priority.STANDARD
+        }
+    }
+    private fun getPriorityString(priority: Priority): String {
+        return when (priority) {
+            Priority.STANDARD -> "Обычный приоритет"
+            Priority.IMPORTANT -> "Высокий приоритет"
+        }
     }
 
     private fun showTimePickerForStart() {

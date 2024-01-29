@@ -7,8 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.example.diarycourse.App
@@ -16,6 +18,7 @@ import com.example.diarycourse.R
 import com.example.diarycourse.domain.models.ScheduleItem
 import com.example.diarycourse.domain.util.Resource
 import com.example.diarycourse.features.feature_home.schedule.ScheduleViewModel
+import com.example.diarycourse.features.feature_home.schedule.utils.Priority
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -26,6 +29,7 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
         private lateinit var dayOfWeek: String
         private lateinit var startTime: String
         private lateinit var description: String
+        private lateinit var priority: String
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
@@ -43,20 +47,28 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
             val descriptionTV: TextView = view.findViewById(R.id.schedule_sheet_description)
             val startTimeTV: TextView = view.findViewById(R.id.schedule_sheet_timeStart)
             val dayOfWeekTV: TextView = view.findViewById(R.id.schedule_sheet_day_of_week)
+            val priorityTV: TextView = view.findViewById(R.id.priorityText)
+            val priorityIcon: ImageView = view.findViewById(R.id.priorityIcon)
 
             val deleteButton: Button = view.findViewById(R.id.schedule_sheet_buttonDelete)
             val completeButton: Button = view.findViewById(R.id.schedule_sheet_buttonComplete)
             val editButton: Button = view.findViewById(R.id.schedule_sheet_buttonEdit)
 
-            // Получите модель из аргументов
             val parcelItem = arguments?.getParcelable<ScheduleItem>("scheduleItem")
 
-            // Теперь вы можете использовать все поля модели
             if (parcelItem != null) {
                 title = parcelItem.text
                 description = parcelItem.description
                 startTime = parcelItem.startTime
                 dayOfWeek = parcelItem.date
+                priority = getPriorityString(parcelItem.priority)
+
+                if (parcelItem.priority == Priority.IMPORTANT) {
+                    val primaryColor = ContextCompat.getColor(requireContext(), R.color.primary)
+                    val flagActive = ContextCompat.getDrawable(requireContext(), R.drawable.ic_flag_small_active)
+                    priorityTV.setTextColor(primaryColor)
+                    priorityIcon.setImageDrawable(flagActive)
+                }
 
                 if (parcelItem.isCompleteTask)
                     completeButton.text = getString(R.string.button_uncomplete)
@@ -105,8 +117,16 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
             descriptionTV.text = description
             startTimeTV.text = startTime
             dayOfWeekTV.text = "${setDayOfWeek(dayOfWeek)},"
+            priorityTV.text = priority
 
             return view
+        }
+
+        private fun getPriorityString(priority: Priority): String {
+            return when (priority) {
+                Priority.STANDARD -> "Обычное"
+                Priority.IMPORTANT -> "Важное"
+            }
         }
 
         private fun setDayOfWeek(day: String): String {
