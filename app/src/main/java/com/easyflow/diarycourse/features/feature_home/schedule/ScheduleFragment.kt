@@ -88,7 +88,6 @@ class ScheduleFragment : Fragment(), DialogListener {
                         clear()
                         addAll(scheduleItems)
                     }
-                    Log.d(TAG, " dataList $dataList")
                     sortItems(dataList)
                     adapter.notifyDataSetChanged()
                     countSchedules(adapterList)

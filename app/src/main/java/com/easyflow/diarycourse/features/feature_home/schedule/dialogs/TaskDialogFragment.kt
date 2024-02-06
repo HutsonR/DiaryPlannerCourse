@@ -2,6 +2,7 @@ package com.easyflow.diarycourse.features.feature_home.schedule.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -16,6 +17,7 @@ import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.easyflow.diarycourse.R
@@ -55,6 +57,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private var timeStart: String  = ""
     private var timeEnd: String = ""
     private var color: Color = Color.BLUE
+    private lateinit var taskIconBackground: LinearLayout
     private lateinit var titleEditTV: TextView
     private lateinit var textEditTV: TextView
     private lateinit var datePickerTV: TextView
@@ -87,6 +90,24 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        parcelItem = arguments?.getParcelable("scheduleItem")
+
+        initialize()
+        parcelInitialize()
+
+        // Изначально деактивируем кнопку "Сохранить"
+        updateSaveButtonState()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val width = ViewGroup.LayoutParams.MATCH_PARENT
+        val height = ViewGroup.LayoutParams.WRAP_CONTENT
+        dialog!!.window?.setLayout(width, height)
+    }
+
+    private fun initialize() {
+        taskIconBackground = binding.taskIconBackground
         titleEditTV = binding.addTitleTask
         textEditTV = binding.addDeskTask
         datePickerTV = binding.datePickerText
@@ -109,9 +130,10 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         binding.timeStartPicker.setOnClickListener { showTimePickerForStart() }
         colorPicker()
         binding.timeEndPicker.alpha = 0.5f
+        setBackgroundIconColor(color)
+    }
 
-        // Если имеется модель (фрагмент открыт для редактирования)
-        parcelItem = arguments?.getParcelable("scheduleItem")
+    private fun parcelInitialize() {
         if (parcelItem != null) {
             binding.titleAddFragment.text = getString(R.string.add_title_edit)
             saveButtonTV.text = getString(R.string.add_title_edit_small)
@@ -138,21 +160,11 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             timeStartPickerTV.text = parcelItem!!.startTime
             timeEndPickerTV.text = parcelItem!!.endTime.ifEmpty { getString(R.string.add_date_time_blank) }
             setColor()
+            setBackgroundIconColor(parcelItem!!.color)
             // Для активации кнопки конца времени
             checkTime()
         }
         showPriorityPicker()
-
-        // Изначально деактивируем кнопку "Сохранить"
-        updateSaveButtonState()
-    }
-
-
-    override fun onStart() {
-        super.onStart()
-        val width = ViewGroup.LayoutParams.MATCH_PARENT
-        val height = ViewGroup.LayoutParams.WRAP_CONTENT
-        dialog!!.window?.setLayout(width, height)
     }
 
     private fun updateSaveButtonState() {
@@ -320,6 +332,18 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         }
 
         updateSaveButtonState()
+    }
+
+    private fun setBackgroundIconColor(color: Color) {
+        val colorStateList = when (color) {
+            Color.BLUE -> ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.blue))
+            Color.GREEN -> ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.green))
+            Color.YELLOW -> ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.yellow))
+            Color.RED -> ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.redDialog))
+            Color.PURPLE -> ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.purple))
+            Color.PINK -> ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.pink))
+        }
+        taskIconBackground.backgroundTintList = colorStateList
     }
 
     private fun setColor() {
@@ -501,6 +525,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
 
             val selectedColor: Color = getColorEnum(selectedColorTag)
             color = selectedColor
+            setBackgroundIconColor(color)
 
             updateSaveButtonState()
         }
