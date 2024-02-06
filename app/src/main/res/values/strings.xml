@@ -6,11 +6,11 @@
     <!--  Add Task  -->
     <string name="add_title">Добавить план на день</string>
     <string name="add_title_edit">Редактировать запись</string>
+    <string name="add_title_small">Добавить</string>
+    <string name="add_title_edit_small">Изменить</string>
     <string name="add_title_task">Введите запись</string>
     <string name="add_desc_task">Описание</string>
-<!--    <string name="add_low_priority_task">Низкий приоритет</string>-->
     <string name="add_medium_priority_task">Обычный приоритет</string>
-<!--    <string name="add_high_priority_task">Высокий приоритет</string>-->
     <string name="add_date_task">Дата</string>
     <string name="add_time_task_title">Время</string>
     <string name="add_time_clear">Очистить</string>

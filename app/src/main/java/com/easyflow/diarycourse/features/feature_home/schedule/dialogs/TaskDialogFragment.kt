@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
@@ -60,7 +61,8 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private lateinit var timeStartPickerTV: TextView
     private lateinit var timeEndPickerTV: TextView
     private lateinit var dialogListener: DialogListener
-    private lateinit var saveButton: ImageButton
+    private lateinit var saveButton: LinearLayout
+    private lateinit var saveButtonTV: TextView
     private lateinit var cancelButton: ImageButton
 
     //  проверка, что активити, вызывающая DialogFragment, реализует интерфейс DialogListener
@@ -88,9 +90,9 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         titleEditTV = binding.addTitleTask
         textEditTV = binding.addDeskTask
         datePickerTV = binding.datePickerText
-//        priorityPickerTV = binding.priorityPickerText
         timeStartPickerTV = binding.timeStartPickerText
         timeEndPickerTV = binding.timeEndPickerText
+        saveButtonTV = binding.taskConfirm
 
         saveButton = binding.addSave
         cancelButton = binding.addClose
@@ -101,7 +103,6 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             dismiss()
         }
 
-//        fetchData()
         titleEditText()
         deskEditText()
         binding.datePicker.setOnClickListener { showDatePicker() }
@@ -113,11 +114,11 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         parcelItem = arguments?.getParcelable("scheduleItem")
         if (parcelItem != null) {
             binding.titleAddFragment.text = getString(R.string.add_title_edit)
+            saveButtonTV.text = getString(R.string.add_title_edit_small)
 
             title = parcelItem!!.text
             text = parcelItem!!.description
             date = parcelItem!!.date
-            Log.d(TAG, "parcel item priority ${parcelItem!!.priority}")
             priority = parcelItem!!.priority
             timeStart = parcelItem!!.startTime
             timeEnd = parcelItem!!.endTime
