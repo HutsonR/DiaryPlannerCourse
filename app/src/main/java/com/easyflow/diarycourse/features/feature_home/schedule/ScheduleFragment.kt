@@ -27,6 +27,7 @@ import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.TaskDialo
 import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.DialogListener
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_home.schedule.utils.TimeChangedReceiver
 import dagger.Lazy
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -34,7 +35,7 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class ScheduleFragment : Fragment(), DialogListener {
+class ScheduleFragment : Fragment(), DialogListener, ScheduleAdapter.ScheduleTimeChangedListener {
     private val TAG = "debugTag"
     private var _binding: FragmentScheduleBinding? = null
     private val binding get() = _binding!!
@@ -63,6 +64,12 @@ class ScheduleFragment : Fragment(), DialogListener {
     ): View? {
         _binding = FragmentScheduleBinding.inflate(inflater, container, false)
         return _binding?.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val timeChangedReceiver = TimeChangedReceiver(this)
+        timeChangedReceiver.register(requireContext())
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -220,6 +227,10 @@ class ScheduleFragment : Fragment(), DialogListener {
 
         adapter = ScheduleAdapter(adapterList, viewModel, childFragmentManager)
         recyclerView.adapter = adapter
+    }
+
+    override fun onTimeChanged() {
+        adapter.notifyDataSetChanged()
     }
 
     private fun showCustomToast(message: String, duration: Int) {

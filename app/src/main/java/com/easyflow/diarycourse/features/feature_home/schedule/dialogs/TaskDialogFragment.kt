@@ -131,6 +131,8 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         colorPicker()
         binding.timeEndPicker.alpha = 0.5f
         setBackgroundIconColor(color)
+
+        taskIconBackground.setOnClickListener { showCustomToast("В разработке...", Toast.LENGTH_SHORT) }
     }
 
     private fun parcelInitialize() {
@@ -470,7 +472,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private fun showTimePickerForStart() {
         val timePicker = MaterialTimePicker.Builder()
             .setTimeFormat(TimeFormat.CLOCK_24H)
-            .setTitleText("Выберите время начала задачи")
+            .setTitleText("Время начала задачи")
             .setTheme(R.style.MaterialTimePickerTheme)
             .build()
 
@@ -495,7 +497,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private fun showTimePickerForEnd() {
         val timePicker = MaterialTimePicker.Builder()
             .setTimeFormat(TimeFormat.CLOCK_24H)
-            .setTitleText("Выберите время окончания задачи")
+            .setTitleText("Время окончания задачи")
             .setTheme(R.style.MaterialTimePickerTheme)
             .build()
 

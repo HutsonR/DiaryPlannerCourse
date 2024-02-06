@@ -3,7 +3,7 @@
 
     <string name="temp_text">Временный текст</string>
 
-    <!--  Add Task  -->
+    <!--  Task  -->
     <string name="add_title">Добавить план на день</string>
     <string name="add_title_edit">Редактировать запись</string>
     <string name="add_title_small">Добавить</string>
@@ -21,6 +21,7 @@
     <string name="add_date_time_blank">Нет</string>
     <string name="add_reminder_task">Напоминание</string>
     <string name="add_blank">На этот день нет записей</string>
+    <string name="task_active">Активно</string>
 
     <!--  Main Screen  -->
     <string name="main_count_task">Кол-во записей: </string>

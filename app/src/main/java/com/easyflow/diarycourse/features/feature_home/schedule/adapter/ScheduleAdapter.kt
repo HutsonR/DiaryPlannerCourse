@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,10 +24,16 @@ import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleViewModel
 import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.ScheduleItemBottomSheetFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_home.schedule.utils.TimeChangedReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import java.util.Timer
+import java.util.TimerTask
 
 class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: ScheduleViewModel, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatisticViewHolder {
@@ -37,6 +44,8 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
     @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: StatisticViewHolder, position: Int) {
         val item = adapterList[position]
+
+        // Получение id цвета из Enum
         val colorMap: Map<Color, Int> = mapOf(
             Color.BLUE to ContextCompat.getColor(holder.itemView.context, R.color.blue),
             Color.GREEN to ContextCompat.getColor(holder.itemView.context, R.color.green),
@@ -47,6 +56,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
         )
         val itemColorInt = colorMap[item.color]
 
+        // Установка отступа к последнему элементу
         val density = holder.itemView.context.resources.displayMetrics.density
         val dpToPx = { dp: Float -> (dp * density + 0.5f).toInt() }
 
@@ -64,6 +74,32 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             contentTextView.text = item.text
             durationTextView.text = item.duration
             priorityTextView.text = getPriorityString(item.priority)
+            color.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
+
+            // Установка активности задачи
+            val calendar = Calendar.getInstance()
+            val dateFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+            val currentDate = calendar.time.let { dateFormat.format(it) }
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val minute = calendar.get(Calendar.MINUTE)
+
+            val currentTime = String.format("%02d:%02d", hour, minute)
+
+            if (item.startTime <= currentTime && currentDate == item.date && !item.isCompleteTask) {
+                if (item.endTime.isNotEmpty() && currentTime > item.endTime) {
+                    holder.itemView.post {
+                        holder.activeTextView.visibility = View.INVISIBLE
+                    }
+                } else {
+                    holder.itemView.post {
+                        holder.activeTextView.visibility = View.VISIBLE
+                    }
+                }
+            } else {
+                holder.itemView.post {
+                    holder.activeTextView.visibility = View.INVISIBLE
+                }
+            }
 
             if (item.priority == Priority.IMPORTANT) {
                 val primaryColor = ContextCompat.getColor(holder.itemView.context, R.color.primary)
@@ -76,14 +112,13 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
                 priorityTextView.setTextColor(grayColor)
                 priorityIcon.setImageDrawable(flagInactive)
             }
-            color.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
+
             isCompleteButton.setImageDrawable(
                 ContextCompat.getDrawable(
                     holder.itemView.context,
                     if (item.isCompleteTask) R.drawable.ic_main_check else R.drawable.ic_main_complete_circle
                 )
             )
-
             if (item.isCompleteTask) {
                 contentTextView.paintFlags = contentTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 contentWrapper.alpha = 0.5f
@@ -140,7 +175,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
     }
 
     private fun onFailed(itemView: View) {
-        Toast.makeText(itemView.context, "Ошибка завершения", Toast.LENGTH_SHORT).show()
+        Toast.makeText(itemView.context, R.string.error, Toast.LENGTH_SHORT).show()
     }
 
     private fun showBottomSheet(item: ScheduleItem, holder: StatisticViewHolder) {
@@ -167,7 +202,12 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
         val color: LinearLayout = itemView.findViewById(R.id.schedule_oval_background)
         val priorityIcon: ImageView = itemView.findViewById(R.id.priorityIcon)
         val priorityTextView: TextView = itemView.findViewById(R.id.priorityText)
+        val activeTextView: TextView = itemView.findViewById(R.id.scheduleActive)
         val isCompleteButton: ImageButton = itemView.findViewById(R.id.complete_schedule_button)
+    }
+
+    interface ScheduleTimeChangedListener : TimeChangedReceiver.TimeChangedListener {
+        override fun onTimeChanged()
     }
 
 }
