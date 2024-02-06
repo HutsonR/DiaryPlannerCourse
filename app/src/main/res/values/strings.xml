@@ -19,6 +19,7 @@
     <string name="add_color_task">Цвет</string>
     <string name="add_date_task_blank">Не выбрана</string>
     <string name="add_date_time_blank">Нет</string>
+    <string name="add_reminder_task">Напоминание</string>
     <string name="add_blank">На этот день нет записей</string>
 
     <!--  Main Screen  -->

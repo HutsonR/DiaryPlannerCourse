@@ -83,7 +83,8 @@
                         android:layout_width="42dp"
                         android:layout_height="42dp"
                         android:gravity="center"
-                        android:background="@drawable/add_background">
+                        android:background="@drawable/add_background"
+                        android:backgroundTint="@color/blue">
                         <ImageView
                             android:id="@+id/add_image_icon"
                             android:layout_width="wrap_content"
@@ -151,34 +152,6 @@
                         android:textColor="@color/textGray"
                         android:text="@string/add_date_task_blank" />
                 </LinearLayout>
-
-<!--                <LinearLayout-->
-<!--                    android:id="@+id/priorityPicker"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:background="@drawable/add_background"-->
-<!--                    android:orientation="horizontal"-->
-<!--                    android:layout_marginTop="10dp"-->
-<!--                    android:gravity="center_vertical">-->
-<!--                    <ImageView-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        app:srcCompat="@drawable/ic_add_flag" />-->
-<!--                    <TextView-->
-<!--                        android:id="@+id/priorityPickerText"-->
-<!--                        android:layout_width="0dp"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:textSize="14sp"-->
-<!--                        android:textStyle="normal"-->
-<!--                        android:layout_marginStart="10dp"-->
-<!--                        android:textColor="@color/black"-->
-<!--                        android:layout_weight="1"-->
-<!--                        android:text="@string/add_medium_priority_task" />-->
-<!--                    <ImageView-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        app:srcCompat="@drawable/ic_down_arrow" />-->
-<!--                </LinearLayout>-->
                 <Spinner
                     android:id="@+id/prioritySpinner"
                     android:layout_width="match_parent"
@@ -200,7 +173,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/add_time_task_title"
-                        android:textColor="@color/textGray"
+                        android:textColor="@color/textHintGray"
                         android:textSize="13sp"
                         android:textStyle="bold" />
                     <TextView
@@ -287,7 +260,7 @@
                     android:text="@string/add_color_task"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
-                    android:textColor="@color/textGray"
+                    android:textColor="@color/textHintGray"
                     android:textSize="13sp"
                     android:textStyle="bold" />
                 <LinearLayout
@@ -361,6 +334,37 @@
                             android:layout_width="28dp"
                             android:layout_height="28dp" />
                     </RadioGroup>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/reminderPicker"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/add_background_border"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="15dp"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_add_bell" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textStyle="normal"
+                        android:layout_marginStart="10dp"
+                        android:textColor="@color/black"
+                        android:layout_weight="1"
+                        android:text="@string/add_reminder_task" />
+                    <TextView
+                        android:id="@+id/reminderPickerText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:layout_marginStart="10dp"
+                        android:textColor="@color/textGray"
+                        android:text="@string/add_date_time_blank" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
