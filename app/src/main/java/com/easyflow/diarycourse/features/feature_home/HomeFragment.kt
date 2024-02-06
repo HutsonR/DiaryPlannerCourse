@@ -198,14 +198,14 @@ class HomeFragment : Fragment() {
     private fun setDayOfWeek() {
         val calendar = Calendar.getInstance()
         val dayOfWeek = when (calendar.get(Calendar.DAY_OF_WEEK)) {
-            Calendar.SUNDAY -> "Воскресенье"
-            Calendar.MONDAY -> "Понедельник"
-            Calendar.TUESDAY -> "Вторник"
-            Calendar.WEDNESDAY -> "Среда"
-            Calendar.THURSDAY -> "Четверг"
-            Calendar.FRIDAY -> "Пятница"
-            Calendar.SATURDAY -> "Суббота"
-            else -> "Неизвестно"
+            Calendar.SUNDAY -> getString(R.string.week_sunday)
+            Calendar.MONDAY -> getString(R.string.week_monday)
+            Calendar.TUESDAY -> getString(R.string.week_tuesday)
+            Calendar.WEDNESDAY -> getString(R.string.week_wednesday)
+            Calendar.THURSDAY -> getString(R.string.week_thursday)
+            Calendar.FRIDAY -> getString(R.string.week_friday)
+            Calendar.SATURDAY -> getString(R.string.week_saturday)
+            else -> getString(R.string.week_unknown)
         }
         binding.textDayOfWeek.text = dayOfWeek
     }
@@ -219,14 +219,14 @@ class HomeFragment : Fragment() {
                 set(Calendar.DAY_OF_MONTH, selectedDate.day)
             }
             val dayOfWeek = when (calendar.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.SUNDAY -> "Воскресенье"
-                Calendar.MONDAY -> "Понедельник"
-                Calendar.TUESDAY -> "Вторник"
-                Calendar.WEDNESDAY -> "Среда"
-                Calendar.THURSDAY -> "Четверг"
-                Calendar.FRIDAY -> "Пятница"
-                Calendar.SATURDAY -> "Суббота"
-                else -> "Неизвестно"
+                Calendar.SUNDAY -> getString(R.string.week_sunday)
+                Calendar.MONDAY -> getString(R.string.week_monday)
+                Calendar.TUESDAY -> getString(R.string.week_tuesday)
+                Calendar.WEDNESDAY -> getString(R.string.week_wednesday)
+                Calendar.THURSDAY -> getString(R.string.week_thursday)
+                Calendar.FRIDAY -> getString(R.string.week_friday)
+                Calendar.SATURDAY -> getString(R.string.week_saturday)
+                else -> getString(R.string.week_unknown)
             }
             binding.textDayOfWeek.text = dayOfWeek
         }
