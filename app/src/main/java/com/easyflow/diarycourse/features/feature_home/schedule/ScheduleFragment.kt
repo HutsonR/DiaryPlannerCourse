@@ -17,8 +17,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.easyflow.diarycourse.App
+import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.databinding.FragmentScheduleBinding
 import com.easyflow.diarycourse.domain.util.Resource
@@ -35,7 +36,7 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class ScheduleFragment : Fragment(), DialogListener, ScheduleAdapter.ScheduleTimeChangedListener {
+class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.ScheduleTimeChangedListener {
     private val TAG = "debugTag"
     private var _binding: FragmentScheduleBinding? = null
     private val binding get() = _binding!!

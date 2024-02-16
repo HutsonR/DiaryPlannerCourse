@@ -13,7 +13,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
-import com.easyflow.diarycourse.App
+import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
@@ -101,7 +101,7 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
                     }
                 }
                 editButton.setOnClickListener {
-                    val taskDialogFragment = TaskDialogFragment(R.layout.fragment_add, viewModel)
+                    val taskDialogFragment = TaskDialogFragment(R.layout.fragment_task, viewModel)
                     // Передайте всю модель в аргументы
                     val args = Bundle()
                     args.putParcelable("scheduleItem", parcelItem)
