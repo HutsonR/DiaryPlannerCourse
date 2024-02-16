@@ -114,7 +114,7 @@
             />
 
             <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/main_view_pager"
+                android:id="@+id/mainViewPager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
