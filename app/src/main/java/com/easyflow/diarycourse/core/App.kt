@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse
+package com.easyflow.diarycourse.core
 
 import android.app.Application
 

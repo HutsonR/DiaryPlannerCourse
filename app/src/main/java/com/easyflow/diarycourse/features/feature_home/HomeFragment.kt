@@ -15,8 +15,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.easyflow.diarycourse.App
+import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.databinding.FragmentHomeBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.models.ScheduleItem
@@ -33,7 +34,7 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class HomeFragment : Fragment() {
+class HomeFragment : BaseFragment() {
     private val TAG = "debugTag"
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!

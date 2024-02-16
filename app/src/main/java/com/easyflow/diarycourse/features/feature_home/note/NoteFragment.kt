@@ -14,8 +14,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.easyflow.diarycourse.App
+import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.databinding.FragmentNoteBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.util.Resource
@@ -29,7 +30,7 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class NoteFragment : Fragment(), NoteDialogListener {
+class NoteFragment : BaseFragment(), NoteDialogListener {
     private val TAG = "debugTag"
     private var _binding: FragmentNoteBinding? = null
     private val binding get() = _binding!!

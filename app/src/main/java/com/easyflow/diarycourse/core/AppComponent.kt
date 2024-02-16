@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse
+package com.easyflow.diarycourse.core
 
 import android.app.Application
 import com.easyflow.diarycourse.data.di.DataModule
@@ -8,6 +8,7 @@ import com.easyflow.diarycourse.features.common.di.FeaturesModule
 import com.easyflow.diarycourse.features.feature_home.note.NoteFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.ScheduleItemBottomSheetFragment
+import com.easyflow.diarycourse.features.feature_home.task.TaskFragment
 import dagger.BindsInstance
 import dagger.Component
 
@@ -18,6 +19,7 @@ interface AppComponent {
     fun inject(fragment: ScheduleFragment)
     fun inject(fragment: NoteFragment)
     fun inject(fragment: ScheduleItemBottomSheetFragment)
+    fun inject(fragment: TaskFragment)
 
     @Component.Builder
     interface Builder {
