@@ -15,11 +15,12 @@
     <color name="scheduleIcon">#605F64</color>
     <color name="scheduleIconDark">#BDBDBD</color>
     <color name="bgGray">#EDEDED</color>
-    <color name="bgGrayLight">#FAFAFA</color>
+    <color name="bgGrayLight">#F4F4F4</color>
     <color name="darkGray">#BDBDBD</color>
     <color name="menuColorGray">#ACACAC</color>
 
-    <color name="bgDialog">#FDFFFF</color>
+    <color name="bgDialog">#F2F5FA</color>
+    <color name="itemDialog">#F4F4F4</color>
     <color name="bgBorderDialog">#E8E8E8</color>
     
     <color name="bottom_sheet_button_background">#F4F4F4</color>
