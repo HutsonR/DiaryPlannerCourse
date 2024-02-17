@@ -3,7 +3,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/bgDialog"
+    android:background="@color/bgDialogNote"
     android:padding="24dp">
 
     <LinearLayout
@@ -21,7 +21,7 @@
                 android:id="@+id/btn_close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/bgDialog"
+                android:backgroundTint="@color/bgDialogNote"
                 app:srcCompat="@drawable/ic_add_close"
                 tools:ignore="SpeakableTextPresentCheck"
                 android:contentDescription="@string/close" />
@@ -43,7 +43,7 @@
                 android:id="@+id/btn_save"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/bgDialog"
+                android:backgroundTint="@color/bgDialogNote"
                 app:srcCompat="@drawable/ic_add_check"
                 tools:ignore="SpeakableTextPresentCheck"
                 android:contentDescription="@string/apply" />
