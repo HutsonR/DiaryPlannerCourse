@@ -19,6 +19,8 @@
     <color name="darkGray">#BDBDBD</color>
     <color name="menuColorGray">#ACACAC</color>
 
+    <color name="divider">#ECECEC</color>
+
     <color name="bgDialog">#F2F5FA</color>
     <color name="itemDialog">#FFFFFF</color>
     <color name="bgBorderDialog">#E8E8E8</color>

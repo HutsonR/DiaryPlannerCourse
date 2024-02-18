@@ -15,24 +15,14 @@ import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.BaseFragment
-import com.easyflow.diarycourse.databinding.FragmentNoteBinding
 import com.easyflow.diarycourse.databinding.FragmentTaskBinding
-import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_home.HomeViewModel
-import com.easyflow.diarycourse.features.feature_home.note.NoteViewModel
-import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogFragment
-import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogListener
-import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.DialogListener
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
@@ -159,8 +149,8 @@ class TaskFragment : BaseFragment() {
         deskEditText()
         binding.datePicker.setOnClickListener { showDatePicker() }
         binding.timeStartPicker.setOnClickListener { showTimePickerForStart() }
-        colorPicker()
         binding.timeEndPicker.alpha = 0.5f
+        colorPicker()
         setBackgroundIconColor(color)
 
         taskIconBackground.setOnClickListener { showCustomToast("В разработке...", Toast.LENGTH_SHORT) }
@@ -168,8 +158,8 @@ class TaskFragment : BaseFragment() {
 
     private fun parcelInitialize() {
         if (parcelItem != null) {
-            binding.titleAddFragment.text = getString(R.string.add_title_edit)
-            saveButtonTV.text = getString(R.string.add_title_edit_small)
+            binding.titleAddFragment.text = getString(R.string.task_edit_title)
+            saveButtonTV.text = getString(R.string.task_button_edit)
 
             title = parcelItem!!.text
             text = parcelItem!!.description
@@ -191,7 +181,7 @@ class TaskFragment : BaseFragment() {
             textEditTV.text = parcelItem!!.description
             datePickerTV.text = parcelItem!!.date
             timeStartPickerTV.text = parcelItem!!.startTime
-            timeEndPickerTV.text = parcelItem!!.endTime.ifEmpty { getString(R.string.add_date_time_blank) }
+            timeEndPickerTV.text = parcelItem!!.endTime.ifEmpty { getString(R.string.task_time_blank) }
             setColor()
             setBackgroundIconColor(parcelItem!!.color)
             // Для активации кнопки конца времени
@@ -285,16 +275,25 @@ class TaskFragment : BaseFragment() {
         }
     }
 
-    private fun viewClearTime() {
+    private fun timePicked() {
         binding.addClearTimeTV.visibility = View.VISIBLE
-        binding.addClearTime.setOnClickListener {
+        binding.timePickerTitle.text = getString(R.string.task_time_title)
+        binding.addClearTimeTV.setOnClickListener {
             binding.addClearTimeTV.visibility = View.GONE
             timeStart = ""
-            timeStartPickerTV.text = getString(R.string.add_date_time_blank)
+            timeStartPickerTV.text = getString(R.string.task_time_blank)
             timeEnd = ""
-            timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+            timeEndPickerTV.text = getString(R.string.task_time_blank)
+            binding.timePickerTitle.text = getString(R.string.task_time_title_add)
             checkTime()
             updateSaveButtonState()
+        }
+    }
+
+    private fun datePicked() {
+        if (date.isNotEmpty()) {
+            binding.datePickerText.visibility = View.VISIBLE
+            binding.datePickerTitle.text = getString(R.string.task_date_title)
         }
     }
 
@@ -303,49 +302,18 @@ class TaskFragment : BaseFragment() {
         if (timeStart.isNotEmpty() && timeEnd.isNotEmpty()) {
             val currentStartTime = LocalTime.parse(timeStart, timeFormat)
             val currentEndTime = LocalTime.parse(timeEnd, timeFormat)
-//            Проверка между временами в выбранной дате
-//            if (date.isNotEmpty()) {
-//
-//                dataList.forEach {
-//                    if (it.date == date)
-//                        sortedDataByDate.add(it)
-//                }
-//
-//                val sortedDateByTime = sortedDataByDate.sortedBy { it.startTime }
-//                var isComplete = false
-//                var prevTask: ScheduleItem = sortedDateByTime.first()
-//
-//                sortedDateByTime.drop(1).forEach {
-//                    val startTimeItem = LocalTime.parse(it.startTime, timeFormat)
-//                    val endTimeItem = LocalTime.parse(prevTask.endTime, timeFormat)
-//
-//                    if (currentStartTime.isAfter(endTimeItem) && currentEndTime.isBefore(startTimeItem)) {
-//                        timeEnd = ""
-//                        timeEndPickerTV.text = getString(R.string.add_date_time_blank)
-//                        timeStart = ""
-//                        timeStartPickerTV.text = getString(R.string.add_date_time_blank)
-//                        showCustomToast("Конечное время пересекается с задачей (начинается на $startTimeItem, оканчивается на $endTimeItem)", Toast.LENGTH_SHORT)
-//                        isComplete = true
-//                        return@forEach
-//                    }
-//                    prevTask = it
-//                }
-//                if (isComplete)
-//                    showCustomToast("Все в порядке", Toast.LENGTH_SHORT)
-//            }
-
 //            Проверка между двумя временами в окне добавления
             if (currentStartTime.isAfter(currentEndTime)) {
                 showCustomToast("Начальное время не может быть больше конечного", Toast.LENGTH_SHORT)
                 timeStart = ""
-                timeStartPickerTV.text = getString(R.string.add_date_time_blank)
+                timeStartPickerTV.text = getString(R.string.task_time_blank)
                 timeEnd = ""
-                timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+                timeEndPickerTV.text = getString(R.string.task_time_blank)
                 binding.addClearTimeTV.visibility = View.GONE
             } else if (currentStartTime == currentEndTime) {
                 showCustomToast("Если начальное время одинаково с конечным, то конечное можно не писать", Toast.LENGTH_SHORT)
                 timeEnd = ""
-                timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+                timeEndPickerTV.text = getString(R.string.task_time_blank)
             }
         }
 
@@ -443,6 +411,7 @@ class TaskFragment : BaseFragment() {
             val formattedDate = selectedDate.time.let { dateFormat.format(it) }
             date = formattedDate
             datePickerTV.text = formattedDate
+            datePicked()
             checkTime()
         }
 
@@ -512,7 +481,7 @@ class TaskFragment : BaseFragment() {
             val formattedTime = selectedTimeForStart.time.let { timeFormat.format(it) }
             timeStart = formattedTime
             timeStartPickerTV.text = timeStart
-            viewClearTime()
+            timePicked()
             checkTime()
         }
 
@@ -537,7 +506,7 @@ class TaskFragment : BaseFragment() {
             val formattedTime = selectedTimeForEnd.time.let { timeFormat.format(it) }
             timeEnd = formattedTime
             timeEndPickerTV.text = timeEnd
-            viewClearTime()
+            timePicked()
             checkTime()
         }
 

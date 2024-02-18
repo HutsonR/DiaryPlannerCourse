@@ -4,24 +4,24 @@
     <string name="temp_text">Временный текст</string>
 
     <!--  Task  -->
-    <string name="add_title">Добавить план на день</string>
-    <string name="add_title_edit">Редактировать запись</string>
-    <string name="add_title_small">Добавить</string>
-    <string name="add_title_edit_small">Изменить</string>
-    <string name="add_title_task">Введите запись</string>
-    <string name="add_desc_task">Описание</string>
-    <string name="add_medium_priority_task">Обычный приоритет</string>
-    <string name="add_date_task">Дата</string>
-    <string name="add_time_task_title">Время</string>
-    <string name="add_time_clear">Очистить</string>
-    <string name="add_time_task_start">Начало</string>
-    <string name="add_time_task_end">Конец</string>
-    <string name="add_color_task">Цвет</string>
-    <string name="add_date_task_blank">Не выбрана</string>
-    <string name="add_date_time_blank">Нет</string>
-    <string name="add_reminder_task">Напоминание</string>
-    <string name="add_blank">На этот день нет записей</string>
-    <string name="task_active">Активно</string>
+    <string name="task_main_title">Добавить план на день</string>
+    <string name="task_edit_title">Редактировать запись</string>
+    <string name="task_button_add">Добавить</string>
+    <string name="task_button_edit">Изменить</string>
+    <string name="task_name">Введите запись</string>
+    <string name="task_description">Описание</string>
+    <string name="task_date_title_add">Выбрать дату</string>
+    <string name="task_date_title">Дата</string>
+    <string name="task_date_today">Сегодня</string>
+    <string name="task_date_tomorrow">Завтра</string>
+    <string name="task_time_title_add">Выберите время</string>
+    <string name="task_time_title">Время</string>
+    <string name="task_time_clear">Очистить</string>
+    <string name="task_time_start">Начало</string>
+    <string name="task_time_end">Конец</string>
+    <string name="task_time_blank">Нет</string>
+    <string name="task_color">Цвет</string>
+    <string name="task_reminder">Напоминание</string>
 
     <!--  Main Screen  -->
     <string name="main_count_task">Кол-во записей: </string>
@@ -31,6 +31,8 @@
     <string name="main_high_priority">Важное</string>
     <string name="main_break">Перерыв</string>
     <string name="main_add_task">Добавить задачу</string>
+    <string name="main_add_blank">На этот день нет записей</string>
+    <string name="task_active">Активно</string>
 
     <!--  Note  -->
     <string name="note">Заметка</string>

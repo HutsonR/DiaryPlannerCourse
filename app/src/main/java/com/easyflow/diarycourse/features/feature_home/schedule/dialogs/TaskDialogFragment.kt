@@ -156,8 +156,8 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
 
     private fun parcelInitialize() {
         if (parcelItem != null) {
-            binding.titleAddFragment.text = getString(R.string.add_title_edit)
-            saveButtonTV.text = getString(R.string.add_title_edit_small)
+            binding.titleAddFragment.text = getString(R.string.task_edit_title)
+            saveButtonTV.text = getString(R.string.task_button_add)
 
             title = parcelItem!!.text
             text = parcelItem!!.description
@@ -179,7 +179,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             textEditTV.text = parcelItem!!.description
             datePickerTV.text = parcelItem!!.date
             timeStartPickerTV.text = parcelItem!!.startTime
-            timeEndPickerTV.text = parcelItem!!.endTime.ifEmpty { getString(R.string.add_date_time_blank) }
+            timeEndPickerTV.text = parcelItem!!.endTime.ifEmpty { getString(R.string.task_time_blank) }
             setColor()
             setBackgroundIconColor(parcelItem!!.color)
             // Для активации кнопки конца времени
@@ -275,12 +275,12 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
 
     private fun viewClearTime() {
         binding.addClearTimeTV.visibility = View.VISIBLE
-        binding.addClearTime.setOnClickListener {
+        binding.addClearTimeTV.setOnClickListener {
             binding.addClearTimeTV.visibility = View.GONE
             timeStart = ""
-            timeStartPickerTV.text = getString(R.string.add_date_time_blank)
+            timeStartPickerTV.text = getString(R.string.task_time_blank)
             timeEnd = ""
-            timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+            timeEndPickerTV.text = getString(R.string.task_time_blank)
             checkTime()
             updateSaveButtonState()
         }
@@ -291,49 +291,19 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         if (timeStart.isNotEmpty() && timeEnd.isNotEmpty()) {
             val currentStartTime = LocalTime.parse(timeStart, timeFormat)
             val currentEndTime = LocalTime.parse(timeEnd, timeFormat)
-//            Проверка между временами в выбранной дате
-//            if (date.isNotEmpty()) {
-//
-//                dataList.forEach {
-//                    if (it.date == date)
-//                        sortedDataByDate.add(it)
-//                }
-//
-//                val sortedDateByTime = sortedDataByDate.sortedBy { it.startTime }
-//                var isComplete = false
-//                var prevTask: ScheduleItem = sortedDateByTime.first()
-//
-//                sortedDateByTime.drop(1).forEach {
-//                    val startTimeItem = LocalTime.parse(it.startTime, timeFormat)
-//                    val endTimeItem = LocalTime.parse(prevTask.endTime, timeFormat)
-//
-//                    if (currentStartTime.isAfter(endTimeItem) && currentEndTime.isBefore(startTimeItem)) {
-//                        timeEnd = ""
-//                        timeEndPickerTV.text = getString(R.string.add_date_time_blank)
-//                        timeStart = ""
-//                        timeStartPickerTV.text = getString(R.string.add_date_time_blank)
-//                        showCustomToast("Конечное время пересекается с задачей (начинается на $startTimeItem, оканчивается на $endTimeItem)", Toast.LENGTH_SHORT)
-//                        isComplete = true
-//                        return@forEach
-//                    }
-//                    prevTask = it
-//                }
-//                if (isComplete)
-//                    showCustomToast("Все в порядке", Toast.LENGTH_SHORT)
-//            }
 
 //            Проверка между двумя временами в окне добавления
             if (currentStartTime.isAfter(currentEndTime)) {
                 showCustomToast("Начальное время не может быть больше конечного", Toast.LENGTH_SHORT)
                 timeStart = ""
-                timeStartPickerTV.text = getString(R.string.add_date_time_blank)
+                timeStartPickerTV.text = getString(R.string.task_time_blank)
                 timeEnd = ""
-                timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+                timeEndPickerTV.text = getString(R.string.task_time_blank)
                 binding.addClearTimeTV.visibility = View.GONE
             } else if (currentStartTime == currentEndTime) {
                 showCustomToast("Если начальное время одинаково с конечным, то конечное можно не писать", Toast.LENGTH_SHORT)
                 timeEnd = ""
-                timeEndPickerTV.text = getString(R.string.add_date_time_blank)
+                timeEndPickerTV.text = getString(R.string.task_time_blank)
             }
         }
 

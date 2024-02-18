@@ -24,7 +24,7 @@
             android:id="@+id/scheduleBlank"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/add_blank"
+            android:text="@string/main_add_blank"
             android:textSize="16sp"
             android:layout_gravity="center"
             android:layout_marginTop="80dp"
@@ -41,6 +41,6 @@
         android:layout_marginBottom="40dp"
         android:layout_marginEnd="30dp"
         tools:ignore="TouchTargetSizeCheck"
-        android:contentDescription="@string/add_title" />
+        android:contentDescription="@string/task_main_title" />
 
 </FrameLayout>
