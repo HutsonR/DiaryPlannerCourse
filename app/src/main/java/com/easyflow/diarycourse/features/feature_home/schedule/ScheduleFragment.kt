@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,7 +23,10 @@ import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.databinding.FragmentScheduleBinding
+import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.util.Resource
+import com.easyflow.diarycourse.features.feature_home.HomeViewModel
+import com.easyflow.diarycourse.features.feature_home.models.CombineModel
 import com.easyflow.diarycourse.features.feature_home.schedule.adapter.ScheduleAdapter
 import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.TaskDialogFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.DialogListener
@@ -30,6 +34,8 @@ import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.TimeChangedReceiver
 import dagger.Lazy
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -76,11 +82,8 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setFragmentListener()
-        subscribeToFlow()
-        viewModel.fetchData()
-        setAddButton()
-        setRecycler()
+        initialize()
+        setObservers()
     }
 
     override fun onDestroyView() {
@@ -88,28 +91,44 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
         super.onDestroyView()
     }
 
-    private fun subscribeToFlow() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.dataList.collect { scheduleItems: List<ScheduleItem> ->
-                    dataList.apply {
-                        clear()
-                        addAll(scheduleItems)
-                    }
-                    sortItems(dataList)
-                    adapter.notifyDataSetChanged()
-                    countSchedules(adapterList)
-                }
+    private fun initialize() {
+        setFragmentListener()
+        setAddButton()
+        setRecycler()
+    }
+
+    private fun setObservers() {
+        observeState()
+        observeActions()
+    }
+
+    private fun observeState() {
+        Log.d("debugTag", "observeState")
+        viewModel
+            .state
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle) // добавляем flowWithLifecycle
+            .onEach { state ->
+                dataCollect(state.list)
+                resultCollect(state.result)
             }
+            .launchIn(viewLifecycleOwner.lifecycleScope) // запускаем сборку потока
+    }
+
+    private fun dataCollect(items: List<ScheduleItem>) {
+        dataList.apply {
+            clear()
+            addAll(items)
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
-                viewModel.result.collect { result: Resource ->
-                    when (result) {
-                        is Resource.Success -> onSuccess()
-                        is Resource.Empty.Failed -> onFailed()
-                    }
-                }
+        sortItems(dataList)
+        adapter.notifyDataSetChanged()
+        countSchedules(adapterList)
+    }
+
+    private fun resultCollect(result: Resource?) {
+        result?.let {
+            when (it) {
+                is Resource.Success -> onSuccess()
+                is Resource.Empty.Failed -> onFailed()
             }
         }
     }
@@ -121,6 +140,17 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
 
     private fun onFailed() {
         showCustomToast(getString(R.string.fetch_error), Toast.LENGTH_SHORT)
+    }
+
+    private fun observeActions() {
+        viewModel
+            .action
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .onEach { action ->
+                when (action) {
+                    is ScheduleViewModel.Actions.ShowAlert -> showAlert(action.alertData)
+                }
+            }
     }
 
     private fun setFragmentListener() {
@@ -149,7 +179,7 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
 
     private fun setAddButton() {
         binding.fabAdd.setOnClickListener {
-            TaskDialogFragment(R.layout.fragment_add, viewModel).show(childFragmentManager, "add fragment")
+            navigateTo(R.id.taskFragment)
         }
     }
 

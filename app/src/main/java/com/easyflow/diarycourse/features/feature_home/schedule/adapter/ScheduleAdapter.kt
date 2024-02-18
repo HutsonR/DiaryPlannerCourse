@@ -16,6 +16,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.domain.models.ScheduleItem
@@ -27,6 +29,9 @@ import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.TimeChangedReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -39,6 +44,23 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatisticViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
         return StatisticViewHolder(view)
+    }
+
+    private suspend fun observeState(item: ScheduleItem, holder: StatisticViewHolder, itemView: View) {
+        viewModel
+            .state
+            .onEach { state ->
+                updateCollect(state.update, item, holder, itemView)
+            }.collect()
+    }
+
+    private suspend fun updateCollect(result: Resource?, item: ScheduleItem, holder: StatisticViewHolder, itemView: View) {
+        result?.let {
+            when (it) {
+                is Resource.Success -> onSuccess(item, holder)
+                is Resource.Empty.Failed -> onFailed(itemView)
+            }
+        }
     }
 
     @SuppressLint("ResourceAsColor")
@@ -133,15 +155,10 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
 
             isCompleteButton.setOnClickListener {
                 CoroutineScope(Dispatchers.IO).launch {
+                    observeState(item, holder, it)
+
                     val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
                     viewModel.updateData(data = updatedItem)
-
-                    viewModel.update.collect { result: Resource ->
-                        when (result) {
-                            is Resource.Success -> onSuccess(item, holder)
-                            is Resource.Empty.Failed -> onFailed(it)
-                        }
-                    }
                 }
             }
         }

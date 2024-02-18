@@ -16,7 +16,7 @@ interface NoteItemDao {
     fun getNote(date: String): NoteItemDto
 
     @Query("SELECT * FROM note_items ORDER BY id DESC")
-    fun getAll(): Flow<List<NoteItemDto>>
+    fun getAll(): List<NoteItemDto>
 
     @Query("DELETE FROM note_items WHERE id = :itemId")
     suspend fun deleteById(itemId: Int)

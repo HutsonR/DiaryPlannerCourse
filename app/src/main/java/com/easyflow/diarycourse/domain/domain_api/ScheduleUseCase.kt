@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface ScheduleUseCase {
     suspend fun insert(item: ScheduleItem): Resource
 
-    suspend fun getAll(): Flow<List<ScheduleItem>>
+    suspend fun getAll(): List<ScheduleItem>
 
     suspend fun deleteById(itemId: Int): Resource
 

@@ -1,5 +1,6 @@
 package com.easyflow.diarycourse.core
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -11,8 +12,6 @@ abstract class BaseViewModel<State, Actions>(initialState: State) : ViewModel() 
 
     private val _state: MutableStateFlow<State> = MutableStateFlow(initialState)
     val state: Flow<State> = _state
-
-    private val _stateLog by lazy { mutableListOf<State>() }
 
     /**
      * replay = 1 и _action.resetReplayCache()
@@ -35,6 +34,7 @@ abstract class BaseViewModel<State, Actions>(initialState: State) : ViewModel() 
      */
     protected fun modifyState(block: State.() -> State) {
         _state.update(block)
+        Log.d("debugTag", "modifyState")
     }
 
     /**

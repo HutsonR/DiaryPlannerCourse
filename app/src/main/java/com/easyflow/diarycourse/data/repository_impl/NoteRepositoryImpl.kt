@@ -5,8 +5,6 @@ import com.easyflow.diarycourse.data.mapper.Mapper
 import com.easyflow.diarycourse.data.models.NoteItemDto
 import com.easyflow.diarycourse.data.repository_api.NoteRepository
 import com.easyflow.diarycourse.domain.models.NoteItem
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class NoteRepositoryImpl @Inject constructor (
@@ -26,12 +24,9 @@ class NoteRepositoryImpl @Inject constructor (
         } else null
     }
 
-    override suspend fun getAll(): Flow<List<NoteItem>> {
-        val noteItemDtos: Flow<List<NoteItemDto>> = noteItemDao.getAll()
-        val noteItems: Flow<List<NoteItem>> = noteItemDtos.map { dtoList ->
-            dtoList.map { mapper.mapTo(it) }
-        }
-        return noteItems
+    override suspend fun getAll(): List<NoteItem> {
+        val noteItemDtos: List<NoteItemDto> = noteItemDao.getAll()
+        return noteItemDtos.map { mapper.mapTo(it) }
     }
 
     override suspend fun deleteById(itemId: Int) {

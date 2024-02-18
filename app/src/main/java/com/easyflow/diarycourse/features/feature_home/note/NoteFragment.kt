@@ -2,6 +2,8 @@ package com.easyflow.diarycourse.features.feature_home.note
 
 import android.content.Context
 import android.os.Bundle
+import android.provider.ContactsContract.CommonDataKinds.Note
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.easyflow.diarycourse.core.App
@@ -19,11 +22,15 @@ import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.databinding.FragmentNoteBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
+import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogFragment
 import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogListener
 import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
+import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleViewModel
 import dagger.Lazy
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -62,12 +69,8 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setFragmentListener()
-        setNoteText()
-        subscribeToFlow()
-        viewModel.fetchData(dateSelected)
-        setDate()
-        openNote()
+        initialize()
+        setObservers()
     }
 
     override fun onDestroyView() {
@@ -75,34 +78,70 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
         super.onDestroyView()
     }
 
-    private fun subscribeToFlow() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.data.collect {
-                    note = it
-                    setNoteText()
-                }
+    private fun initialize() {
+        setFragmentListener()
+        setNoteText()
+        viewModel.fetchData(dateSelected)
+        setDate()
+        openNote()
+    }
+
+    private fun setObservers() {
+        observeState()
+        observeActions()
+    }
+
+    private fun observeState() {
+        viewModel
+            .state
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .onEach { state ->
+                dataCollect(state.list)
+                resultCollect(state.result)
             }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun dataCollect(item: NoteItem?) {
+        Log.d("debugTag", "====================================")
+        Log.d("debugTag", "NOTE dataCollect $item")
+        item?.let {
+            Log.d("debugTag", "NOTE dataCollect old note: $note")
+            note = item
+            Log.d("debugTag", "NOTE dataCollect new note: $note")
+            setNoteText()
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
-                viewModel.result.collect { result: Resource ->
-                    when (result) {
-                        is Resource.Success -> onSuccess()
-                        is Resource.Empty.Failed -> onFailed()
-                    }
-                }
+    }
+
+    private fun resultCollect(result: Resource?) {
+        Log.d("debugTag", "NOTE resultCollect $result")
+        result?.let {
+            when (it) {
+                is Resource.Success -> onSuccess()
+                is Resource.Empty.Failed -> onFailed()
             }
         }
     }
 
     private fun onSuccess() {
+        Log.d("debugTag", "NOTE onSuccess")
         resetValue()
         viewModel.fetchData(dateSelected)
     }
 
     private fun onFailed() {
         showCustomToast(getString(R.string.fetch_error), Toast.LENGTH_SHORT)
+    }
+
+    private fun observeActions() {
+        viewModel
+            .action
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .onEach { action ->
+                when (action) {
+                    is NoteViewModel.Actions.ShowAlert -> showAlert(action.alertData)
+                }
+            }
     }
 
     private fun setFragmentListener() {
@@ -127,9 +166,13 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
     private fun setNoteText() {
         note?.let {
             val noteText = it.text
+            Log.d("debugTag", "NOTE setNoteText text: $noteText")
             if (noteText.isEmpty()) {
                 it.id?.let { id -> viewModel.deleteItem(id) }
-            } else binding.noteText.text = it.text
+            } else {
+                Log.d("debugTag", "NOTE setNoteText binding")
+                binding.noteText.text = noteText
+            }
         }
     }
 

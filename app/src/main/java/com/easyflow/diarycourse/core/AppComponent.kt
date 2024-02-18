@@ -6,9 +6,9 @@ import com.easyflow.diarycourse.domain.di.DomainModule
 import com.easyflow.diarycourse.features.feature_home.HomeFragment
 import com.easyflow.diarycourse.features.common.di.FeaturesModule
 import com.easyflow.diarycourse.features.feature_home.note.NoteFragment
+import com.easyflow.diarycourse.features.feature_home.task.TaskFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.ScheduleItemBottomSheetFragment
-import com.easyflow.diarycourse.features.feature_home.task.TaskFragment
 import dagger.BindsInstance
 import dagger.Component
 

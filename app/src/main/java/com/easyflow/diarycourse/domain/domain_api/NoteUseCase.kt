@@ -9,7 +9,7 @@ interface NoteUseCase {
 
     fun getNote(date: String): NoteItem?
 
-    suspend fun getAll(): Flow<List<NoteItem>>
+    suspend fun getAll(): List<NoteItem>
 
     suspend fun deleteById(itemId: Int): Resource
 

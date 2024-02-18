@@ -3,9 +3,12 @@ package com.easyflow.diarycourse.features.feature_home.schedule
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.easyflow.diarycourse.core.BaseViewModel
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.domain_api.ScheduleUseCase
 import com.easyflow.diarycourse.domain.util.Resource
+import com.easyflow.diarycourse.features.feature_home.HomeViewModel
+import com.easyflow.diarycourse.features.feature_home.models.CombineModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -14,50 +17,50 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ScheduleViewModel @Inject constructor (
+class ScheduleViewModel @Inject constructor(
     private val scheduleUseCase: ScheduleUseCase
-) : ViewModel() {
+) : BaseViewModel<ScheduleViewModel.State, ScheduleViewModel.Actions>(ScheduleViewModel.State()) {
 
-    private val _dataList = MutableSharedFlow<List<ScheduleItem>>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val dataList: SharedFlow<List<ScheduleItem>> = _dataList.asSharedFlow()
-
-    private val _result = MutableSharedFlow<Resource>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val result: SharedFlow<Resource> = _result.asSharedFlow()
-
-    private val _update = MutableSharedFlow<Resource>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val update: SharedFlow<Resource> = _update.asSharedFlow()
+    init {
+        fetchData()
+    }
 
     fun fetchData() {
         viewModelScope.launch {
-            _dataList.emitAll(scheduleUseCase.getAll())
+            val fetchData = scheduleUseCase.getAll()
+            modifyState { copy(list = fetchData) }
         }
     }
 
     fun addData(data: ScheduleItem) {
         viewModelScope.launch {
-            _result.emit(scheduleUseCase.insert(data))
+            val addData = scheduleUseCase.insert(data)
+            modifyState { copy(result = addData) }
         }
     }
 
     fun updateData(data: ScheduleItem) {
         viewModelScope.launch {
-            _update.emit(scheduleUseCase.update(data))
+            val updateData = scheduleUseCase.update(data)
+            modifyState { copy(update = updateData) }
         }
     }
 
     fun deleteItem(itemId: Int) {
         viewModelScope.launch {
-            _result.emit(scheduleUseCase.deleteById(itemId))
+            val deleteItem = scheduleUseCase.deleteById(itemId)
+            modifyState { copy(result = deleteItem) }
         }
+    }
+
+    data class State(
+        var list: List<ScheduleItem> = emptyList(),
+        var result: Resource? = null,
+        var update: Resource? = null
+    )
+
+    sealed interface Actions {
+        data class ShowAlert(val alertData: String) : Actions
     }
 
     class ScheduleViewModelFactory @Inject constructor(

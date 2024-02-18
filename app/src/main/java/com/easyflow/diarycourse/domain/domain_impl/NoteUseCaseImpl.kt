@@ -23,7 +23,7 @@ class NoteUseCaseImpl @Inject constructor (
         return noteRepository.getNote(date)
     }
 
-    override suspend fun getAll(): Flow<List<NoteItem>> {
+    override suspend fun getAll(): List<NoteItem> {
         return noteRepository.getAll()
     }
 
