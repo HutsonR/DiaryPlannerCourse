@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface ScheduleRepository {
     suspend fun insert(item: ScheduleItem)
 
-    suspend fun getAll(): Flow<List<ScheduleItem>>
+    suspend fun getAll(): List<ScheduleItem>
 
     suspend fun deleteById(itemId: Int)
 

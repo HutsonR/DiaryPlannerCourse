@@ -6,8 +6,6 @@ import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.data.models.ScheduleItemDto
 import com.easyflow.diarycourse.data.repository_api.ScheduleRepository
 import javax.inject.Inject
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class ScheduleRepositoryImpl @Inject constructor (
     private val scheduleItemDao: ScheduleItemDao
@@ -19,12 +17,9 @@ class ScheduleRepositoryImpl @Inject constructor (
         return scheduleItemDao.insert(scheduleItemDto)
     }
 
-    override suspend fun getAll(): Flow<List<ScheduleItem>> {
-        val scheduleItemDtos: Flow<List<ScheduleItemDto>> = scheduleItemDao.getAll()
-        val scheduleItems: Flow<List<ScheduleItem>> = scheduleItemDtos.map { dtoList ->
-            dtoList.map { mapper.mapTo(it) }
-        }
-        return scheduleItems
+    override suspend fun getAll(): List<ScheduleItem> {
+        val scheduleItemDtos: List<ScheduleItemDto> = scheduleItemDao.getAll()
+        return scheduleItemDtos.map { mapper.mapTo(it) }
     }
 
     override suspend fun deleteById(itemId: Int) {

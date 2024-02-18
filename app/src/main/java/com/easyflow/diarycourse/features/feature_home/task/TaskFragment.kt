@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.features.feature_home.schedule.dialogs
+package com.easyflow.diarycourse.features.feature_home.task
 
 import android.content.Context
 import android.content.res.ColorStateList
@@ -15,19 +15,32 @@ import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.core.BaseFragment
+import com.easyflow.diarycourse.databinding.FragmentNoteBinding
 import com.easyflow.diarycourse.databinding.FragmentTaskBinding
+import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleViewModel
+import com.easyflow.diarycourse.features.feature_home.HomeViewModel
+import com.easyflow.diarycourse.features.feature_home.note.NoteViewModel
+import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogFragment
+import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogListener
+import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
+import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.DialogListener
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.PriorityAdapter
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import dagger.Lazy
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -36,12 +49,17 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
+import javax.inject.Inject
 
-
-class TaskDialogFragment(private val layoutResourceId: Int, private val viewModel: ScheduleViewModel) : DialogFragment() {
+class TaskFragment : BaseFragment() {
     private val TAG = "debugTag"
     private var _binding: FragmentTaskBinding? = null
     private val binding get() = _binding!!
+    @Inject
+    lateinit var taskViewModelFactory: Lazy<TaskViewModel.TaskViewModelFactory>
+    private val viewModel: TaskViewModel by viewModels {
+        taskViewModelFactory.get()
+    }
     private var parcelItem: ScheduleItem? = null
     private var previousTitle: String = ""
     private var previousText: String = ""
@@ -68,27 +86,22 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private lateinit var saveButtonTV: TextView
     private lateinit var cancelButton: TextView
 
-    //  проверка, что активити, вызывающая DialogFragment, реализует интерфейс DialogListener
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        try {
-            dialogListener = requireParentFragment() as DialogListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException("Parent fragment must implement DialogListener")
-        }
+        (context.applicationContext as App).appComponent.inject(this)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setStyle(STYLE_NORMAL, android.R.style.Theme_DeviceDefault_Dialog_NoActionBar)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = FragmentTaskBinding.inflate(inflater)
         return _binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         parcelItem = arguments?.getParcelable("scheduleItem")
 
         lifecycleScope.launch {
@@ -101,11 +114,9 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         updateSaveButtonState()
     }
 
-    override fun onStart() {
-        super.onStart()
-        val width = ViewGroup.LayoutParams.MATCH_PARENT
-        val height = ViewGroup.LayoutParams.WRAP_CONTENT
-        dialog!!.window?.setLayout(width, height)
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     private suspend fun observeState() {
@@ -119,8 +130,9 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
     private fun updateCollect(result: Resource?) {
         result?.let {
             when (it) {
-                is Resource.Success -> dismiss()
+                is Resource.Success -> popBackStack()
                 is Resource.Empty.Failed -> onFailed()
+                else -> onFailed()
             }
         }
     }
@@ -140,7 +152,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             handleSaveButtonClicked()
         }
         cancelButton.setOnClickListener {
-            dismiss()
+            popBackStack()
         }
 
         titleEditText()
@@ -237,13 +249,13 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         } else {
             // По умолчанию обычное добавление элемента
             dialogListener.onConfirmAddDialogResult(title, text, date, priority, timeStart, timeEnd, color)
-            dismiss()
+            popBackStack()
         }
     }
 
     private fun onFailed() {
         showCustomToast(getString(R.string.error), Toast.LENGTH_SHORT)
-        dismiss()
+        popBackStack()
     }
 
     private fun calculateDuration(startTime: String, endTime: String): String {
@@ -390,7 +402,7 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
         toast.show()
     }
 
-//    Listeners
+    //    Listeners
     private fun titleEditText() {
         titleEditTV.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -551,5 +563,4 @@ class TaskDialogFragment(private val layoutResourceId: Int, private val viewMode
             Color.BLUE
         }
     }
-
 }

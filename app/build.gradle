@@ -47,6 +47,10 @@ android {
 dependencies {
 //    collapse calendar
     implementation 'com.github.shrikanth7698:Collapsible-Calendar-View-Android:v1.0.3'
+//    Navigation
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.7'
+    implementation "androidx.navigation:navigation-ui-ktx:2.7.7"
+
     implementation 'com.google.code.gson:gson:2.10'
     implementation 'androidx.fragment:fragment-ktx:1.6.2'
     implementation 'androidx.core:core-ktx:1.12.0'

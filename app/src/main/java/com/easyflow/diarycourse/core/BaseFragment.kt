@@ -1,7 +1,9 @@
 package com.easyflow.diarycourse.core
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -10,7 +12,7 @@ abstract class BaseFragment : Fragment(){
 
     override fun onResume() {
         super.onResume()
-        Log.d("FRAGMENT_LOGGER", "${javaClass.simpleName}")
+        Log.d("FRAGMENT_LOGGER", javaClass.simpleName)
     }
 
     /** Переход назад. Если параметр id  задан, то просиходит переход к экрану с этим  id.
@@ -38,6 +40,17 @@ abstract class BaseFragment : Fragment(){
         navBuilder: NavOptions.Builder? = null
     ) {
         findNavController().navigateWithAnimation(id, bundle, navBuilder)
+    }
+
+    fun showAlert(alertText: String) {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Ошибка")
+        builder.setMessage(alertText)
+        builder.setPositiveButton("OK") { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        }
+        val alertDialog = builder.create()
+        alertDialog.show()
     }
 
 }

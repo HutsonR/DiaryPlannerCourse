@@ -2,6 +2,7 @@ package com.easyflow.diarycourse.features.feature_home
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -21,6 +23,7 @@ import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.databinding.FragmentHomeBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.models.ScheduleItem
+import com.easyflow.diarycourse.features.feature_home.models.CombineModel
 import com.easyflow.diarycourse.features.feature_home.note.NoteFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
 import com.google.android.material.tabs.TabLayoutMediator
@@ -28,6 +31,8 @@ import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -69,43 +74,97 @@ class HomeFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        initialize()
+        setObservers()
+    }
+
+    private fun initialize() {
         collapsibleCalendar = binding.calendarView
 
         initViewPager()
 
         setFragmentListener()
-        subscribeToFlow()
-        viewModel.fetchData()
         setCalendarListener()
         setDayOfWeek()
         setSelectedDayButtons()
     }
 
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
+    private fun setObservers() {
+        observeState()
+        observeActions()
     }
 
-    private fun subscribeToFlow() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.dataList.combine(viewModel.noteList) { scheduleItems, noteItems ->
-                    Pair(scheduleItems, noteItems)
-                }.collect { (scheduleItems, noteItems) ->
-                    dataList.apply {
-                        clear()
-                        addAll(scheduleItems)
-                    }
-                    noteList.apply {
-                        clear()
-                        addAll(noteItems)
-                    }
-                    launch(Dispatchers.Main) {
-                        updateEventsTag(dataList, noteList)
-                    }
+    private fun observeState() {
+        Log.d("debugTag", "observeState")
+        viewModel
+            .state
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle) // добавляем flowWithLifecycle
+            .onEach { state ->
+                dataCollect(state.list)
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope) // запускаем сборку потока
+    }
+
+    private fun dataCollect(items: List<CombineModel>) {
+        Log.d("debugTag", "home dataCollect ${items.size}")
+        dataList.apply {
+            clear()
+        }
+        noteList.apply {
+            clear()
+        }
+
+        for (combineModel in items) {
+            when {
+                // Здесь проверяем условие, по которому различаем объекты
+                combineModel.startTime.isNotBlank() || combineModel.duration.isNotBlank() -> {
+                    dataList.add(
+                        ScheduleItem(
+                            id = combineModel.id,
+                            text = combineModel.text,
+                            description = combineModel.description,
+                            date = combineModel.date,
+                            startTime = combineModel.startTime,
+                            endTime = combineModel.endTime,
+                            duration = combineModel.duration,
+                            color = combineModel.color,
+                            isCompleteTask = combineModel.isCompleteTask,
+                            priority = combineModel.priority
+                        )
+                    )
+                }
+                else -> {
+                    noteList.add(
+                        NoteItem(
+                            id = combineModel.id,
+                            text = combineModel.text,
+                            date = combineModel.date
+                        )
+                    )
                 }
             }
         }
+        Log.d("debugTag", "dataCollect data $dataList")
+        Log.d("debugTag", "dataCollect note $noteList")
+        updateEventsTag(dataList, noteList)
+    }
+
+
+    private fun observeActions() {
+        viewModel
+            .action
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .onEach { action ->
+                when (action) {
+                    is HomeViewModel.Actions.ShowAlert -> showAlert(action.alertData)
+                }
+            }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     private fun setFragmentListener() {
@@ -117,6 +176,7 @@ class HomeFragment : BaseFragment() {
         }
         setFragmentResultListener("itemAddedDateKey") { _, bundle ->
             val requestValue = bundle.getString("date")
+            Log.d("debugTag", "setFragmentListener itemAddedDateKey $requestValue")
             if (requestValue != null) {
                 val dayOfMonth = requestValue.substring(0, 2).toInt()
                 val month = requestValue.substring(3, 5).toInt() - 1
@@ -131,8 +191,9 @@ class HomeFragment : BaseFragment() {
             putString("dateSelected", dateSelected)
         }
 
-        parentFragmentManager.setFragmentResult("dateKey", bundle)
-        parentFragmentManager.setFragmentResult("dateKeyNote", bundle)
+        Log.d("debugTag", "home sendDateSelected")
+        requireActivity().supportFragmentManager.setFragmentResult("dateKey", bundle)
+        requireActivity().supportFragmentManager.setFragmentResult("dateKeyNote", bundle)
     }
 
     // Подсчет кол-ва записей на день
@@ -141,6 +202,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun updateEventsTag(dataList: List<ScheduleItem>, noteList: List<NoteItem>) {
+        Log.d("debugTag", "updateEventsTag")
         val color = ContextCompat.getColor(requireContext(), R.color.blue)
         val processedDates = mutableSetOf<String>()
 

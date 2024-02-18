@@ -19,7 +19,7 @@ class ScheduleUseCaseImpl @Inject constructor (
         }
     }
 
-    override suspend fun getAll(): Flow<List<ScheduleItem>> {
+    override suspend fun getAll(): List<ScheduleItem> {
         return scheduleRepository.getAll()
     }
 

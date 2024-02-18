@@ -13,7 +13,7 @@ interface ScheduleItemDao {
     suspend fun insert(item: ScheduleItemDto)
 
     @Query("SELECT * FROM schedule_items ORDER BY id DESC")
-    fun getAll(): Flow<List<ScheduleItemDto>>
+    fun getAll(): List<ScheduleItemDto>
 
     @Query("DELETE FROM schedule_items WHERE id = :itemId")
     suspend fun deleteById(itemId: Int)
