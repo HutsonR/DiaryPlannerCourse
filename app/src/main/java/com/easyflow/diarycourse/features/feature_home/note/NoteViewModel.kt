@@ -23,10 +23,16 @@ class NoteViewModel @Inject constructor(
 ) : BaseViewModel<NoteViewModel.State, NoteViewModel.Actions>(NoteViewModel.State()) {
 
     fun fetchData(date: String) {
+        Log.d("debugTag", "NOTE fetchData")
         viewModelScope.launch {
             val fetchData = noteUseCase.getNote(date)
             fetchData?.let {
-                modifyState { copy(list = it) }
+                modifyState {
+                    copy(
+                        list = it,
+                        result = null
+                    )
+                }
             }
         }
     }
