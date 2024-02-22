@@ -1,5 +1,6 @@
 package com.easyflow.diarycourse.features.feature_home.schedule
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -35,14 +36,18 @@ class ScheduleViewModel @Inject constructor(
     fun addData(data: ScheduleItem) {
         viewModelScope.launch {
             val addData = scheduleUseCase.insert(data)
+            Log.d("debugTag", "SCHEDULE addData $addData")
             modifyState { copy(result = addData) }
+            modifyState { copy(result = null) }
         }
     }
 
     fun updateData(data: ScheduleItem) {
+        Log.d("debugTag", "SCHEDULE updateData")
         viewModelScope.launch {
             val updateData = scheduleUseCase.update(data)
             modifyState { copy(update = updateData) }
+            modifyState { copy(update = null) }
         }
     }
 
@@ -50,6 +55,7 @@ class ScheduleViewModel @Inject constructor(
         viewModelScope.launch {
             val deleteItem = scheduleUseCase.deleteById(itemId)
             modifyState { copy(result = deleteItem) }
+            modifyState { copy(result = null) }
         }
     }
 

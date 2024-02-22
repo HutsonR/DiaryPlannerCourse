@@ -166,11 +166,9 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
     private fun setNoteText() {
         note?.let {
             val noteText = it.text
-            Log.d("debugTag", "NOTE setNoteText text: $noteText")
             if (noteText.isEmpty()) {
                 it.id?.let { id -> viewModel.deleteItem(id) }
             } else {
-                Log.d("debugTag", "NOTE setNoteText binding")
                 binding.noteText.text = noteText
             }
         }

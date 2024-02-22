@@ -55,6 +55,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
     }
 
     private suspend fun updateCollect(result: Resource?, item: ScheduleItem, holder: StatisticViewHolder, itemView: View) {
+        Log.d("debugTag", "adapter updateCollect $result")
         result?.let {
             when (it) {
                 is Resource.Success -> onSuccess(item, holder)
@@ -154,10 +155,10 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             }
 
             isCompleteButton.setOnClickListener {
+                Log.d("debugTag", "clicked completeButton")
+                val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
                 CoroutineScope(Dispatchers.IO).launch {
                     observeState(item, holder, it)
-
-                    val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
                     viewModel.updateData(data = updatedItem)
                 }
             }
@@ -176,6 +177,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
     }
 
     private suspend fun onSuccess(item: ScheduleItem, holder: StatisticViewHolder) {
+        Log.d("debugTag", "adapter onSuccess")
         withContext(Dispatchers.Main) {
             item.isCompleteTask = !item.isCompleteTask
 
@@ -196,7 +198,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
     }
 
     private fun showBottomSheet(item: ScheduleItem, holder: StatisticViewHolder) {
-        val bottomSheetFragment = ScheduleItemBottomSheetFragment(viewModel, fragmentManager)
+        val bottomSheetFragment = ScheduleItemBottomSheetFragment()
 
         // Передаем всю модель в аргументы
         val args = Bundle()

@@ -11,22 +11,32 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.easyflow.diarycourse.core.App
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
 import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.core.App
+import com.easyflow.diarycourse.core.navigateWithAnimation
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleViewModel
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.Lazy
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import javax.inject.Inject
 
-class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, private val fragmentManager: FragmentManager) : BottomSheetDialogFragment() {
+class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
     private val TAG = "debugTag"
+    @Inject
+    lateinit var scheduleViewModelFactory: Lazy<ScheduleViewModel.ScheduleViewModelFactory>
+    private val viewModel: ScheduleViewModel by viewModels {
+        scheduleViewModelFactory.get()
+    }
     private lateinit var title: String
     private lateinit var dayOfWeek: String
     private lateinit var startTime: String
@@ -93,13 +103,10 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
                 }
             }
             editButton.setOnClickListener {
-                val taskDialogFragment = TaskDialogFragment(R.layout.fragment_task, viewModel)
                 // Передайте всю модель в аргументы
-                val args = Bundle()
-                args.putParcelable("scheduleItem", parcelItem)
-                taskDialogFragment.arguments = args
-
-                taskDialogFragment.show(fragmentManager, "add fragment")
+                val bundle = Bundle()
+                bundle.putParcelable("scheduleItem", parcelItem)
+                navigateTo(R.id.actionGoToTask, bundle)
                 dismiss()
             }
 
@@ -139,6 +146,14 @@ class ScheduleItemBottomSheetFragment(private val viewModel: ScheduleViewModel, 
                 is Resource.Empty.Failed -> onFailed()
             }
         }
+    }
+
+    private fun navigateTo(
+        id: Int,
+        bundle: Bundle? = null,
+        navBuilder: NavOptions.Builder? = null
+    ) {
+        findNavController().navigateWithAnimation(id, bundle, navBuilder)
     }
 
     private fun getPriorityString(priority: Priority): String {

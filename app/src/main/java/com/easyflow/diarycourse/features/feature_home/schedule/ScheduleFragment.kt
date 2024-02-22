@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.BaseFragment
+import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.databinding.FragmentScheduleBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
@@ -42,7 +44,7 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.ScheduleTimeChangedListener {
+class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedListener {
     private val TAG = "debugTag"
     private var _binding: FragmentScheduleBinding? = null
     private val binding get() = _binding!!
@@ -103,10 +105,9 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
     }
 
     private fun observeState() {
-        Log.d("debugTag", "observeState")
         viewModel
             .state
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle) // добавляем flowWithLifecycle
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .onEach { state ->
                 dataCollect(state.list)
                 resultCollect(state.result)
@@ -115,6 +116,7 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
     }
 
     private fun dataCollect(items: List<ScheduleItem>) {
+        Log.d("debugTag", "SCHEDULE dataCollect")
         dataList.apply {
             clear()
             addAll(items)
@@ -125,6 +127,7 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
     }
 
     private fun resultCollect(result: Resource?) {
+        Log.d("debugTag", "SCHEDULE resultCollect $result")
         result?.let {
             when (it) {
                 is Resource.Success -> onSuccess()
@@ -134,6 +137,7 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
     }
 
     private fun onSuccess() {
+        Log.d("debugTag", "SCHEDULE onSuccess")
         viewModel.fetchData()
         countSchedules(adapterList)
     }
@@ -156,9 +160,19 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
     private fun setFragmentListener() {
         setFragmentResultListener("dateKey") { _, bundle ->
             val requestValue = bundle.getString("dateSelected")
+            Log.d("debugTag", "SCHEDULE Listener dateKey: $requestValue")
             if (requestValue != null) {
                 dateSelected = requestValue
                 sortItems(dataList)
+            }
+        }
+
+        activity?.supportFragmentManager?.setFragmentResultListener("TASK_FRAGMENT_RESULT", this) {_, bundle ->
+            val requestValue: ScheduleItem? = bundle.getParcelable("taskItem")
+            Log.d("debugTag", "SCHEDULE Listener taskItem: $requestValue")
+            if (requestValue != null) {
+                viewModel.addData(requestValue)
+                sendItemDate(requestValue.date)
             }
         }
     }
@@ -167,19 +181,20 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
         val bundle = Bundle().apply {
             putParcelableArrayList("dataList", ArrayList(dataList))
         }
-        parentFragmentManager.setFragmentResult("dataListKey", bundle)
+        Log.d("debugTag", "SCHEDULE sendDataList ${dataList.size}")
+        activity?.supportFragmentManager?.setFragmentResult("dataListKey", bundle)
     }
 
     private fun sendItemDate(date: String) {
         val bundle = Bundle().apply {
             putString("date", date)
         }
-        parentFragmentManager.setFragmentResult("itemAddedDateKey", bundle)
+        activity?.supportFragmentManager?.setFragmentResult("itemAddedDateKey", bundle)
     }
 
     private fun setAddButton() {
         binding.fabAdd.setOnClickListener {
-            navigateTo(R.id.taskFragment)
+            navigateTo(R.id.actionGoToTask)
         }
     }
 
@@ -192,9 +207,8 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
             }
             return sortedData
         } else {
-            val today = Calendar.getInstance().time
-            val dateFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
-            dateSelected = dateFormat.format(today)
+            val today = Calendar.getInstance()
+            dateSelected = formatDate(today)
             return sortItemsByDate(dataList)
         }
     }
@@ -276,31 +290,6 @@ class ScheduleFragment : BaseFragment(), DialogListener, ScheduleAdapter.Schedul
         toast.duration = duration
         toast.view = layout
         toast.show()
-    }
-
-    // Получение данных из диалога добавления расписания
-    override fun onConfirmAddDialogResult(
-        title: String,
-        text: String,
-        date: String,
-        priority: Priority,
-        timeStart: String,
-        timeEnd: String,
-        color: Color
-    ) {
-        val data = ScheduleItem(
-            text = title,
-            description = text,
-            date = date,
-            priority = priority,
-            startTime = timeStart,
-            endTime = timeEnd,
-            duration = calculateDuration(timeStart, timeEnd),
-            color = color,
-            isCompleteTask = false
-        )
-        viewModel.addData(data)
-        sendItemDate(data.date)
     }
 
 }
