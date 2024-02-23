@@ -10,8 +10,16 @@
         android:label="Home"
         tools:layout="@layout/fragment_home" />
     <fragment
+        android:id="@+id/scheduleFragment"
+        android:name="com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment"
+        android:label="Schedule"
+        tools:layout="@layout/fragment_schedule" />
+    <fragment
         android:id="@+id/taskFragment"
         android:name="com.easyflow.diarycourse.features.feature_home.task.TaskFragment"
         android:label="Task"
         tools:layout="@layout/fragment_task" />
+    <action
+        android:id="@+id/actionGoToTask"
+        app:destination="@id/taskFragment" />
 </navigation>

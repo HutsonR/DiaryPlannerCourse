@@ -43,6 +43,7 @@ class HomeFragment : BaseFragment() {
     private val TAG = "debugTag"
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+
     @Inject
     lateinit var homeViewModelFactory: Lazy<HomeViewModel.HomeViewModelFactory>
     private val viewModel: HomeViewModel by viewModels {
@@ -54,10 +55,6 @@ class HomeFragment : BaseFragment() {
     private var noteList: MutableList<NoteItem> = mutableListOf()
     var dateSelected: String = ""
     private var defaultTabIndex = 0
-
-    companion object {
-        fun newInstance() = HomeFragment()
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -96,7 +93,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun observeState() {
-        Log.d("debugTag", "observeState")
+        Log.d("debugTag", "HOME observeState")
         viewModel
             .state
             .flowWithLifecycle(viewLifecycleOwner.lifecycle) // добавляем flowWithLifecycle
@@ -107,7 +104,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun dataCollect(items: List<CombineModel>) {
-        Log.d("debugTag", "home dataCollect ${items.size}")
+        Log.d("debugTag", "HOME dataCollect ${items.size}")
         dataList.apply {
             clear()
         }
@@ -134,6 +131,7 @@ class HomeFragment : BaseFragment() {
                         )
                     )
                 }
+
                 else -> {
                     noteList.add(
                         NoteItem(
@@ -145,11 +143,9 @@ class HomeFragment : BaseFragment() {
                 }
             }
         }
-        Log.d("debugTag", "dataCollect data $dataList")
-        Log.d("debugTag", "dataCollect note $noteList")
+
         updateEventsTag(dataList, noteList)
     }
-
 
     private fun observeActions() {
         viewModel
@@ -168,32 +164,39 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun setFragmentListener() {
-        setFragmentResultListener("dataListKey") { _, bundle ->
-            val requestValue = bundle.getParcelableArrayList<ScheduleItem>("dataList")
+        activity?.supportFragmentManager?.setFragmentResultListener("dataListKey", viewLifecycleOwner) { _, result ->
+            val requestValue = result.getParcelableArrayList<ScheduleItem>("dataList")
+            Log.d("debugTag", "HOME Listener dataListKey $requestValue")
             if (requestValue != null) {
                 countSchedules(requestValue)
             }
         }
-        setFragmentResultListener("itemAddedDateKey") { _, bundle ->
+
+        activity?.supportFragmentManager?.setFragmentResultListener("itemAddedDateKey", viewLifecycleOwner) { _, bundle ->
             val requestValue = bundle.getString("date")
-            Log.d("debugTag", "setFragmentListener itemAddedDateKey $requestValue")
+            Log.d("debugTag", "HOME Listener itemAddedDateKey $requestValue")
             if (requestValue != null) {
                 val dayOfMonth = requestValue.substring(0, 2).toInt()
                 val month = requestValue.substring(3, 5).toInt() - 1
                 val year = requestValue.substring(6).toInt()
-                collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, ContextCompat.getColor(requireContext(), R.color.blue))
+                collapsibleCalendar.addEventTag(
+                    "20$year".toInt(),
+                    month,
+                    dayOfMonth,
+                    ContextCompat.getColor(requireContext(), R.color.blue)
+                )
             }
         }
     }
 
     private fun sendDateSelected(dateSelected: String) {
         val bundle = Bundle().apply {
-            putString("dateSelected", dateSelected)
+            putString(FRAGMENT_DATE, dateSelected)
         }
 
-        Log.d("debugTag", "home sendDateSelected")
-        requireActivity().supportFragmentManager.setFragmentResult("dateKey", bundle)
-        requireActivity().supportFragmentManager.setFragmentResult("dateKeyNote", bundle)
+        Log.d("debugTag", "HOME sendDateSelected $dateSelected")
+        requireActivity().supportFragmentManager.setFragmentResult(KEY_FRAGMENT_SCHEDULE_RESULT_DATE, bundle)
+        requireActivity().supportFragmentManager.setFragmentResult(KEY_FRAGMENT_NOTE_RESULT_DATE, bundle)
     }
 
     // Подсчет кол-ва записей на день
@@ -202,7 +205,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun updateEventsTag(dataList: List<ScheduleItem>, noteList: List<NoteItem>) {
-        Log.d("debugTag", "updateEventsTag")
+        Log.d("debugTag", "HOME updateEventsTag")
         val color = ContextCompat.getColor(requireContext(), R.color.blue)
         val processedDates = mutableSetOf<String>()
 
@@ -308,8 +311,15 @@ class HomeFragment : BaseFragment() {
     // Инициализация TabsLayout и отображение фрагментов
     private fun initViewPager() {
         binding.mainViewPager.adapter = FragmentPagerAdapter(requireActivity())
-        binding.mainViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+        binding.mainViewPager.registerOnPageChangeCallback(object :
+            ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+            }
+
             override fun onPageSelected(position: Int) {}
             override fun onPageScrollStateChanged(state: Int) {}
         })
@@ -339,9 +349,17 @@ class HomeFragment : BaseFragment() {
         override fun getItemCount(): Int {
             return fragment.size
         }
+
         override fun createFragment(position: Int): Fragment {
             return fragment[position]
         }
+    }
+
+    companion object {
+        const val KEY_FRAGMENT_SCHEDULE_RESULT_DATE = "dateKeySchedule"
+        const val KEY_FRAGMENT_NOTE_RESULT_DATE = "dateKeyNote"
+
+        const val FRAGMENT_DATE = "dateSelected"
     }
 
 }

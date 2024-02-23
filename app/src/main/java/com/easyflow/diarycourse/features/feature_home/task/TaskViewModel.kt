@@ -1,5 +1,6 @@
 package com.easyflow.diarycourse.features.feature_home.task
 
+import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -20,13 +21,6 @@ import javax.inject.Inject
 class TaskViewModel @Inject constructor(
     private val scheduleUseCase: ScheduleUseCase
 ) : BaseViewModel<TaskViewModel.State, TaskViewModel.Actions>(TaskViewModel.State()) {
-
-    fun updateData(data: ScheduleItem) {
-        viewModelScope.launch {
-            val updateData = scheduleUseCase.update(data)
-            modifyState { copy(update = updateData) }
-        }
-    }
 
     data class State(
         var update: Resource? = null

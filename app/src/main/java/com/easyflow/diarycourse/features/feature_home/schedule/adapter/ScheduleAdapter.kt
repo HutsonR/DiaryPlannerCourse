@@ -16,8 +16,10 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.domain.models.ScheduleItem
@@ -40,21 +42,20 @@ import java.util.Locale
 import java.util.Timer
 import java.util.TimerTask
 
-class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: ScheduleViewModel, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
+class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: ScheduleViewModel, private val activity: FragmentActivity?) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatisticViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
         return StatisticViewHolder(view)
     }
 
-    private suspend fun observeState(item: ScheduleItem, holder: StatisticViewHolder, itemView: View) {
-        viewModel
-            .state
-            .onEach { state ->
-                updateCollect(state.update, item, holder, itemView)
-            }.collect()
+    private suspend fun subscribeToFlow(item: ScheduleItem, holder: StatisticViewHolder, itemView: View) {
+        viewModel.result.collect { result ->
+            resultCollect(result, item, holder, itemView)
+        }
     }
 
-    private suspend fun updateCollect(result: Resource?, item: ScheduleItem, holder: StatisticViewHolder, itemView: View) {
+    private suspend fun resultCollect(result: Resource?, item: ScheduleItem, holder: StatisticViewHolder, itemView: View) {
+        Log.d("debugTag", "adapter updateCollect $result")
         result?.let {
             when (it) {
                 is Resource.Success -> onSuccess(item, holder)
@@ -154,14 +155,22 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             }
 
             isCompleteButton.setOnClickListener {
+                Log.d("debugTag", "clicked completeButton")
+                val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
                 CoroutineScope(Dispatchers.IO).launch {
-                    observeState(item, holder, it)
-
-                    val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
-                    viewModel.updateData(data = updatedItem)
+                    subscribeToFlow(item, holder, it)
                 }
+                sendItemToUpdate(updatedItem)
             }
         }
+    }
+
+    private fun sendItemToUpdate(item: ScheduleItem) {
+        val bundle = Bundle().apply {
+            putParcelable(FRAGMENT_TASK_ITEM, item)
+        }
+        Log.d("debugTag", "ADAPTER sendItemToUpdate")
+        activity?.supportFragmentManager?.setFragmentResult(KEY_ADAPTER_RESULT_UPD, bundle)
     }
 
     override fun getItemCount(): Int {
@@ -176,6 +185,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
     }
 
     private suspend fun onSuccess(item: ScheduleItem, holder: StatisticViewHolder) {
+        Log.d("debugTag", "adapter onSuccess")
         withContext(Dispatchers.Main) {
             item.isCompleteTask = !item.isCompleteTask
 
@@ -196,7 +206,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
     }
 
     private fun showBottomSheet(item: ScheduleItem, holder: StatisticViewHolder) {
-        val bottomSheetFragment = ScheduleItemBottomSheetFragment(viewModel, fragmentManager)
+        val bottomSheetFragment = ScheduleItemBottomSheetFragment()
 
         // Передаем всю модель в аргументы
         val args = Bundle()
@@ -225,6 +235,12 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
 
     interface ScheduleTimeChangedListener : TimeChangedReceiver.TimeChangedListener {
         override fun onTimeChanged()
+    }
+
+    companion object {
+        const val KEY_ADAPTER_RESULT_UPD = "KEY_FRAGMENT_RESULT_UPD"
+
+        const val FRAGMENT_TASK_ITEM = "taskItem"
     }
 
 }

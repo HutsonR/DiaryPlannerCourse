@@ -16,23 +16,19 @@ class NoteRepositoryImpl @Inject constructor (
         val noteItemDto = mapper.mapFrom(item)
         return noteItemDao.insert(noteItemDto)
     }
-
     override fun getNote(date: String): NoteItem? {
         val noteItemDto: NoteItemDto? = noteItemDao.getNote(date)
         return if (noteItemDto != null) {
             mapper.mapTo(noteItemDto)
         } else null
     }
-
     override suspend fun getAll(): List<NoteItem> {
         val noteItemDtos: List<NoteItemDto> = noteItemDao.getAll()
         return noteItemDtos.map { mapper.mapTo(it) }
     }
-
     override suspend fun deleteById(itemId: Int) {
         return noteItemDao.deleteById(itemId)
     }
-
     override suspend fun update(item: NoteItem) {
         val noteItemDto = mapper.mapFrom(item)
         return noteItemDao.update(noteItemDto)

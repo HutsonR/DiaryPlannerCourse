@@ -143,26 +143,60 @@
                         android:layout_height="1dp"
                         android:background="@color/divider" />
 
-                    <TextView
+                    <LinearLayout
                         android:id="@+id/datePickerToday"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/task_date_today"
-                        android:textSize="14sp"
-                        android:textColor="@color/black"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center_vertical"
+                        android:background="?attr/selectableItemBackground"
                         android:layout_marginTop="6dp"
                         android:paddingVertical="12dp"
-                        android:paddingHorizontal="24dp" />
-                    <TextView
+                        android:paddingHorizontal="24dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/task_date_today"
+                            android:textSize="14sp"
+                            android:layout_weight="1"
+                            android:textColor="@color/black" />
+
+                        <ImageView
+                            android:id="@+id/datePickerTodayChecked"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/apply"
+                            app:srcCompat="@drawable/ic_add_check"
+                            android:visibility="invisible"
+                            tools:ignore="SpeakableTextPresentCheck" />
+                    </LinearLayout>
+                    <LinearLayout
                         android:id="@+id/datePickerTomorrow"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/task_date_tomorrow"
-                        android:textSize="14sp"
-                        android:textColor="@color/black"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center_vertical"
+                        android:background="?attr/selectableItemBackground"
                         android:layout_marginBottom="6dp"
                         android:paddingVertical="12dp"
-                        android:paddingHorizontal="24dp" />
+                        android:paddingHorizontal="24dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/task_date_tomorrow"
+                            android:textSize="14sp"
+                            android:layout_weight="1"
+                            android:textColor="@color/black" />
+
+                        <ImageView
+                            android:id="@+id/datePickerTomorrowChecked"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/apply"
+                            app:srcCompat="@drawable/ic_add_check"
+                            android:visibility="invisible"
+                            tools:ignore="SpeakableTextPresentCheck" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <!--        TIME        -->
@@ -467,14 +501,15 @@
                     android:textSize="16sp"
                     android:textColor="@color/alwaysWhite"
                     android:layout_marginEnd="12dp" />
-                <ImageButton
+
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/background_radius25_primary"
-                    app:srcCompat="@drawable/ic_add_check"
-                    tools:ignore="SpeakableTextPresentCheck"
                     android:contentDescription="@string/apply"
-                    app:tint="@color/alwaysWhite" />
+                    app:srcCompat="@drawable/ic_add_check"
+                    app:tint="@color/alwaysWhite"
+                    tools:ignore="SpeakableTextPresentCheck" />
             </LinearLayout>
         </LinearLayout>
 

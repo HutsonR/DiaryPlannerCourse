@@ -13,7 +13,7 @@ data class ScheduleItem(
     val date: String,
     val startTime: String,
     val endTime: String,
-    val duration: String,
+    val duration: String = "",
     val color: Color,
     var isCompleteTask: Boolean = false,
     val priority: Priority
