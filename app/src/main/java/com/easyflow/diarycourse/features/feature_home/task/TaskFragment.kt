@@ -18,7 +18,6 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.navGraphViewModels
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.BaseFragment
@@ -26,7 +25,6 @@ import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentTaskBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleViewModel
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.PriorityAdapter
@@ -53,10 +51,6 @@ class TaskFragment : BaseFragment() {
     lateinit var taskViewModelFactory: Lazy<TaskViewModel.TaskViewModelFactory>
     private val taskViewModel: TaskViewModel by viewModels {
         taskViewModelFactory.get()
-    }
-    @Inject lateinit var scheduleViewModelFactory: Lazy<ScheduleViewModel.ScheduleViewModelFactory>
-    private val scheduleViewModel: ScheduleViewModel by navGraphViewModels(R.id.taskFragment) {
-        scheduleViewModelFactory.get()
     }
     private var parcelItem: ScheduleItem? = null
     private var previousTitle: String = ""
@@ -254,7 +248,8 @@ class TaskFragment : BaseFragment() {
                     color = color,
                     isCompleteTask = parcelItem!!.isCompleteTask
                 )
-                scheduleViewModel.updateData(data = updatedItem)
+                sendTaskItem(updatedItem)
+                popBackStack()
             }
         } else {
             // По умолчанию обычное добавление элемента
@@ -269,7 +264,6 @@ class TaskFragment : BaseFragment() {
                 color = color,
                 isCompleteTask = false
             )
-//            scheduleViewModel.addData(taskItem)
             sendTaskItem(taskItem)
             popBackStack()
         }
@@ -282,11 +276,13 @@ class TaskFragment : BaseFragment() {
 
     private fun sendTaskItem(item: ScheduleItem) {
         val bundle = Bundle().apply {
-            putParcelable("taskItem", item)
+            putParcelable(FRAGMENT_TASK_ITEM, item)
         }
         Log.d("debugTag", "==========================================================================")
         Log.d("debugTag", "sendTaskItem item: $item bundle: $bundle")
-        activity?.supportFragmentManager?.setFragmentResult(KEY_FRAGMENT_RESULT, bundle)
+        if (parcelItem != null) {
+            activity?.supportFragmentManager?.setFragmentResult(KEY_TASK_FRAGMENT_RESULT_UPD, bundle)
+        } else activity?.supportFragmentManager?.setFragmentResult(KEY_TASK_FRAGMENT_RESULT_ADD, bundle)
     }
 
     private fun calculateDuration(startTime: String, endTime: String): String {
@@ -666,6 +662,9 @@ class TaskFragment : BaseFragment() {
     }
 
     companion object {
-        const val KEY_FRAGMENT_RESULT = "TASK_FRAGMENT_RESULT"
+        const val KEY_TASK_FRAGMENT_RESULT_ADD = "KEY_TASK_FRAGMENT_RESULT_ADD"
+        const val KEY_TASK_FRAGMENT_RESULT_UPD = "KEY_FRAGMENT_RESULT_UPD"
+
+        const val FRAGMENT_TASK_ITEM = "taskItem"
     }
 }

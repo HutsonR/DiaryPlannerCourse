@@ -56,10 +56,6 @@ class HomeFragment : BaseFragment() {
     var dateSelected: String = ""
     private var defaultTabIndex = 0
 
-    companion object {
-        fun newInstance() = HomeFragment()
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (context.applicationContext as App).appComponent.inject(this)
@@ -195,12 +191,12 @@ class HomeFragment : BaseFragment() {
 
     private fun sendDateSelected(dateSelected: String) {
         val bundle = Bundle().apply {
-            putString("dateSelected", dateSelected)
+            putString(FRAGMENT_DATE, dateSelected)
         }
 
         Log.d("debugTag", "HOME sendDateSelected $dateSelected")
-        requireActivity().supportFragmentManager.setFragmentResult("dateKey", bundle)
-        requireActivity().supportFragmentManager.setFragmentResult("dateKeyNote", bundle)
+        requireActivity().supportFragmentManager.setFragmentResult(KEY_FRAGMENT_SCHEDULE_RESULT_DATE, bundle)
+        requireActivity().supportFragmentManager.setFragmentResult(KEY_FRAGMENT_NOTE_RESULT_DATE, bundle)
     }
 
     // Подсчет кол-ва записей на день
@@ -357,6 +353,13 @@ class HomeFragment : BaseFragment() {
         override fun createFragment(position: Int): Fragment {
             return fragment[position]
         }
+    }
+
+    companion object {
+        const val KEY_FRAGMENT_SCHEDULE_RESULT_DATE = "dateKeySchedule"
+        const val KEY_FRAGMENT_NOTE_RESULT_DATE = "dateKeyNote"
+
+        const val FRAGMENT_DATE = "dateSelected"
     }
 
 }

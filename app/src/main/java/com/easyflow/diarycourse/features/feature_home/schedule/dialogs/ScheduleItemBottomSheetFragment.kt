@@ -3,40 +3,26 @@ package com.easyflow.diarycourse.features.feature_home.schedule.dialogs
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.navigateWithAnimation
 import com.easyflow.diarycourse.domain.models.ScheduleItem
-import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleViewModel
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import dagger.Lazy
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import java.util.Calendar
-import javax.inject.Inject
 
 class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
     private val TAG = "debugTag"
-    @Inject
-    lateinit var scheduleViewModelFactory: Lazy<ScheduleViewModel.ScheduleViewModelFactory>
-    private val viewModel: ScheduleViewModel by viewModels {
-        scheduleViewModelFactory.get()
-    }
     private lateinit var title: String
     private lateinit var dayOfWeek: String
     private lateinit var startTime: String
@@ -55,10 +41,6 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_schedule_item_bottom_sheet, container, false)
 
-        lifecycleScope.launch {
-            observeState()
-        }
-
         val titleTV: TextView = view.findViewById(R.id.schedule_sheet_title)
         val descriptionTV: TextView = view.findViewById(R.id.schedule_sheet_description)
         val startTimeTV: TextView = view.findViewById(R.id.schedule_sheet_timeStart)
@@ -72,7 +54,7 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
 
         val parcelItem = arguments?.getParcelable<ScheduleItem>("scheduleItem")
 
-        if (parcelItem != null) {
+        parcelItem?.let {
             title = parcelItem.text
             description = parcelItem.description
             startTime = parcelItem.startTime
@@ -90,26 +72,20 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
                 completeButton.text = getString(R.string.button_uncomplete)
 
             deleteButton.setOnClickListener {
-                parcelItem.id?.let {
-                    lifecycleScope.launch {
-                        viewModel.deleteItem(parcelItem.id)
-                    }
-                }
+                sendItemToDelete(parcelItem)
+                dismiss()
             }
             completeButton.setOnClickListener {
-                lifecycleScope.launch {
-                    val updatedItem = parcelItem.copy(isCompleteTask = !parcelItem.isCompleteTask)
-                    viewModel.updateData(data = updatedItem)
-                }
+                val updatedItem = parcelItem.copy(isCompleteTask = !parcelItem.isCompleteTask)
+                sendItemToUpdate(updatedItem)
+                dismiss()
             }
             editButton.setOnClickListener {
-                // Передайте всю модель в аргументы
                 val bundle = Bundle()
                 bundle.putParcelable("scheduleItem", parcelItem)
                 navigateTo(R.id.actionGoToTask, bundle)
                 dismiss()
             }
-
         }
 
         titleTV.text = title
@@ -121,31 +97,18 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
         return view
     }
 
-    private suspend fun observeState() {
-        viewModel
-            .state
-            .onEach { state ->
-                resultCollect(state.result)
-                updateCollect(state.update)
-            }.collect()
+    private fun sendItemToDelete(item: ScheduleItem) {
+        val bundle = Bundle().apply {
+            putParcelable(FRAGMENT_TASK_ITEM, item)
+        }
+        activity?.supportFragmentManager?.setFragmentResult(KEY_BOTTOM_SHEET_RESULT_DEL, bundle)
     }
 
-    private fun resultCollect(result: Resource?) {
-        result?.let {
-            when (it) {
-                is Resource.Success -> dismiss()
-                is Resource.Empty.Failed -> onFailed()
-            }
+    private fun sendItemToUpdate(item: ScheduleItem) {
+        val bundle = Bundle().apply {
+            putParcelable(FRAGMENT_TASK_ITEM, item)
         }
-    }
-
-    private fun updateCollect(result: Resource?) {
-        result?.let {
-            when (it) {
-                is Resource.Success -> dismiss()
-                is Resource.Empty.Failed -> onFailed()
-            }
-        }
+        activity?.supportFragmentManager?.setFragmentResult(KEY_BOTTOM_SHEET_RESULT_UPD, bundle)
     }
 
     private fun navigateTo(
@@ -186,8 +149,11 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun onFailed() {
-        Toast.makeText(requireContext(), getString(R.string.error), Toast.LENGTH_SHORT).show()
+    companion object {
+        const val KEY_BOTTOM_SHEET_RESULT_DEL = "KEY_BOTTOM_SHEET_RESULT_DEL"
+        const val KEY_BOTTOM_SHEET_RESULT_UPD = "KEY_FRAGMENT_RESULT_UPD"
+
+        const val FRAGMENT_TASK_ITEM = "taskItem"
     }
 
 }

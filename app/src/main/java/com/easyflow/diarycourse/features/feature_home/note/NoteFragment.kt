@@ -49,10 +49,6 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
     private var dateSelected: String = ""
     private var note: NoteItem? = null
 
-    companion object {
-        fun newInstance() = ScheduleFragment()
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (context.applicationContext as App).appComponent.inject(this)
@@ -146,8 +142,8 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
 
     private fun setFragmentListener() {
         // Установка новой заметки
-        setFragmentResultListener("dateKeyNote") { _, bundle ->
-            val requestValue = bundle.getString("dateSelected")
+        setFragmentResultListener(KEY_FRAGMENT_NOTE_RESULT_DATE) { _, bundle ->
+            val requestValue = bundle.getString(FRAGMENT_DATE)
             if (requestValue != null) {
                 dateSelected = requestValue
                 resetValue()
@@ -220,5 +216,11 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
         )
         viewModel.addData(data)
         sendItemDate(dateSelected)
+    }
+
+    companion object {
+        const val KEY_FRAGMENT_NOTE_RESULT_DATE = "dateKeyNote"
+
+        const val FRAGMENT_DATE = "dateSelected"
     }
 }

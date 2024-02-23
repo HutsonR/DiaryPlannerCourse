@@ -9,8 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -25,23 +23,14 @@ import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.databinding.FragmentScheduleBinding
-import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_home.HomeViewModel
-import com.easyflow.diarycourse.features.feature_home.models.CombineModel
 import com.easyflow.diarycourse.features.feature_home.schedule.adapter.ScheduleAdapter
-import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.TaskDialogFragment
-import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.DialogListener
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.TimeChangedReceiver
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 import javax.inject.Inject
 
 class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedListener {
@@ -57,10 +46,6 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     private var dataList: MutableList<ScheduleItem> = mutableListOf()
     private var adapterList: MutableList<ScheduleItem> = mutableListOf()
     private var dateSelected: String = ""
-
-    companion object {
-        fun newInstance() = ScheduleFragment()
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -100,6 +85,7 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     private fun setObservers() {
+        subscribeToFlow()
         observeState()
         observeActions()
     }
@@ -107,10 +93,9 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     private fun observeState() {
         viewModel
             .state
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
                 dataCollect(state.list)
-                resultCollect(state.result)
             }
             .launchIn(viewLifecycleOwner.lifecycleScope) // запускаем сборку потока
     }
@@ -124,6 +109,27 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         sortItems(dataList)
         adapter.notifyDataSetChanged()
         countSchedules(adapterList)
+    }
+
+    private fun observeActions() {
+        viewModel
+            .action
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .onEach { action ->
+                when (action) {
+                    is ScheduleViewModel.Actions.ShowAlert -> showAlert(action.alertData)
+                }
+            }
+    }
+
+    private fun subscribeToFlow() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.result.collect { result ->
+                    resultCollect(result)
+                }
+            }
+        }
     }
 
     private fun resultCollect(result: Resource?) {
@@ -146,33 +152,37 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         showCustomToast(getString(R.string.fetch_error), Toast.LENGTH_SHORT)
     }
 
-    private fun observeActions() {
-        viewModel
-            .action
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-            .onEach { action ->
-                when (action) {
-                    is ScheduleViewModel.Actions.ShowAlert -> showAlert(action.alertData)
-                }
-            }
-    }
-
     private fun setFragmentListener() {
-        setFragmentResultListener("dateKey") { _, bundle ->
-            val requestValue = bundle.getString("dateSelected")
+        // Из HomeFragment
+        setFragmentResultListener(KEY_FRAGMENT_SCHEDULE_RESULT_DATE) { _, bundle ->
+            val requestValue = bundle.getString(FRAGMENT_DATE)
             Log.d("debugTag", "SCHEDULE Listener dateKey: $requestValue")
             if (requestValue != null) {
                 dateSelected = requestValue
                 sortItems(dataList)
             }
         }
-
-        activity?.supportFragmentManager?.setFragmentResultListener("TASK_FRAGMENT_RESULT", this) {_, bundle ->
-            val requestValue: ScheduleItem? = bundle.getParcelable("taskItem")
+        // Из TaskFragment
+        activity?.supportFragmentManager?.setFragmentResultListener(KEY_TASK_FRAGMENT_RESULT_ADD, this) {_, bundle ->
+            val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
             Log.d("debugTag", "SCHEDULE Listener taskItem: $requestValue")
             if (requestValue != null) {
                 viewModel.addData(requestValue)
                 sendItemDate(requestValue.date)
+            }
+        }
+        activity?.supportFragmentManager?.setFragmentResultListener(KEY_FRAGMENT_RESULT_UPD, this) {_, bundle ->
+            val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
+            Log.d("debugTag", "SCHEDULE Listener taskItem update: $requestValue")
+            if (requestValue != null) {
+                viewModel.updateData(requestValue)
+            }
+        }
+        activity?.supportFragmentManager?.setFragmentResultListener(KEY_BOTTOM_SHEET_RESULT_DEL, this) { _, bundle ->
+            val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
+            Log.d("debugTag", "SCHEDULE Listener taskItem delete: $requestValue")
+            if (requestValue != null) {
+                requestValue.id?.let { viewModel.deleteItem(it) }
             }
         }
     }
@@ -239,38 +249,11 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         }
     }
 
-    private fun calculateDuration(startTime: String, endTime: String): String {
-        if (endTime.isEmpty()) {
-            return "бессрочно"
-        }
-
-        val startParts = startTime.split(":")
-        val endParts = endTime.split(":")
-
-        val startHours = startParts[0].toInt()
-        val startMinutes = startParts[1].toInt()
-
-        val endHours = endParts[0].toInt()
-        val endMinutes = endParts[1].toInt()
-
-        val durationMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes)
-
-        val durationHours = durationMinutes / 60
-        val remainingMinutes = durationMinutes % 60
-
-        return when {
-            durationHours > 0 && remainingMinutes > 0 -> "$durationHours ч. $remainingMinutes мин."
-            durationHours > 0 -> "$durationHours ч."
-            remainingMinutes > 0 -> "$remainingMinutes мин."
-            else -> "0 мин."
-        }
-    }
-
     private fun setRecycler() {
         recyclerView = binding.recycleSchedule
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        adapter = ScheduleAdapter(adapterList, viewModel, childFragmentManager)
+        adapter = ScheduleAdapter(adapterList, viewModel, activity)
         recyclerView.adapter = adapter
     }
 
@@ -290,6 +273,17 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         toast.duration = duration
         toast.view = layout
         toast.show()
+    }
+
+    companion object {
+        const val KEY_FRAGMENT_SCHEDULE_RESULT_DATE = "dateKeySchedule"
+        const val KEY_FRAGMENT_RESULT_UPD = "KEY_FRAGMENT_RESULT_UPD"
+        const val KEY_ADAPTER_RESULT_UPD = "KEY_ADAPTER_RESULT_UPD"
+        const val KEY_TASK_FRAGMENT_RESULT_ADD = "KEY_TASK_FRAGMENT_RESULT_ADD"
+        const val KEY_BOTTOM_SHEET_RESULT_DEL = "KEY_BOTTOM_SHEET_RESULT_DEL"
+
+        const val FRAGMENT_TASK_ITEM = "taskItem"
+        const val FRAGMENT_DATE = "dateSelected"
     }
 
 }

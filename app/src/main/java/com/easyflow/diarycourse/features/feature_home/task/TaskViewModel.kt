@@ -22,13 +22,6 @@ class TaskViewModel @Inject constructor(
     private val scheduleUseCase: ScheduleUseCase
 ) : BaseViewModel<TaskViewModel.State, TaskViewModel.Actions>(TaskViewModel.State()) {
 
-    fun updateData(data: ScheduleItem) {
-        viewModelScope.launch {
-            val updateData = scheduleUseCase.update(data)
-            modifyState { copy(update = updateData) }
-        }
-    }
-
     data class State(
         var update: Resource? = null
     )
