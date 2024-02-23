@@ -37,7 +37,8 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     private val TAG = "debugTag"
     private var _binding: FragmentScheduleBinding? = null
     private val binding get() = _binding!!
-    @Inject lateinit var scheduleViewModelFactory: Lazy<ScheduleViewModel.ScheduleViewModelFactory>
+    @Inject
+    lateinit var scheduleViewModelFactory: Lazy<ScheduleViewModel.ScheduleViewModelFactory>
     private val viewModel: ScheduleViewModel by viewModels {
         scheduleViewModelFactory.get()
     }
@@ -149,7 +150,7 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     private fun onFailed() {
-        showCustomToast(getString(R.string.fetch_error), Toast.LENGTH_SHORT)
+        Toast.makeText(requireContext(), getString(R.string.fetch_error), Toast.LENGTH_SHORT).show()
     }
 
     private fun setFragmentListener() {
@@ -163,7 +164,10 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
             }
         }
         // Из TaskFragment
-        activity?.supportFragmentManager?.setFragmentResultListener(KEY_TASK_FRAGMENT_RESULT_ADD, this) {_, bundle ->
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            KEY_TASK_FRAGMENT_RESULT_ADD,
+            this
+        ) { _, bundle ->
             val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
             Log.d("debugTag", "SCHEDULE Listener taskItem: $requestValue")
             if (requestValue != null) {
@@ -171,14 +175,20 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
                 sendItemDate(requestValue.date)
             }
         }
-        activity?.supportFragmentManager?.setFragmentResultListener(KEY_FRAGMENT_RESULT_UPD, this) {_, bundle ->
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            KEY_FRAGMENT_RESULT_UPD,
+            this
+        ) { _, bundle ->
             val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
             Log.d("debugTag", "SCHEDULE Listener taskItem update: $requestValue")
             if (requestValue != null) {
                 viewModel.updateData(requestValue)
             }
         }
-        activity?.supportFragmentManager?.setFragmentResultListener(KEY_BOTTOM_SHEET_RESULT_DEL, this) { _, bundle ->
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            KEY_BOTTOM_SHEET_RESULT_DEL,
+            this
+        ) { _, bundle ->
             val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
             Log.d("debugTag", "SCHEDULE Listener taskItem delete: $requestValue")
             if (requestValue != null) {
@@ -261,24 +271,9 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         adapter.notifyDataSetChanged()
     }
 
-    private fun showCustomToast(message: String, duration: Int) {
-        val inflater = layoutInflater
-        val layout = inflater.inflate(R.layout.custom_toast, binding.root.findViewById(R.id.custom_toast_layout))
-
-        val text = layout.findViewById<TextView>(R.id.customToastText)
-        text.text = message
-
-        val toast = Toast(requireContext())
-        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 80)
-        toast.duration = duration
-        toast.view = layout
-        toast.show()
-    }
-
     companion object {
         const val KEY_FRAGMENT_SCHEDULE_RESULT_DATE = "dateKeySchedule"
         const val KEY_FRAGMENT_RESULT_UPD = "KEY_FRAGMENT_RESULT_UPD"
-        const val KEY_ADAPTER_RESULT_UPD = "KEY_ADAPTER_RESULT_UPD"
         const val KEY_TASK_FRAGMENT_RESULT_ADD = "KEY_TASK_FRAGMENT_RESULT_ADD"
         const val KEY_BOTTOM_SHEET_RESULT_DEL = "KEY_BOTTOM_SHEET_RESULT_DEL"
 

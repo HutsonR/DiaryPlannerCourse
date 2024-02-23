@@ -1,6 +1,5 @@
 package com.easyflow.diarycourse.features.feature_home.note
 
-import android.provider.ContactsContract.CommonDataKinds.Note
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,13 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.easyflow.diarycourse.core.BaseViewModel
 import com.easyflow.diarycourse.domain.domain_api.NoteUseCase
 import com.easyflow.diarycourse.domain.models.NoteItem
-import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleViewModel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

@@ -1,6 +1,5 @@
 package com.easyflow.diarycourse.features.feature_home.note.dialogs
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.text.Editable
@@ -21,9 +20,10 @@ import com.easyflow.diarycourse.features.feature_home.note.NoteViewModel
 import kotlinx.coroutines.launch
 
 
-class NoteDialogFragment(private val layoutResourceId: Int, private val viewModel: NoteViewModel) : DialogFragment() {
+class NoteDialogFragment(private val viewModel: NoteViewModel) : DialogFragment() {
     private val TAG = "debugTag"
-    private lateinit var binding: FragmentNoteDialogBinding
+    private var _binding: FragmentNoteDialogBinding? = null
+    private val binding get() = _binding!!
     private var parcelItem: NoteItem? = null
     private var previousText: String = ""
     private var text: String = ""
@@ -48,10 +48,9 @@ class NoteDialogFragment(private val layoutResourceId: Int, private val viewMode
         setStyle(STYLE_NORMAL, R.style.FullScreenDialog)
     }
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentNoteDialogBinding.inflate(inflater)
-        return binding.root
+        _binding = FragmentNoteDialogBinding.inflate(inflater, container, false)
+        return _binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

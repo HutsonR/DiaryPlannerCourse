@@ -31,7 +31,6 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun fetchData() {
-        Log.d("debugTag", "home fetch Data")
         viewModelScope.launch {
             val combineModels: MutableList<CombineModel> = mutableListOf()
 

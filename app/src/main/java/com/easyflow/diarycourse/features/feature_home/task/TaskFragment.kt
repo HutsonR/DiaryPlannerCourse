@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -159,10 +158,11 @@ class TaskFragment : BaseFragment() {
         setBackgroundIconColor(color)
 
         taskIconBackground.setOnClickListener {
-            showCustomToast(
+            Toast.makeText(
+                requireContext(),
                 "В разработке...",
                 Toast.LENGTH_SHORT
-            )
+            ).show()
         }
     }
 
@@ -270,7 +270,7 @@ class TaskFragment : BaseFragment() {
     }
 
     private fun onFailed() {
-        showCustomToast(getString(R.string.error), Toast.LENGTH_SHORT)
+        Toast.makeText(requireContext(), getString(R.string.error), Toast.LENGTH_SHORT).show()
         popBackStack()
     }
 
@@ -334,20 +334,14 @@ class TaskFragment : BaseFragment() {
             val currentEndTime = LocalTime.parse(timeEnd, timeFormat)
 //            Проверка между двумя временами в окне добавления
             if (currentStartTime.isAfter(currentEndTime)) {
-                showCustomToast(
-                    "Начальное время не может быть больше конечного",
-                    Toast.LENGTH_SHORT
-                )
+                Toast.makeText(requireContext(), "Начальное время не может быть больше конечного", Toast.LENGTH_SHORT).show()
                 timeStart = ""
                 timeStartPickerTV.text = getString(R.string.task_time_blank)
                 timeEnd = ""
                 timeEndPickerTV.text = getString(R.string.task_time_blank)
                 binding.addClearTimeTV.visibility = View.GONE
             } else if (currentStartTime == currentEndTime) {
-                showCustomToast(
-                    "Если начальное время одинаково с конечным, то конечное можно не писать",
-                    Toast.LENGTH_SHORT
-                )
+                Toast.makeText(requireContext(), "Если начальное время одинаково с конечным, то конечное можно не писать", Toast.LENGTH_SHORT).show()
                 timeEnd = ""
                 timeEndPickerTV.text = getString(R.string.task_time_blank)
             }
@@ -449,23 +443,6 @@ class TaskFragment : BaseFragment() {
                 break
             }
         }
-    }
-
-    private fun showCustomToast(message: String, duration: Int) {
-        val inflater = layoutInflater
-        val layout = inflater.inflate(
-            R.layout.custom_toast,
-            binding.root.findViewById(R.id.custom_toast_layout)
-        )
-
-        val text = layout.findViewById<TextView>(R.id.customToastText)
-        text.text = message
-
-        val toast = Toast(requireContext())
-        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 80)
-        toast.duration = duration
-        toast.view = layout
-        toast.show()
     }
 
     //    Listeners

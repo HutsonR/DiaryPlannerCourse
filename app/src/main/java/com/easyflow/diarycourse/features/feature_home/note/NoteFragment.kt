@@ -2,7 +2,6 @@ package com.easyflow.diarycourse.features.feature_home.note
 
 import android.content.Context
 import android.os.Bundle
-import android.provider.ContactsContract.CommonDataKinds.Note
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -10,28 +9,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.databinding.FragmentNoteBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
-import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogFragment
 import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogListener
-import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
-import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleViewModel
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -177,7 +170,7 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
 
     private fun openNote() {
         binding.noteWrapper.setOnClickListener {
-            val noteDialogFragment = NoteDialogFragment(R.layout.fragment_note_dialog, viewModel)
+            val noteDialogFragment = NoteDialogFragment(viewModel)
             if (note != null) {
                 val args = Bundle()
                 args.putParcelable("noteItem", note)
