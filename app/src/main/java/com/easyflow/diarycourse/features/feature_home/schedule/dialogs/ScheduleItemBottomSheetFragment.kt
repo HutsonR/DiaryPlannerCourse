@@ -11,13 +11,11 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavOptions
-import androidx.navigation.fragment.findNavController
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
-import com.easyflow.diarycourse.core.navigateWithAnimation
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_home.task.TaskFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Calendar
 
@@ -81,9 +79,12 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
                 dismiss()
             }
             editButton.setOnClickListener {
+                val taskFragment = TaskFragment()
                 val bundle = Bundle()
                 bundle.putParcelable("scheduleItem", parcelItem)
-                navigateTo(R.id.actionGoToTask, bundle)
+                taskFragment.arguments = bundle
+
+                taskFragment.show(parentFragmentManager, "taskFragment")
                 dismiss()
             }
         }
@@ -109,14 +110,6 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
             putParcelable(FRAGMENT_TASK_ITEM, item)
         }
         activity?.supportFragmentManager?.setFragmentResult(KEY_BOTTOM_SHEET_RESULT_UPD, bundle)
-    }
-
-    private fun navigateTo(
-        id: Int,
-        bundle: Bundle? = null,
-        navBuilder: NavOptions.Builder? = null
-    ) {
-        findNavController().navigateWithAnimation(id, bundle, navBuilder)
     }
 
     private fun getPriorityString(priority: Priority): String {

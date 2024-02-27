@@ -3,11 +3,9 @@ package com.easyflow.diarycourse.features.feature_home.schedule
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -26,6 +24,7 @@ import com.easyflow.diarycourse.databinding.FragmentScheduleBinding
 import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_home.schedule.adapter.ScheduleAdapter
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.TimeChangedReceiver
+import com.easyflow.diarycourse.features.feature_home.task.TaskFragment
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -214,7 +213,7 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
 
     private fun setAddButton() {
         binding.fabAdd.setOnClickListener {
-            navigateTo(R.id.actionGoToTask)
+            TaskFragment().show(childFragmentManager, "taskFragment")
         }
     }
 

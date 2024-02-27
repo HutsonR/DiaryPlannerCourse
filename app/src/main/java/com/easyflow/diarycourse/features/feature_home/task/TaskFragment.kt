@@ -10,11 +10,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.easyflow.diarycourse.core.App
@@ -27,6 +29,9 @@ import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.PriorityAdapter
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -41,7 +46,7 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class TaskFragment : BaseFragment() {
+class TaskFragment : BottomSheetDialogFragment() {
     private val TAG = "debugTag"
     private var _binding: FragmentTaskBinding? = null
     private val binding get() = _binding!!
@@ -85,6 +90,16 @@ class TaskFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
+        dialog?.setOnShowListener { dialog ->
+            val layout: FrameLayout? = (dialog as BottomSheetDialog).
+            findViewById(com.google.android.material.R.id.design_bottom_sheet)
+            layout?.let {
+                val behavior = BottomSheetBehavior.from(it)
+                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+                behavior.skipCollapsed = true
+            }
+        }
         _binding = FragmentTaskBinding.inflate(inflater)
         return _binding?.root
     }
@@ -124,7 +139,7 @@ class TaskFragment : BaseFragment() {
     private fun updateCollect(result: Resource?) {
         result?.let {
             when (it) {
-                is Resource.Success -> popBackStack()
+                is Resource.Success -> dismiss()
                 is Resource.Empty.Failed -> onFailed()
             }
         }
@@ -145,7 +160,7 @@ class TaskFragment : BaseFragment() {
             handleSaveButtonClicked()
         }
         cancelButton.setOnClickListener {
-            popBackStack()
+            dismiss()
         }
 
         titleEditText()
@@ -249,7 +264,7 @@ class TaskFragment : BaseFragment() {
                     isCompleteTask = parcelItem!!.isCompleteTask
                 )
                 sendTaskItem(updatedItem)
-                popBackStack()
+                dismiss()
             }
         } else {
             // По умолчанию обычное добавление элемента
@@ -265,13 +280,13 @@ class TaskFragment : BaseFragment() {
                 isCompleteTask = false
             )
             sendTaskItem(taskItem)
-            popBackStack()
+            dismiss()
         }
     }
 
     private fun onFailed() {
         Toast.makeText(requireContext(), getString(R.string.error), Toast.LENGTH_SHORT).show()
-        popBackStack()
+        dismiss()
     }
 
     private fun sendTaskItem(item: ScheduleItem) {
