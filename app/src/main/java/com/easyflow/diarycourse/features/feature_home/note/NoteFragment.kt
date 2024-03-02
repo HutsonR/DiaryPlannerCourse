@@ -3,34 +3,34 @@ package com.easyflow.diarycourse.features.feature_home.note
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.BaseFragment
+import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentNoteBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogFragment
-import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogListener
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
-class NoteFragment : BaseFragment(), NoteDialogListener {
+class NoteFragment : BaseFragment() {
     private val TAG = "debugTag"
     private var _binding: FragmentNoteBinding? = null
     private val binding get() = _binding!!
@@ -68,6 +68,7 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
     }
 
     private fun initialize() {
+        dateInitialize()
         setFragmentListener()
         setNoteText()
         viewModel.fetchData(dateSelected)
@@ -76,6 +77,7 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
     }
 
     private fun setObservers() {
+        subscribeToFlow()
         observeState()
         observeActions()
     }
@@ -85,41 +87,16 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
             .state
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .onEach { state ->
-                dataCollect(state.list)
-                resultCollect(state.result)
+                dataCollect(state.note)
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     private fun dataCollect(item: NoteItem?) {
-        Log.d("debugTag", "====================================")
-        Log.d("debugTag", "NOTE dataCollect $item")
         item?.let {
-            Log.d("debugTag", "NOTE dataCollect old note: $note")
             note = item
-            Log.d("debugTag", "NOTE dataCollect new note: $note")
             setNoteText()
         }
-    }
-
-    private fun resultCollect(result: Resource?) {
-        Log.d("debugTag", "NOTE resultCollect $result")
-        result?.let {
-            when (it) {
-                is Resource.Success -> onSuccess()
-                is Resource.Empty.Failed -> onFailed()
-            }
-        }
-    }
-
-    private fun onSuccess() {
-        Log.d("debugTag", "NOTE onSuccess")
-        resetValue()
-        viewModel.fetchData(dateSelected)
-    }
-
-    private fun onFailed() {
-        showCustomToast(getString(R.string.fetch_error), Toast.LENGTH_SHORT)
     }
 
     private fun observeActions() {
@@ -133,14 +110,75 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
             }
     }
 
+    private fun subscribeToFlow() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.result.collect { result ->
+                    resultCollect(result)
+                }
+            }
+        }
+    }
+
+    private fun resultCollect(result: Resource?) {
+        result?.let {
+            when (it) {
+                is Resource.Success -> onSuccess()
+                is Resource.Empty.Failed -> onFailed()
+            }
+        }
+    }
+
+    private fun onSuccess() {
+        resetValue()
+        viewModel.fetchData(dateSelected)
+    }
+
+    private fun onFailed() {
+        Toast.makeText(requireContext(), getString(R.string.fetch_error), Toast.LENGTH_SHORT).show()
+    }
+
     private fun setFragmentListener() {
-        // Установка новой заметки
+        // Из HomeFragment
         setFragmentResultListener(KEY_FRAGMENT_NOTE_RESULT_DATE) { _, bundle ->
             val requestValue = bundle.getString(FRAGMENT_DATE)
-            if (requestValue != null) {
-                dateSelected = requestValue
+            requestValue?.let {
+                dateSelected = it
                 resetValue()
                 viewModel.fetchData(dateSelected)
+            }
+        }
+        // Из NoteDialogFragment
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            KEY_NOTE_FRAGMENT_RESULT_ADD,
+            this
+        ) { _, bundle ->
+            val requestValue: NoteItem? = bundle.getParcelable(FRAGMENT_NOTE_ITEM)
+            requestValue?.let {
+                val noteItem = NoteItem(
+                    text = it.text,
+                    date = dateSelected
+                )
+                viewModel.addData(noteItem)
+                sendItemDate(dateSelected)
+            }
+        }
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            KEY_NOTE_FRAGMENT_RESULT_UPD,
+            this
+        ) { _, bundle ->
+            val requestValue: NoteItem? = bundle.getParcelable(FRAGMENT_NOTE_ITEM)
+            requestValue?.let {
+                viewModel.updateData(it)
+            }
+        }
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            KEY_NOTE_FRAGMENT_RESULT_DEL,
+            this
+        ) { _, bundle ->
+            val requestValue: Int? = bundle.getInt(FRAGMENT_NOTE_ITEM_ID)
+            requestValue?.let {
+                viewModel.deleteItem(it)
             }
         }
     }
@@ -150,6 +188,11 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
             putString("date", date)
         }
         parentFragmentManager.setFragmentResult("itemAddedDateKey", bundle)
+    }
+
+    private fun dateInitialize() {
+        val today = Calendar.getInstance()
+        dateSelected = formatDate(today)
     }
 
     private fun setNoteText() {
@@ -170,7 +213,7 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
 
     private fun openNote() {
         binding.noteWrapper.setOnClickListener {
-            val noteDialogFragment = NoteDialogFragment(viewModel)
+            val noteDialogFragment = NoteDialogFragment()
             if (note != null) {
                 val args = Bundle()
                 args.putParcelable("noteItem", note)
@@ -188,32 +231,14 @@ class NoteFragment : BaseFragment(), NoteDialogListener {
         }
     }
 
-    private fun showCustomToast(message: String, duration: Int) {
-        val inflater = layoutInflater
-        val layout = inflater.inflate(R.layout.custom_toast, binding.root.findViewById(R.id.custom_toast_layout))
-
-        val text = layout.findViewById<TextView>(R.id.customToastText)
-        text.text = message
-
-        val toast = Toast(requireContext())
-        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 80)
-        toast.duration = duration
-        toast.view = layout
-        toast.show()
-    }
-
-    override fun onConfirmAddDialogResult(text: String) {
-        val data = NoteItem(
-            text = text,
-            date = dateSelected
-        )
-        viewModel.addData(data)
-        sendItemDate(dateSelected)
-    }
-
     companion object {
         const val KEY_FRAGMENT_NOTE_RESULT_DATE = "dateKeyNote"
+        const val KEY_NOTE_FRAGMENT_RESULT_ADD = "KEY_NOTE_FRAGMENT_RESULT_ADD"
+        const val KEY_NOTE_FRAGMENT_RESULT_UPD = "KEY_NOTE_FRAGMENT_RESULT_UPD"
+        const val KEY_NOTE_FRAGMENT_RESULT_DEL = "KEY_NOTE_FRAGMENT_RESULT_DEL"
 
         const val FRAGMENT_DATE = "dateSelected"
+        const val FRAGMENT_NOTE_ITEM = "NOTE_ITEM"
+        const val FRAGMENT_NOTE_ITEM_ID = "NOTE_ITEM_ID"
     }
 }

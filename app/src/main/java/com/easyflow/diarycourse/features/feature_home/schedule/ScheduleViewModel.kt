@@ -32,7 +32,6 @@ class ScheduleViewModel @Inject constructor(
     fun fetchData() {
         viewModelScope.launch {
             val fetchData = scheduleUseCase.getAll()
-            Log.d("debugTag", "SCHEDULE fetchData $fetchData")
             modifyState { copy(list = fetchData) }
         }
     }
@@ -40,7 +39,6 @@ class ScheduleViewModel @Inject constructor(
     fun addData(data: ScheduleItem) {
         viewModelScope.launch {
             val addData = scheduleUseCase.insert(data)
-            Log.d("debugTag", "SCHEDULE addData $addData")
             _result.emit(addData)
         }
     }
@@ -48,7 +46,6 @@ class ScheduleViewModel @Inject constructor(
     fun updateData(data: ScheduleItem) {
         viewModelScope.launch {
             val updateData = scheduleUseCase.update(data)
-            Log.d("debugTag", "SCHEDULE updateData $updateData")
             _result.emit(updateData)
         }
     }
@@ -56,7 +53,6 @@ class ScheduleViewModel @Inject constructor(
     fun deleteItem(itemId: Int) {
         viewModelScope.launch {
             val deleteItem = scheduleUseCase.deleteById(itemId)
-            Log.d("debugTag", "SCHEDULE deleteItem $deleteItem")
             _result.emit(deleteItem)
         }
     }

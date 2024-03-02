@@ -25,6 +25,7 @@ import com.easyflow.diarycourse.features.feature_home.models.CombineModel
 import com.easyflow.diarycourse.features.feature_home.note.NoteFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
 import com.google.android.material.tabs.TabLayoutMediator
+import com.shrikanthravi.collapsiblecalendarview.data.Day
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
@@ -88,7 +89,6 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun observeState() {
-        Log.d("debugTag", "HOME observeState")
         viewModel
             .state
             .flowWithLifecycle(viewLifecycleOwner.lifecycle) // добавляем flowWithLifecycle
@@ -99,47 +99,48 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun dataCollect(items: List<CombineModel>) {
-        Log.d("debugTag", "HOME dataCollect ${items.size}")
-        dataList.apply {
-            clear()
-        }
-        noteList.apply {
-            clear()
-        }
+        if (dataList.isEmpty() || noteList.isEmpty()) {
+            dataList.apply {
+                clear()
+            }
+            noteList.apply {
+                clear()
+            }
 
-        for (combineModel in items) {
-            when {
-                // Здесь проверяем условие, по которому различаем объекты
-                combineModel.startTime.isNotBlank() || combineModel.duration.isNotBlank() -> {
-                    dataList.add(
-                        ScheduleItem(
-                            id = combineModel.id,
-                            text = combineModel.text,
-                            description = combineModel.description,
-                            date = combineModel.date,
-                            startTime = combineModel.startTime,
-                            endTime = combineModel.endTime,
-                            duration = combineModel.duration,
-                            color = combineModel.color,
-                            isCompleteTask = combineModel.isCompleteTask,
-                            priority = combineModel.priority
+            for (combineModel in items) {
+                when {
+                    // Здесь проверяем условие, по которому различаем объекты
+                    combineModel.startTime.isNotBlank() || combineModel.duration.isNotBlank() -> {
+                        dataList.add(
+                            ScheduleItem(
+                                id = combineModel.id,
+                                text = combineModel.text,
+                                description = combineModel.description,
+                                date = combineModel.date,
+                                startTime = combineModel.startTime,
+                                endTime = combineModel.endTime,
+                                duration = combineModel.duration,
+                                color = combineModel.color,
+                                isCompleteTask = combineModel.isCompleteTask,
+                                priority = combineModel.priority
+                            )
                         )
-                    )
-                }
+                    }
 
-                else -> {
-                    noteList.add(
-                        NoteItem(
-                            id = combineModel.id,
-                            text = combineModel.text,
-                            date = combineModel.date
+                    else -> {
+                        noteList.add(
+                            NoteItem(
+                                id = combineModel.id,
+                                text = combineModel.text,
+                                date = combineModel.date
+                            )
                         )
-                    )
+                    }
                 }
             }
-        }
 
-        updateEventsTag(dataList, noteList)
+            updateEventsTag(dataList, noteList)
+        }
     }
 
     private fun observeActions() {
@@ -273,6 +274,7 @@ class HomeFragment : BaseFragment() {
 
     // Установка дня недели при выборе
     private fun setSelectedDayOfWeek() {
+        Log.d("debugTag", "HOME setSelectedDayOfWeek")
         collapsibleCalendar.selectedDay?.let { selectedDate ->
             val calendar = Calendar.getInstance().apply {
                 set(Calendar.YEAR, selectedDate.year)

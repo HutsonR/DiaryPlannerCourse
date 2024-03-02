@@ -133,7 +133,6 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     private fun resultCollect(result: Resource?) {
-        Log.d("debugTag", "SCHEDULE resultCollect $result")
         result?.let {
             when (it) {
                 is Resource.Success -> onSuccess()
@@ -143,7 +142,6 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     private fun onSuccess() {
-        Log.d("debugTag", "SCHEDULE onSuccess")
         viewModel.fetchData()
         countSchedules(adapterList)
     }
@@ -156,9 +154,8 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         // Из HomeFragment
         setFragmentResultListener(KEY_FRAGMENT_SCHEDULE_RESULT_DATE) { _, bundle ->
             val requestValue = bundle.getString(FRAGMENT_DATE)
-            Log.d("debugTag", "SCHEDULE Listener dateKey: $requestValue")
-            if (requestValue != null) {
-                dateSelected = requestValue
+            requestValue?.let {
+                dateSelected = it
                 sortItems(dataList)
             }
         }
@@ -168,10 +165,9 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
             this
         ) { _, bundle ->
             val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
-            Log.d("debugTag", "SCHEDULE Listener taskItem: $requestValue")
-            if (requestValue != null) {
-                viewModel.addData(requestValue)
-                sendItemDate(requestValue.date)
+            requestValue?.let {
+                viewModel.addData(it)
+                sendItemDate(it.date)
             }
         }
         activity?.supportFragmentManager?.setFragmentResultListener(
@@ -179,19 +175,18 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
             this
         ) { _, bundle ->
             val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
-            Log.d("debugTag", "SCHEDULE Listener taskItem update: $requestValue")
-            if (requestValue != null) {
-                viewModel.updateData(requestValue)
+            requestValue?.let {
+                viewModel.updateData(it)
             }
         }
+        // Из ScheduleItemBottomSheetFragment
         activity?.supportFragmentManager?.setFragmentResultListener(
             KEY_BOTTOM_SHEET_RESULT_DEL,
             this
         ) { _, bundle ->
             val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
-            Log.d("debugTag", "SCHEDULE Listener taskItem delete: $requestValue")
-            if (requestValue != null) {
-                requestValue.id?.let { viewModel.deleteItem(it) }
+            requestValue?.let {
+                it.id?.let { id -> viewModel.deleteItem(id) }
             }
         }
     }
@@ -200,7 +195,6 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         val bundle = Bundle().apply {
             putParcelableArrayList("dataList", ArrayList(dataList))
         }
-        Log.d("debugTag", "SCHEDULE sendDataList ${dataList.size}")
         activity?.supportFragmentManager?.setFragmentResult("dataListKey", bundle)
     }
 

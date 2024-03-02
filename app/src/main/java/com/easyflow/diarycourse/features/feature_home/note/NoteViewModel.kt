@@ -8,6 +8,10 @@ import com.easyflow.diarycourse.core.BaseViewModel
 import com.easyflow.diarycourse.domain.domain_api.NoteUseCase
 import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.util.Resource
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,17 +19,19 @@ class NoteViewModel @Inject constructor(
     private val noteUseCase: NoteUseCase
 ) : BaseViewModel<NoteViewModel.State, NoteViewModel.Actions>(NoteViewModel.State()) {
 
+    private val _result = MutableSharedFlow<Resource>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val result: SharedFlow<Resource> = _result.asSharedFlow()
+
     fun fetchData(date: String) {
-        Log.d("debugTag", "NOTE fetchData")
         viewModelScope.launch {
             val fetchData = noteUseCase.getNote(date)
-            fetchData?.let {
-                modifyState {
-                    copy(
-                        list = it,
-                        result = null
-                    )
-                }
+            modifyState {
+                copy(
+                    note = fetchData
+                )
             }
         }
     }
@@ -33,31 +39,26 @@ class NoteViewModel @Inject constructor(
     fun addData(data: NoteItem) {
         viewModelScope.launch {
             val addData = noteUseCase.insert(data)
-            modifyState { copy(result = addData) }
+            _result.emit(addData)
         }
     }
 
     fun updateData(data: NoteItem) {
         viewModelScope.launch {
             val updateData = noteUseCase.update(data)
-            Log.d("debugTag", "NOTE viewModel updateData")
-            modifyState { copy(result = updateData) }
+            _result.emit(updateData)
         }
     }
 
     fun deleteItem(itemId: Int) {
         viewModelScope.launch {
             val deleteItem = noteUseCase.deleteById(itemId)
-            modifyState { copy(result = deleteItem) }
+            _result.emit(deleteItem)
         }
     }
 
-//    TODO Сделать setDate
-
     data class State(
-        var list: NoteItem? = null,
-        var result: Resource? = null,
-        var selectedDate: String? = null
+        var note: NoteItem? = null
     )
 
     sealed interface Actions {

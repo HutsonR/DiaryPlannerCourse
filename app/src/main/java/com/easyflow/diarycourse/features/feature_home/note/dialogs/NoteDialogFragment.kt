@@ -16,11 +16,13 @@ import androidx.lifecycle.lifecycleScope
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.databinding.FragmentNoteDialogBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
+import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.features.feature_home.note.NoteViewModel
+import com.easyflow.diarycourse.features.feature_home.task.TaskFragment
 import kotlinx.coroutines.launch
 
 
-class NoteDialogFragment(private val viewModel: NoteViewModel) : DialogFragment() {
+class NoteDialogFragment : DialogFragment() {
     private val TAG = "debugTag"
     private var _binding: FragmentNoteDialogBinding? = null
     private val binding get() = _binding!!
@@ -28,20 +30,9 @@ class NoteDialogFragment(private val viewModel: NoteViewModel) : DialogFragment(
     private var previousText: String = ""
     private var text: String = ""
     private lateinit var textEditTV: TextView
-    private lateinit var dialogListener: NoteDialogListener
     private lateinit var saveButton: ImageButton
     private lateinit var cancelButton: ImageButton
     private lateinit var deleteButton: Button
-
-    //  проверка, что активити, вызывающая DialogFragment, реализует интерфейс DialogListener
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        try {
-            dialogListener = requireParentFragment() as NoteDialogListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException("Parent fragment must implement DialogListener")
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +72,7 @@ class NoteDialogFragment(private val viewModel: NoteViewModel) : DialogFragment(
             binding.viewOffsetHelper.visibility = View.GONE
             deleteButton.setOnClickListener {
                 lifecycleScope.launch {
-                    parcelItem!!.id?.let { id -> viewModel.deleteItem(id) }
+                    parcelItem!!.id?.let { id -> sendDeleteItem(id) }
                     dismiss()
                 }
             }
@@ -118,18 +109,42 @@ class NoteDialogFragment(private val viewModel: NoteViewModel) : DialogFragment(
         if (parcelItem != null) {
             // Для редактирования элемента
             lifecycleScope.launch {
-                val updatedItem = parcelItem!!.copy(
-                    text = text,
+                val updatedNoteItem = parcelItem!!.copy(
+                    text = text
                 )
-                viewModel.updateData(data = updatedItem)
-                Log.d("debugTag", "NOTE handleSaveButtonClicked $updatedItem")
+                sendNoteItem(updatedNoteItem)
+                Log.d("debugTag", "NOTE handleSaveButtonClicked $updatedNoteItem")
                 dismiss()
             }
         } else {
             // По умолчанию обычное добавление элемента
-            dialogListener.onConfirmAddDialogResult(text)
+            val noteItem = NoteItem(
+                text = text,
+                date = ""
+            )
+            sendNoteItem(noteItem)
             dismiss()
         }
+    }
+
+    private fun sendNoteItem(item: NoteItem) {
+        val bundle = Bundle().apply {
+            putParcelable(FRAGMENT_NOTE_ITEM, item)
+        }
+        Log.d("debugTag", "==========================================================================")
+        Log.d("debugTag", "sendNoteItem item: $item bundle: $bundle")
+        if (parcelItem != null) {
+            activity?.supportFragmentManager?.setFragmentResult(KEY_NOTE_FRAGMENT_RESULT_UPD, bundle)
+        } else activity?.supportFragmentManager?.setFragmentResult(KEY_NOTE_FRAGMENT_RESULT_ADD, bundle)
+    }
+
+    private fun sendDeleteItem(id: Int) {
+        val bundle = Bundle().apply {
+            putInt(FRAGMENT_NOTE_ITEM_ID, id)
+        }
+        Log.d("debugTag", "==========================================================================")
+        Log.d("debugTag", "sendNoteItem delete id: $id bundle: $bundle")
+        activity?.supportFragmentManager?.setFragmentResult(KEY_NOTE_FRAGMENT_RESULT_DEL, bundle)
     }
 
 //    Listeners
@@ -144,5 +159,14 @@ class NoteDialogFragment(private val viewModel: NoteViewModel) : DialogFragment(
 
             override fun afterTextChanged(s: Editable?) {}
         })
+    }
+
+    companion object {
+        const val KEY_NOTE_FRAGMENT_RESULT_ADD = "KEY_NOTE_FRAGMENT_RESULT_ADD"
+        const val KEY_NOTE_FRAGMENT_RESULT_UPD = "KEY_NOTE_FRAGMENT_RESULT_UPD"
+        const val KEY_NOTE_FRAGMENT_RESULT_DEL = "KEY_NOTE_FRAGMENT_RESULT_DEL"
+
+        const val FRAGMENT_NOTE_ITEM = "NOTE_ITEM"
+        const val FRAGMENT_NOTE_ITEM_ID = "NOTE_ITEM_ID"
     }
 }
