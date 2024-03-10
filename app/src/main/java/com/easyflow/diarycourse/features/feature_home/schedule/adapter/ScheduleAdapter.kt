@@ -58,8 +58,8 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
         Log.d("debugTag", "adapter updateCollect $result")
         result?.let {
             when (it) {
-                is Resource.Success -> onSuccess(item, holder)
-                is Resource.Empty.Failed -> onFailed(itemView)
+                is Resource.Success<*> -> onSuccess(item, holder)
+                is Resource.Failed -> onFailed(itemView)
             }
         }
     }

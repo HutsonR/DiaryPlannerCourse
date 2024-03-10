@@ -139,8 +139,8 @@ class TaskFragment : BottomSheetDialogFragment() {
     private fun updateCollect(result: Resource?) {
         result?.let {
             when (it) {
-                is Resource.Success -> dismiss()
-                is Resource.Empty.Failed -> onFailed()
+                is Resource.Success<*> -> dismiss()
+                is Resource.Failed -> onFailed()
             }
         }
     }
