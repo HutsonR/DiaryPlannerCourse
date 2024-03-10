@@ -10,12 +10,11 @@ import javax.inject.Inject
 class ScheduleUseCaseImpl @Inject constructor (
     private val scheduleRepository: ScheduleRepository
 ): ScheduleUseCase {
-    override suspend fun insert(item: ScheduleItem): Resource {
+    override suspend fun insert(item: ScheduleItem): Resource{
         return if (item.text.isEmpty() || item.date.isEmpty() || item.startTime.isEmpty())
-            Resource.Empty.Failed
+            Resource.Failed(Exception("Fields can not be empty"))
         else {
-            scheduleRepository.insert(item)
-            Resource.Success
+            Resource.Success(scheduleRepository.insert(item))
         }
     }
 
@@ -23,26 +22,13 @@ class ScheduleUseCaseImpl @Inject constructor (
         return scheduleRepository.getAll()
     }
 
-    override suspend fun deleteById(itemId: Int): Resource {
-        return if (itemId == null)
-            Resource.Empty.Failed
-        else {
-            scheduleRepository.deleteById(itemId)
-            Resource.Success
-        }
-    }
+    override suspend fun deleteById(itemId: Int): Resource =
+        Resource.Success(scheduleRepository.deleteById(itemId))
 
-    override suspend fun deleteAll() {
-        return scheduleRepository.deleteAll()
-    }
+    override suspend fun deleteAll() =
+        scheduleRepository.deleteAll()
 
-    override suspend fun update(item: ScheduleItem): Resource {
-        return if (item == null)
-            Resource.Empty.Failed
-        else {
-            scheduleRepository.update(item)
-            Resource.Success
-        }
-    }
+    override suspend fun update(item: ScheduleItem): Resource =
+        Resource.Success(scheduleRepository.update(item))
 
 }

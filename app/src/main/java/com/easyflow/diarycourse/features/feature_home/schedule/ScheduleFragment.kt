@@ -135,8 +135,8 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     private fun resultCollect(result: Resource?) {
         result?.let {
             when (it) {
-                is Resource.Success -> onSuccess()
-                is Resource.Empty.Failed -> onFailed()
+                is Resource.Success<*> -> onSuccess()
+                is Resource.Failed -> onFailed()
             }
         }
     }

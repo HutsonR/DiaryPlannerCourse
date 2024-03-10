@@ -12,10 +12,9 @@ class NoteUseCaseImpl @Inject constructor (
 ): NoteUseCase {
     override suspend fun insert(item: NoteItem): Resource {
         return if (item.text.isEmpty())
-            Resource.Empty.Failed
+            Resource.Failed(Exception("Fields can not be empty"))
         else {
-            noteRepository.insert(item)
-            Resource.Success
+            Resource.Success(noteRepository.insert(item))
         }
     }
 
@@ -27,22 +26,10 @@ class NoteUseCaseImpl @Inject constructor (
         return noteRepository.getAll()
     }
 
-    override suspend fun deleteById(itemId: Int): Resource {
-        return if (itemId == null)
-            Resource.Empty.Failed
-        else {
-            noteRepository.deleteById(itemId)
-            Resource.Success
-        }
-    }
+    override suspend fun deleteById(itemId: Int): Resource =
+        Resource.Success(noteRepository.deleteById(itemId))
 
-    override suspend fun update(item: NoteItem): Resource {
-        return if (item == null)
-            Resource.Empty.Failed
-        else {
-            noteRepository.update(item)
-            Resource.Success
-        }
-    }
+    override suspend fun update(item: NoteItem): Resource =
+        Resource.Success(noteRepository.update(item))
 
 }
