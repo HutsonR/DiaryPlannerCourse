@@ -1,31 +1,30 @@
 package com.easyflow.diarycourse.features.feature_home
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.GestureDetector
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.BaseFragment
+import com.easyflow.diarycourse.core.utils.OnSwipeTouchListener
 import com.easyflow.diarycourse.databinding.FragmentHomeBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.features.feature_home.models.CombineModel
 import com.easyflow.diarycourse.features.feature_home.note.NoteFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
-import com.google.android.material.tabs.TabLayoutMediator
-import com.shrikanthravi.collapsiblecalendarview.data.Day
+import com.google.android.material.tabs.TabLayout
 import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
@@ -50,6 +49,7 @@ class HomeFragment : BaseFragment() {
     private var dataList: MutableList<ScheduleItem> = mutableListOf()
     private var noteList: MutableList<NoteItem> = mutableListOf()
     var dateSelected: String = ""
+    private var gestureDetector: GestureDetector? = null
     private var defaultTabIndex = 0
 
     override fun onAttach(context: Context) {
@@ -70,6 +70,7 @@ class HomeFragment : BaseFragment() {
 
         initialize()
         setObservers()
+        initializeSwipeDetector()
     }
 
     private fun initialize() {
@@ -152,6 +153,19 @@ class HomeFragment : BaseFragment() {
                     is HomeViewModel.Actions.ShowAlert -> showAlert(action.alertData)
                 }
             }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun initializeSwipeDetector() {
+        binding.mainSwiperContainer.setOnTouchListener(object : OnSwipeTouchListener(requireContext()) {
+            override fun onSwipeLeft() {
+                collapsibleCalendar.nextDay()
+            }
+
+            override fun onSwipeRight() {
+                collapsibleCalendar.prevDay()
+            }
+        })
     }
 
     override fun onDestroyView() {
@@ -307,49 +321,44 @@ class HomeFragment : BaseFragment() {
 
     // Инициализация TabsLayout и отображение фрагментов
     private fun initViewPager() {
-        binding.mainViewPager.adapter = FragmentPagerAdapter(requireActivity())
-        binding.mainViewPager.registerOnPageChangeCallback(object :
-            ViewPager2.OnPageChangeCallback() {
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
+        // Находим TabLayout
+        val tabLayout = binding.mainTabLayout
+
+        // Создаем табы с нужными заголовками
+        val tabTitles = arrayOf("Распорядок", "Заметка")
+        for (title in tabTitles) {
+            tabLayout.addTab(tabLayout.newTab().setText(title))
+        }
+
+        // Устанавливаем слушатель для переключения между табами
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                // При выборе таба меняем фрагмент
+                tab?.let {
+                    replaceFragment(it.position)
+                }
             }
 
-            override fun onPageSelected(position: Int) {}
-            override fun onPageScrollStateChanged(state: Int) {}
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
 
-        // инициализация всех добавленных табов (не изменять)
-        // Находим, где будем отображать тексты табов
-        val tabLayout = binding.mainTabLayout
-        // Находим, где будем менять фрагменты на выбранный в табе
-        val viewPager = binding.mainViewPager
-        // Перечисляем все нужные табы
-        val tabTitles = arrayOf("Распорядок", "Заметка")
-
-        // viewPager меняет отображаемый фрагмент при выборе нужного таба с помощью SimpleFragmentPagerAdapter
-        viewPager.adapter = FragmentPagerAdapter(requireActivity())
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = tabTitles[position]
-        }.attach()
         // Установка начально выбранного таба
         tabLayout.getTabAt(defaultTabIndex)?.select()
+        replaceFragment(0)
     }
 
-    // Переключение между фрагментами из табов
-    private inner class FragmentPagerAdapter(fragmentActivity: FragmentActivity) :
-        FragmentStateAdapter(fragmentActivity) {
-        // Перечисление всех фрагментов (столько же, сколько и табов)
-        private val fragment = arrayOf(ScheduleFragment(), NoteFragment())
-        override fun getItemCount(): Int {
-            return fragment.size
+
+    private fun replaceFragment(position: Int) {
+        val fragment = when (position) {
+            0 -> ScheduleFragment()
+            1 -> NoteFragment()
+            else -> throw IllegalStateException("Invalid position: $position")
         }
 
-        override fun createFragment(position: Int): Fragment {
-            return fragment[position]
-        }
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.main_fragment_container, fragment)
+            .commit()
     }
 
     companion object {
