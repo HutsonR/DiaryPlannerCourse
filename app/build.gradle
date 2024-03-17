@@ -65,6 +65,8 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.50'
     implementation 'com.google.dagger:dagger:2.50'
     kapt 'com.google.dagger:dagger-compiler:2.50'
+//    WorkManager (Reminder)
+    implementation 'androidx.work:work-runtime-ktx:2.9.0'
 //    Other
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'

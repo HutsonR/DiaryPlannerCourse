@@ -71,6 +71,7 @@
                         android:gravity="center_vertical"
                         android:textColorHint="@color/textGray"
                         android:textSize="14sp"
+                        android:paddingVertical="18dp"
                         tools:ignore="TouchTargetSizeCheck" />
                 </LinearLayout>
 
@@ -81,6 +82,7 @@
                     android:layout_marginTop="10dp"
                     android:autofillHints=""
                     android:background="@drawable/add_background"
+                    android:paddingVertical="18dp"
                     android:gravity="start"
                     android:hint="@string/task_description"
                     android:inputType="textCapSentences|textMultiLine"
@@ -326,6 +328,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/add_background"
+                    android:paddingVertical="18dp"
                     android:foreground="?attr/selectableItemBackground"
                     android:entries="@array/priority_array"
                     android:gravity="center_vertical" />
@@ -427,6 +430,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="18dp"
                     android:background="@drawable/add_background"
+                    android:paddingVertical="16dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -434,25 +438,65 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:srcCompat="@drawable/ic_add_bell" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:text="@string/task_reminder"
-                        android:textColor="@color/black"
-                        android:textSize="14sp"
-                        android:textStyle="normal" />
-
-                    <TextView
-                        android:id="@+id/reminderPickerText"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="@string/task_reminder"
+                            android:textColor="@color/black"
+                            android:textSize="14sp"
+                            android:textStyle="normal" />
+
+                        <TextView
+                            android:id="@+id/reminderPickerText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:textColor="@color/textGray"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <Switch
+                        android:id="@+id/reminderSwitchButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="@string/task_time_blank"
-                        android:textColor="@color/textGray"
-                        android:textSize="14sp" />
+                        android:checked="false"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/repeatPicker"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/add_background"
+                    android:paddingVertical="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_add_repeat" />
+
+                    <Switch
+                        android:id="@+id/repeatSwitchButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="@string/task_repeat"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:checked="false"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

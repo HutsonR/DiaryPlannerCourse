@@ -1,6 +1,8 @@
 package com.easyflow.diarycourse.features.feature_home.task
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
@@ -15,20 +17,28 @@ import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
-import com.easyflow.diarycourse.core.BaseFragment
+import com.easyflow.diarycourse.core.utils.ReminderWorker
 import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentTaskBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
+import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogFragment
+import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_home.schedule.utils.PriorityAdapter
+import com.easyflow.diarycourse.features.feature_home.task.dialogs.ReminderDialogFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -36,7 +46,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.Lazy
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -44,16 +54,16 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TaskFragment : BottomSheetDialogFragment() {
-    private val TAG = "debugTag"
     private var _binding: FragmentTaskBinding? = null
     private val binding get() = _binding!!
 
     @Inject
     lateinit var taskViewModelFactory: Lazy<TaskViewModel.TaskViewModelFactory>
-    private val taskViewModel: TaskViewModel by viewModels {
+    private val viewModel: TaskViewModel by viewModels {
         taskViewModelFactory.get()
     }
     private var parcelItem: ScheduleItem? = null
@@ -64,6 +74,7 @@ class TaskFragment : BottomSheetDialogFragment() {
     private var previousTimeStart: String = ""
     private var previousTimeEnd: String = ""
     private var previousColor: Color = Color.BLUE
+
     private var title: String = ""
     private var text: String = ""
     private var date: String = ""
@@ -71,6 +82,13 @@ class TaskFragment : BottomSheetDialogFragment() {
     private var timeStart: String = ""
     private var timeEnd: String = ""
     private var color: Color = Color.BLUE
+
+    private var chosenYear = 0
+    private var chosenMonth = 0
+    private var chosenDay = 0
+    private var chosenHour = 0
+    private var chosenMin = 0
+
     private lateinit var taskIconBackground: LinearLayout
     private lateinit var titleEditTV: TextView
     private lateinit var textEditTV: TextView
@@ -90,6 +108,27 @@ class TaskFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setStyle()
+        _binding = FragmentTaskBinding.inflate(inflater)
+        return _binding?.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setObservers()
+        initialize()
+        initializeParcel()
+        initializeListeners()
+        updateSaveButtonState()
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
+
+    private fun setStyle() {
         setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
         dialog?.setOnShowListener { dialog ->
             val layout: FrameLayout? = (dialog as BottomSheetDialog).
@@ -100,40 +139,20 @@ class TaskFragment : BottomSheetDialogFragment() {
                 behavior.skipCollapsed = true
             }
         }
-        _binding = FragmentTaskBinding.inflate(inflater)
-        return _binding?.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        parcelItem = arguments?.getParcelable("scheduleItem")
-
-        lifecycleScope.launch {
-            setObservers()
-        }
-        initialize()
-        parcelInitialize()
-
-        // Изначально деактивируем кнопку "Сохранить"
-        updateSaveButtonState()
-    }
-
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
-    }
-
-    private suspend fun setObservers() {
+    private fun setObservers() {
         observeState()
     }
 
-    private suspend fun observeState() {
-        taskViewModel
+    private fun observeState() {
+        viewModel
             .state
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .onEach { state ->
                 updateCollect(state.update)
-            }.collect()
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     private fun updateCollect(result: Resource?) {
@@ -146,6 +165,9 @@ class TaskFragment : BottomSheetDialogFragment() {
     }
 
     private fun initialize() {
+        setFragmentListener()
+        checkPermission()
+
         taskIconBackground = binding.taskIconBackground
         titleEditTV = binding.addTitleTask
         textEditTV = binding.addDeskTask
@@ -163,14 +185,20 @@ class TaskFragment : BottomSheetDialogFragment() {
             dismiss()
         }
 
-        titleEditText()
-        deskEditText()
-        binding.datePicker.setOnClickListener { showDatePicker() }
-        dateFastPicker()
-        binding.timeStartPicker.setOnClickListener { showTimePickerForStart() }
-        binding.timeEndPicker.alpha = 0.5f
-        colorPicker()
+        binding.reminderSwitchButton.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                val reminderDialogFragment = ReminderDialogFragment()
+                reminderDialogFragment.show(childFragmentManager, "reminder dialog")
+            } else {
+                chosenHour = 0
+                chosenMin = 0
+
+                binding.reminderPickerText.text = ""
+            }
+        }
+
         setBackgroundIconColor(color)
+        binding.timeEndPicker.alpha = 0.5f
 
         taskIconBackground.setOnClickListener {
             Toast.makeText(
@@ -181,18 +209,28 @@ class TaskFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun parcelInitialize() {
-        if (parcelItem != null) {
+    private fun initializeListeners() {
+        titleListener()
+        descriptionListener()
+        datePickerListener()
+        dateFastPickerListener()
+        startTimePickerListener()
+        colorPickerListener()
+    }
+
+    private fun initializeParcel() {
+        parcelItem = arguments?.getParcelable("scheduleItem")
+        parcelItem?.let { parcelItem ->
             binding.titleAddFragment.text = getString(R.string.task_edit_title)
             saveButtonTV.text = getString(R.string.task_button_edit)
 
-            title = parcelItem!!.text
-            text = parcelItem!!.description
-            date = parcelItem!!.date
-            priority = parcelItem!!.priority
-            timeStart = parcelItem!!.startTime
-            timeEnd = parcelItem!!.endTime
-            color = parcelItem!!.color
+            title = parcelItem.text
+            text = parcelItem.description
+            date = parcelItem.date
+            priority = parcelItem.priority
+            timeStart = parcelItem.startTime
+            timeEnd = parcelItem.endTime
+            color = parcelItem.color
 
             previousTitle = title
             previousText = text
@@ -202,20 +240,50 @@ class TaskFragment : BottomSheetDialogFragment() {
             previousTimeEnd = timeEnd
             previousColor = color
 
-            titleEditTV.text = parcelItem!!.text
-            textEditTV.text = parcelItem!!.description
-            datePickerTV.text = parcelItem!!.date
-            timeStartPickerTV.text = parcelItem!!.startTime
-            timeEndPickerTV.text =
-                parcelItem!!.endTime.ifEmpty { getString(R.string.task_time_blank) }
+            titleEditTV.text = parcelItem.text
+            textEditTV.text = parcelItem.description
+            datePickerTV.text = parcelItem.date
+            timeStartPickerTV.text = parcelItem.startTime
+            timeEndPickerTV.text = parcelItem.endTime.ifEmpty { getString(R.string.task_time_blank) }
             setColor()
-            setBackgroundIconColor(parcelItem!!.color)
+            setBackgroundIconColor(parcelItem.color)
             // Для активации кнопки конца времени
-            checkTime()
+            isStartTimeAfterEndTime()
             timePicked()
             checkDate()
         }
-        showPriorityPicker()
+        priorityPickerListener()
+    }
+
+    private fun setFragmentListener() {
+        // Из ReminderDialogFragment
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            KEY_TASK_FRAGMENT_RESULT_SET,
+            this
+        ) { _, bundle ->
+            val requestValue: String? = bundle.getString(FRAGMENT_REMIND_ITEM)
+            requestValue?.let { time ->
+                if (time.isNotEmpty()) {
+                    Log.d("debugTag", "requestValue $requestValue")
+                    val (hours, minutes) = requestValue.split(":").map { it.toInt() }
+                    chosenHour = hours
+                    chosenMin = minutes
+
+                    binding.reminderPickerText.text = "в $requestValue"
+                    updateReminderSwitchState(true)
+                } else {
+                    chosenHour = 0
+                    chosenMin = 0
+
+                    binding.reminderPickerText.text = ""
+                    updateReminderSwitchState(false)
+                }
+            }
+        }
+    }
+
+    private fun updateReminderSwitchState(isChecked: Boolean) {
+        binding.reminderSwitchButton.isChecked = isChecked
     }
 
     private fun updateSaveButtonState() {
@@ -259,7 +327,7 @@ class TaskFragment : BottomSheetDialogFragment() {
                     priority = priority,
                     startTime = timeStart,
                     endTime = timeEnd,
-                    duration = calculateDuration(timeStart, timeEnd),
+                    duration = viewModel.calculateDuration(timeStart, timeEnd),
                     color = color,
                     isCompleteTask = parcelItem!!.isCompleteTask
                 )
@@ -275,11 +343,12 @@ class TaskFragment : BottomSheetDialogFragment() {
                 priority = priority,
                 startTime = timeStart,
                 endTime = timeEnd,
-                duration = calculateDuration(timeStart, timeEnd),
+                duration = viewModel.calculateDuration(timeStart, timeEnd),
                 color = color,
                 isCompleteTask = false
             )
             sendTaskItem(taskItem)
+            setReminder()
             dismiss()
         }
     }
@@ -289,41 +358,42 @@ class TaskFragment : BottomSheetDialogFragment() {
         dismiss()
     }
 
+    private fun setReminder() {
+        Log.d("debugTag", "chosenHour $chosenHour, chosenMin $chosenMin")
+        if (chosenHour != 0 && chosenMin != 0) {
+            val userSelectedDateTime = Calendar.getInstance()
+            userSelectedDateTime.set(chosenYear, chosenMonth, chosenDay, chosenHour , chosenMin)
+
+            val todayDateTime = Calendar.getInstance()
+            val delayInSeconds = (userSelectedDateTime.timeInMillis/1000L) - (todayDateTime.timeInMillis/1000L)
+            createWorkRequest(title, timeStart, delayInSeconds)
+        }
+    }
+
     private fun sendTaskItem(item: ScheduleItem) {
         val bundle = Bundle().apply {
             putParcelable(FRAGMENT_TASK_ITEM, item)
         }
-        Log.d("debugTag", "==========================================================================")
-        Log.d("debugTag", "sendTaskItem item: $item bundle: $bundle")
         if (parcelItem != null) {
             activity?.supportFragmentManager?.setFragmentResult(KEY_TASK_FRAGMENT_RESULT_UPD, bundle)
-        } else activity?.supportFragmentManager?.setFragmentResult(KEY_TASK_FRAGMENT_RESULT_ADD, bundle)
+        } else {
+            activity?.supportFragmentManager?.setFragmentResult(KEY_TASK_FRAGMENT_RESULT_ADD, bundle)
+        }
     }
 
-    private fun calculateDuration(startTime: String, endTime: String): String {
-        if (endTime.isEmpty()) {
-            return "бессрочно"
-        }
+    private fun checkPermission() {
+        val notificationPermissionStatus = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.POST_NOTIFICATIONS
+        )
 
-        val startParts = startTime.split(":")
-        val endParts = endTime.split(":")
-
-        val startHours = startParts[0].toInt()
-        val startMinutes = startParts[1].toInt()
-
-        val endHours = endParts[0].toInt()
-        val endMinutes = endParts[1].toInt()
-
-        val durationMinutes = (endHours * 60 + endMinutes) - (startHours * 60 + startMinutes)
-
-        val durationHours = durationMinutes / 60
-        val remainingMinutes = durationMinutes % 60
-
-        return when {
-            durationHours > 0 && remainingMinutes > 0 -> "$durationHours ч. $remainingMinutes мин."
-            durationHours > 0 -> "$durationHours ч."
-            remainingMinutes > 0 -> "$remainingMinutes мин."
-            else -> "0 мин."
+        // Если разрешение еще не предоставлено, запросите его у пользователя
+        if (notificationPermissionStatus != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                PERMISSION_REQUEST_CODE
+            )
         }
     }
 
@@ -337,17 +407,17 @@ class TaskFragment : BottomSheetDialogFragment() {
             timeEnd = ""
             timeEndPickerTV.text = getString(R.string.task_time_blank)
             binding.timePickerTitle.text = getString(R.string.task_time_title_add)
-            checkTime()
+            isStartTimeAfterEndTime()
             updateSaveButtonState()
         }
     }
 
-    private fun checkTime() {
+    private fun isStartTimeAfterEndTime() {
         val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
         if (timeStart.isNotEmpty() && timeEnd.isNotEmpty()) {
             val currentStartTime = LocalTime.parse(timeStart, timeFormat)
             val currentEndTime = LocalTime.parse(timeEnd, timeFormat)
-//            Проверка между двумя временами в окне добавления
+            //  Проверка между двумя временами в окне добавления
             if (currentStartTime.isAfter(currentEndTime)) {
                 Toast.makeText(requireContext(), "Начальное время не может быть больше конечного", Toast.LENGTH_SHORT).show()
                 timeStart = ""
@@ -364,7 +434,7 @@ class TaskFragment : BottomSheetDialogFragment() {
 
         if (timeStart.isNotEmpty()) {
             binding.timeEndPicker.alpha = 1f
-            binding.timeEndPicker.setOnClickListener { showTimePickerForEnd() }
+            binding.timeEndPicker.setOnClickListener { endTimePickerListener() }
         } else {
             binding.timeEndPicker.alpha = 0.5f
             binding.timeEndPicker.setOnClickListener { }
@@ -451,7 +521,7 @@ class TaskFragment : BottomSheetDialogFragment() {
         for (i in 0 until binding.colorPicker.childCount) {
             val radioButton = binding.colorPicker.getChildAt(i) as? RadioButton
             val colorTag = radioButton?.tag as? String
-            val colorEnum = colorTag?.let { getColorEnum(it) }
+            val colorEnum = colorTag?.let { viewModel.getColorEnum(it) }
 
             if (colorEnum == colorToSet) {
                 radioButton.isChecked = true
@@ -460,8 +530,22 @@ class TaskFragment : BottomSheetDialogFragment() {
         }
     }
 
+    // Private Function to create the OneTimeWorkRequest
+    private fun createWorkRequest(title: String, message: String, timeDelayInSeconds: Long  ) {
+        val myWorkRequest = OneTimeWorkRequestBuilder<ReminderWorker>()
+            .setInitialDelay(timeDelayInSeconds, TimeUnit.SECONDS)
+            .setInputData(workDataOf(
+                "title" to title,
+                "message" to message,
+            )
+            )
+            .build()
+
+        WorkManager.getInstance(requireContext()).enqueue(myWorkRequest)
+    }
+
     //    Listeners
-    private fun titleEditText() {
+    private fun titleListener() {
         titleEditTV.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -474,7 +558,7 @@ class TaskFragment : BottomSheetDialogFragment() {
         })
     }
 
-    private fun deskEditText() {
+    private fun descriptionListener() {
         textEditTV.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -487,125 +571,92 @@ class TaskFragment : BottomSheetDialogFragment() {
         })
     }
 
-    private fun dateFastPicker() {
+    private fun datePickerListener() {
+        binding.datePicker.setOnClickListener {
+            val builder = MaterialDatePicker.Builder.datePicker()
+            builder.setTitleText("Выберите дату")
+            builder.setTheme(R.style.MaterialCalendarPickerTheme)
+
+            val datePicker = builder.build()
+
+            datePicker.addOnPositiveButtonClickListener { selectedTimestamp ->
+                val selectedDate = Calendar.getInstance()
+                selectedDate.timeInMillis = selectedTimestamp
+
+                chosenYear = selectedDate.get(Calendar.YEAR)
+                chosenMonth = selectedDate.get(Calendar.MONTH)
+                chosenDay = selectedDate.get(Calendar.DAY_OF_MONTH)
+
+                val formattedDate = formatDate(selectedDate)
+
+                date = formattedDate
+                datePickerTV.text = formattedDate
+                checkDate()
+                isStartTimeAfterEndTime()
+            }
+
+            datePicker.show(childFragmentManager, datePicker.toString())
+        }
+    }
+
+    private fun dateFastPickerListener() {
         binding.datePickerToday.setOnClickListener {
             val day = Calendar.getInstance()
+
+            chosenYear = day.get(Calendar.YEAR)
+            chosenMonth = day.get(Calendar.MONTH)
+            chosenDay = day.get(Calendar.DAY_OF_MONTH)
 
             val formattedDate = formatDate(day)
 
             date = formattedDate
             datePickerTV.text = formattedDate
             checkDate()
-            checkTime()
+            isStartTimeAfterEndTime()
         }
         binding.datePickerTomorrow.setOnClickListener {
             val day = Calendar.getInstance()
             day.add(Calendar.DAY_OF_YEAR, 1)
 
+            chosenYear = day.get(Calendar.YEAR)
+            chosenMonth = day.get(Calendar.MONTH)
+            chosenDay = day.get(Calendar.DAY_OF_MONTH)
+
             val formattedDate = formatDate(day)
 
             date = formattedDate
             datePickerTV.text = formattedDate
             checkDate()
-            checkTime()
+            isStartTimeAfterEndTime()
         }
     }
 
-    private fun showDatePicker() {
-        val builder = MaterialDatePicker.Builder.datePicker()
-        builder.setTitleText("Выберите дату")
-        builder.setTheme(R.style.MaterialCalendarPickerTheme)
+    private fun startTimePickerListener() {
+        binding.timeStartPicker.setOnClickListener {
+            val timePicker = MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setTitleText("Время начала задачи")
+                .setTheme(R.style.MaterialTimePickerTheme)
+                .build()
 
-        val datePicker = builder.build()
+            timePicker.addOnPositiveButtonClickListener {
+                val selectedTimeForStart = Calendar.getInstance()
+                selectedTimeForStart.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+                selectedTimeForStart.set(Calendar.MINUTE, timePicker.minute)
 
-        datePicker.addOnPositiveButtonClickListener { selectedTimestamp ->
-            val selectedDate = Calendar.getInstance()
-            selectedDate.timeInMillis = selectedTimestamp
-
-            val formattedDate = formatDate(selectedDate)
-
-            date = formattedDate
-            datePickerTV.text = formattedDate
-            checkDate()
-            checkTime()
-        }
-
-        datePicker.show(childFragmentManager, datePicker.toString())
-    }
-
-    private fun showPriorityPicker() {
-        val items = resources.getStringArray(R.array.priority_array).toList()
-        val adapter = PriorityAdapter(requireContext(), items)
-
-        val prioritySpinner = binding.prioritySpinner
-        prioritySpinner.adapter = adapter
-
-        if (parcelItem != null) {
-            val position = items.indexOf(getPriorityString(priority))
-            if (position != -1) {
-                prioritySpinner.setSelection(position)
-            }
-        }
-
-        prioritySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val currentPriority = parent?.getItemAtPosition(position).toString()
-                val selectedPriority: Priority = getPriorityEnum(currentPriority)
-                priority = selectedPriority
-                updateSaveButtonState()
+                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val formattedTime = selectedTimeForStart.time.let { timeFormat.format(it) }
+                timeStart = formattedTime
+                timeStartPickerTV.text = timeStart
+                timePicked()
+                isStartTimeAfterEndTime()
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            timePicker.show(childFragmentManager, timePicker.toString())
         }
     }
 
-    private fun getPriorityEnum(priorityString: String): Priority {
-        return when (priorityString) {
-            "Обычный приоритет" -> Priority.STANDARD
-            "Высокий приоритет" -> Priority.IMPORTANT
-            else -> Priority.STANDARD
-        }
-    }
-
-    private fun getPriorityString(priority: Priority): String {
-        return when (priority) {
-            Priority.STANDARD -> "Обычный приоритет"
-            Priority.IMPORTANT -> "Высокий приоритет"
-        }
-    }
-
-    private fun showTimePickerForStart() {
-        val timePicker = MaterialTimePicker.Builder()
-            .setTimeFormat(TimeFormat.CLOCK_24H)
-            .setTitleText("Время начала задачи")
-            .setTheme(R.style.MaterialTimePickerTheme)
-            .build()
-
-        timePicker.addOnPositiveButtonClickListener {
-            val selectedHour = timePicker.hour
-            val selectedMinute = timePicker.minute
-
-            val selectedTimeForStart = Calendar.getInstance()
-            selectedTimeForStart.set(Calendar.HOUR_OF_DAY, selectedHour)
-            selectedTimeForStart.set(Calendar.MINUTE, selectedMinute)
-
-            val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val formattedTime = selectedTimeForStart.time.let { timeFormat.format(it) }
-            timeStart = formattedTime
-            timeStartPickerTV.text = timeStart
-            timePicked()
-            checkTime()
-        }
-
-        timePicker.show(childFragmentManager, timePicker.toString())
-    }
-
-    private fun showTimePickerForEnd() {
+    private fun endTimePickerListener() {
         val timePicker = MaterialTimePicker.Builder()
             .setTimeFormat(TimeFormat.CLOCK_24H)
             .setTitleText("Время окончания задачи")
@@ -625,19 +676,50 @@ class TaskFragment : BottomSheetDialogFragment() {
             timeEnd = formattedTime
             timeEndPickerTV.text = timeEnd
             timePicked()
-            checkTime()
+            isStartTimeAfterEndTime()
         }
 
         timePicker.show(childFragmentManager, timePicker.toString())
     }
 
-    private fun colorPicker() {
+    private fun priorityPickerListener() {
+        val items = resources.getStringArray(R.array.priority_array).toList()
+        val adapter = PriorityAdapter(requireContext(), items)
+
+        val prioritySpinner = binding.prioritySpinner
+        prioritySpinner.adapter = adapter
+
+        if (parcelItem != null) {
+            val position = items.indexOf(viewModel.getPriorityString(priority))
+            if (position != -1) {
+                prioritySpinner.setSelection(position)
+            }
+        }
+
+        prioritySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val currentPriority = parent?.getItemAtPosition(position).toString()
+                val selectedPriority: Priority = viewModel.getPriorityEnum(currentPriority)
+                priority = selectedPriority
+                updateSaveButtonState()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun colorPickerListener() {
         binding.colorPicker.setOnCheckedChangeListener { _, checkedId ->
             val selectedRadioButton: RadioButton =
                 view?.findViewById(checkedId) ?: return@setOnCheckedChangeListener
             val selectedColorTag: String = selectedRadioButton.tag as String
 
-            val selectedColor: Color = getColorEnum(selectedColorTag)
+            val selectedColor: Color = viewModel.getColorEnum(selectedColorTag)
             color = selectedColor
             setBackgroundIconColor(color)
 
@@ -645,18 +727,13 @@ class TaskFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun getColorEnum(colorString: String): Color {
-        return try {
-            Color.valueOf(colorString)
-        } catch (e: IllegalArgumentException) {
-            Color.BLUE
-        }
-    }
-
     companion object {
         const val KEY_TASK_FRAGMENT_RESULT_ADD = "KEY_TASK_FRAGMENT_RESULT_ADD"
         const val KEY_TASK_FRAGMENT_RESULT_UPD = "KEY_FRAGMENT_RESULT_UPD"
+        const val KEY_TASK_FRAGMENT_RESULT_SET = "KEY_REMINDER_FRAGMENT_RESULT_SET"
+        const val PERMISSION_REQUEST_CODE = 1337
 
         const val FRAGMENT_TASK_ITEM = "taskItem"
+        const val FRAGMENT_REMIND_ITEM = "REMIND_ITEM"
     }
 }

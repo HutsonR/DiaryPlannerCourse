@@ -213,16 +213,16 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
 
     private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
         val sortedData: MutableList<ScheduleItem> = mutableListOf()
-        if (dateSelected.isNotEmpty()) {
+        return if (dateSelected.isNotEmpty()) {
             dataList.forEach {
                 if (it.date == dateSelected)
                     sortedData.add(it)
             }
-            return sortedData
+            sortedData
         } else {
             val today = Calendar.getInstance()
             dateSelected = formatDate(today)
-            return sortItemsByDate(dataList)
+            sortItemsByDate(dataList)
         }
     }
 

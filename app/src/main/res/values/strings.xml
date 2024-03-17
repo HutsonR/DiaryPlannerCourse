@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Taskader: Ежедневник</string>
 
     <string name="temp_text">Временный текст</string>
@@ -22,6 +22,7 @@
     <string name="task_time_blank">Нет</string>
     <string name="task_color">Цвет</string>
     <string name="task_reminder">Напоминание</string>
+    <string name="task_repeat">Повторение</string>
 
     <!--  Main Screen  -->
     <string name="main_count_task">Кол-во записей: </string>
@@ -38,8 +39,11 @@
     <string name="note">Заметка</string>
     <string name="note_blank">Создайте заметку на день</string>
 
+    <!--  Reminder Dialog  -->
+    <string name="reminder_title" tools:ignore="ExtraTranslation">Установить напоминание</string>
+
     <string name="close">Закрыть</string>
-    <string name="apply">Подтвердить</string>
+    <string name="apply">Сохранить</string>
 
     <!--  Week Day  -->
     <string name="week_monday">Понедельник</string>

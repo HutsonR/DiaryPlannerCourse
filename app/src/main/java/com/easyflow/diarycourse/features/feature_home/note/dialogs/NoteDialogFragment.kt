@@ -14,17 +14,14 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.easyflow.diarycourse.R
-import com.easyflow.diarycourse.databinding.FragmentNoteDialogBinding
+import com.easyflow.diarycourse.databinding.DialogFragmentNoteBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
-import com.easyflow.diarycourse.domain.models.ScheduleItem
-import com.easyflow.diarycourse.features.feature_home.note.NoteViewModel
-import com.easyflow.diarycourse.features.feature_home.task.TaskFragment
 import kotlinx.coroutines.launch
 
 
 class NoteDialogFragment : DialogFragment() {
     private val TAG = "debugTag"
-    private var _binding: FragmentNoteDialogBinding? = null
+    private var _binding: DialogFragmentNoteBinding? = null
     private val binding get() = _binding!!
     private var parcelItem: NoteItem? = null
     private var previousText: String = ""
@@ -40,7 +37,7 @@ class NoteDialogFragment : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentNoteDialogBinding.inflate(inflater, container, false)
+        _binding = DialogFragmentNoteBinding.inflate(inflater, container, false)
         return _binding?.root
     }
 

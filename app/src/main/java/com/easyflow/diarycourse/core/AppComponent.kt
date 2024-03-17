@@ -9,6 +9,7 @@ import com.easyflow.diarycourse.features.feature_home.note.NoteFragment
 import com.easyflow.diarycourse.features.feature_home.task.TaskFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
 import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.ScheduleItemBottomSheetFragment
+import com.easyflow.diarycourse.features.feature_home.task.dialogs.ReminderDialogFragment
 import dagger.BindsInstance
 import dagger.Component
 
@@ -20,6 +21,7 @@ interface AppComponent {
     fun inject(fragment: NoteFragment)
     fun inject(fragment: ScheduleItemBottomSheetFragment)
     fun inject(fragment: TaskFragment)
+    fun inject(fragment: ReminderDialogFragment)
 
     @Component.Builder
     interface Builder {
