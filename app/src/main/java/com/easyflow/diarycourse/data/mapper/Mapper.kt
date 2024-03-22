@@ -4,8 +4,8 @@ import com.easyflow.diarycourse.data.models.NoteItemDto
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.data.models.ScheduleItemDto
 import com.easyflow.diarycourse.domain.models.NoteItem
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 
 object Mapper {
 

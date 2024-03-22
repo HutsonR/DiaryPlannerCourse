@@ -1,11 +1,10 @@
-package com.easyflow.diarycourse.features.feature_home.task.dialogs
+package com.easyflow.diarycourse.features.feature_calendar.task.dialogs
 
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
@@ -13,7 +12,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.databinding.DialogFragmentReminderBinding
 import dagger.Lazy

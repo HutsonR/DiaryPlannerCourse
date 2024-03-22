@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.features.feature_home.schedule
+package com.easyflow.diarycourse.features.feature_calendar.schedule
 
 import android.content.Context
 import android.os.Bundle
@@ -22,9 +22,9 @@ import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.databinding.FragmentScheduleBinding
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_home.schedule.adapter.ScheduleAdapter
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.TimeChangedReceiver
-import com.easyflow.diarycourse.features.feature_home.task.TaskFragment
+import com.easyflow.diarycourse.features.feature_calendar.schedule.adapter.ScheduleAdapter
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
+import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

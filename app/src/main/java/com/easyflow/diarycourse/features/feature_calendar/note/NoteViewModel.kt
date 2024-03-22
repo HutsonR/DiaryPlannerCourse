@@ -1,12 +1,11 @@
-package com.easyflow.diarycourse.features.feature_home.schedule
+package com.easyflow.diarycourse.features.feature_calendar.note
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.easyflow.diarycourse.core.BaseViewModel
-import com.easyflow.diarycourse.domain.models.ScheduleItem
-import com.easyflow.diarycourse.domain.domain_api.ScheduleUseCase
+import com.easyflow.diarycourse.domain.domain_api.NoteUseCase
+import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.util.Resource
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,9 +14,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ScheduleViewModel @Inject constructor(
-    private val scheduleUseCase: ScheduleUseCase
-) : BaseViewModel<ScheduleViewModel.State, ScheduleViewModel.Actions>(ScheduleViewModel.State()) {
+class NoteViewModel @Inject constructor(
+    private val noteUseCase: NoteUseCase
+) : BaseViewModel<NoteViewModel.State, NoteViewModel.Actions>(NoteViewModel.State()) {
 
     private val _result = MutableSharedFlow<Resource>(
         replay = 1,
@@ -25,53 +24,52 @@ class ScheduleViewModel @Inject constructor(
     )
     val result: SharedFlow<Resource> = _result.asSharedFlow()
 
-    init {
-        fetchData()
-    }
-
-    fun fetchData() {
+    fun fetchData(date: String) {
         viewModelScope.launch {
-            val fetchData = scheduleUseCase.getAll()
-            modifyState { copy(list = fetchData) }
+            val fetchData = noteUseCase.getNote(date)
+            modifyState {
+                copy(
+                    note = fetchData
+                )
+            }
         }
     }
 
-    fun addData(data: ScheduleItem) {
+    fun addData(data: NoteItem) {
         viewModelScope.launch {
-            val addData = scheduleUseCase.insert(data)
+            val addData = noteUseCase.insert(data)
             _result.emit(addData)
         }
     }
 
-    fun updateData(data: ScheduleItem) {
+    fun updateData(data: NoteItem) {
         viewModelScope.launch {
-            val updateData = scheduleUseCase.update(data)
+            val updateData = noteUseCase.update(data)
             _result.emit(updateData)
         }
     }
 
     fun deleteItem(itemId: Int) {
         viewModelScope.launch {
-            val deleteItem = scheduleUseCase.deleteById(itemId)
+            val deleteItem = noteUseCase.deleteById(itemId)
             _result.emit(deleteItem)
         }
     }
 
     data class State(
-        var list: List<ScheduleItem> = emptyList()
+        var note: NoteItem? = null
     )
 
     sealed interface Actions {
         data class ShowAlert(val alertData: String) : Actions
     }
 
-    class ScheduleViewModelFactory @Inject constructor(
-        private val scheduleUseCase: ScheduleUseCase
+    class NoteViewModelFactory @Inject constructor(
+        private val useCase: NoteUseCase
     ) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ScheduleViewModel(scheduleUseCase) as T
+            return NoteViewModel(useCase) as T
         }
     }
-
 }

@@ -1,7 +1,7 @@
-package com.easyflow.diarycourse.features.feature_home.models
+package com.easyflow.diarycourse.features.feature_calendar.models
 
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 
 data class CombineModel(
     val id: Int? = null,

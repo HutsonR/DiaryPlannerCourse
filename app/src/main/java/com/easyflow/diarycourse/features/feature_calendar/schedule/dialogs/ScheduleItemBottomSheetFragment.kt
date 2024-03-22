@@ -1,9 +1,8 @@
-package com.easyflow.diarycourse.features.feature_home.schedule.dialogs
+package com.easyflow.diarycourse.features.feature_calendar.schedule.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +13,8 @@ import androidx.core.content.ContextCompat
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.domain.models.ScheduleItem
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
-import com.easyflow.diarycourse.features.feature_home.task.TaskFragment
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Calendar
 

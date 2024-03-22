@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.features.feature_home.schedule.adapter
+package com.easyflow.diarycourse.features.feature_calendar.schedule.adapter
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
@@ -15,32 +15,22 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleViewModel
-import com.easyflow.diarycourse.features.feature_home.schedule.dialogs.ScheduleItemBottomSheetFragment
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.TimeChangedReceiver
+import com.easyflow.diarycourse.features.feature_calendar.schedule.ScheduleViewModel
+import com.easyflow.diarycourse.features.feature_calendar.schedule.dialogs.ScheduleItemBottomSheetFragment
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import java.util.Timer
-import java.util.TimerTask
 
 class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: ScheduleViewModel, private val activity: FragmentActivity?) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatisticViewHolder {

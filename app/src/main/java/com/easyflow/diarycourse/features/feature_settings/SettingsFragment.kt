@@ -1,21 +1,21 @@
-package com.easyflow.diarycourse.features.feature_home
+package com.easyflow.diarycourse.features.feature_settings
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.easyflow.diarycourse.core.BaseFragment
-import com.easyflow.diarycourse.databinding.FragmentHomeBinding
+import com.easyflow.diarycourse.databinding.FragmentSettingsBinding
 
-class HomeFragment : BaseFragment() {
-    private var _binding: FragmentHomeBinding? = null
+class SettingsFragment : BaseFragment() {
+    private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return _binding?.root
     }
 

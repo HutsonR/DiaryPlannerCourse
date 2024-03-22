@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.features.feature_home.task
+package com.easyflow.diarycourse.features.feature_calendar.task
 
 import android.Manifest
 import android.content.Context
@@ -33,12 +33,10 @@ import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentTaskBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogFragment
-import com.easyflow.diarycourse.features.feature_home.schedule.ScheduleFragment
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.PriorityAdapter
-import com.easyflow.diarycourse.features.feature_home.task.dialogs.ReminderDialogFragment
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.PriorityAdapter
+import com.easyflow.diarycourse.features.feature_calendar.task.dialogs.ReminderDialogFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

@@ -1,8 +1,8 @@
 package com.easyflow.diarycourse.domain.models
 
 import android.os.Parcelable
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Color
-import com.easyflow.diarycourse.features.feature_home.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

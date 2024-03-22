@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.features.feature_home.note
+package com.easyflow.diarycourse.features.feature_calendar.note
 
 import android.content.Context
 import android.os.Bundle
@@ -19,7 +19,7 @@ import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentNoteBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_home.note.dialogs.NoteDialogFragment
+import com.easyflow.diarycourse.features.feature_calendar.note.dialogs.NoteDialogFragment
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

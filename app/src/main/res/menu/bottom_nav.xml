@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:title="Главная"
-        android:id="@+id/nav_home"
-        android:icon="@drawable/ic_home"/>
-    <item android:title="Цели"
-        android:id="@+id/nav_targets"
-        android:icon="@drawable/ic_target"/>
-    <item android:title="Профиль"
-        android:id="@+id/nav_profile"
-        android:icon="@drawable/ic_user"/>
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_menu_home"/>
+    <item android:title="Календарь"
+        android:id="@+id/calendarFragment"
+        android:icon="@drawable/ic_menu_calendar"/>
+    <item android:title="Настройки"
+        android:id="@+id/settingsFragment"
+        android:icon="@drawable/ic_menu_settings"/>
 </menu>

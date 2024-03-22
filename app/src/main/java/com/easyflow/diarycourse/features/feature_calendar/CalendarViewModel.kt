@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.features.feature_home
+package com.easyflow.diarycourse.features.feature_calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -12,10 +12,14 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class HomeViewModel @Inject constructor(
+class CalendarViewModel @Inject constructor(
     private val scheduleUseCase: ScheduleUseCase,
     private val noteUseCase: NoteUseCase
-) : BaseViewModel<HomeViewModel.State, HomeViewModel.Actions>(HomeViewModel.State()) {
+) : BaseViewModel<CalendarViewModel.State, CalendarViewModel.Actions>(CalendarViewModel.State()) {
+
+    init {
+        fetchData()
+    }
 
     private fun fetchData() {
         viewModelScope.launch {
@@ -71,13 +75,13 @@ class HomeViewModel @Inject constructor(
         data class ShowAlert(val alertData: String) : Actions
     }
 
-    class HomeViewModelFactory @Inject constructor(
+    class CalendarViewModelFactory @Inject constructor(
         private val scheduleUseCase: ScheduleUseCase,
         private val noteUseCase: NoteUseCase
     ) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return HomeViewModel(scheduleUseCase, noteUseCase) as T
+            return CalendarViewModel(scheduleUseCase, noteUseCase) as T
         }
     }
 }
