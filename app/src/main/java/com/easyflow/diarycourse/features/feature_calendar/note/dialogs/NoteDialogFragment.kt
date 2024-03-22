@@ -1,6 +1,5 @@
-package com.easyflow.diarycourse.features.feature_home.note.dialogs
+package com.easyflow.diarycourse.features.feature_calendar.note.dialogs
 
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher

@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.features.feature_home
+package com.easyflow.diarycourse.features.feature_settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -12,10 +12,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class HomeViewModel @Inject constructor(
+class SettingsViewModel @Inject constructor(
     private val scheduleUseCase: ScheduleUseCase,
     private val noteUseCase: NoteUseCase
-) : BaseViewModel<HomeViewModel.State, HomeViewModel.Actions>(HomeViewModel.State()) {
+) : BaseViewModel<SettingsViewModel.State, SettingsViewModel.Actions>(SettingsViewModel.State()) {
 
     private fun fetchData() {
         viewModelScope.launch {
@@ -71,13 +71,13 @@ class HomeViewModel @Inject constructor(
         data class ShowAlert(val alertData: String) : Actions
     }
 
-    class HomeViewModelFactory @Inject constructor(
+    class SettingsViewModelFactory @Inject constructor(
         private val scheduleUseCase: ScheduleUseCase,
         private val noteUseCase: NoteUseCase
     ) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return HomeViewModel(scheduleUseCase, noteUseCase) as T
+            return SettingsViewModel(scheduleUseCase, noteUseCase) as T
         }
     }
 }

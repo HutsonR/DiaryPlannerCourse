@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.features.feature_home.schedule.utils
+package com.easyflow.diarycourse.features.feature_calendar.schedule.utils
 
 import android.content.BroadcastReceiver
 import android.content.Context
