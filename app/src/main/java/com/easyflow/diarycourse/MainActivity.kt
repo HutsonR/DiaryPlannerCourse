@@ -31,6 +31,28 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigationView: BottomNavigationView = binding.bottomNavigation
         navController = (supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment).navController
         bottomNavigationView.setupWithNavController(navController)
+
+        bottomNavigationView.itemActiveIndicatorColor = getColorStateList(R.color.bgNavActiveItem)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.homeFragment -> {
+                    bottomNavigationView.menu.findItem(R.id.homeFragment)?.setIcon(R.drawable.ic_menu_home_selected)
+                    bottomNavigationView.menu.findItem(R.id.calendarFragment)?.setIcon(R.drawable.ic_menu_calendar)
+                    bottomNavigationView.menu.findItem(R.id.settingsFragment)?.setIcon(R.drawable.ic_menu_settings)
+                }
+                R.id.calendarFragment -> {
+                    bottomNavigationView.menu.findItem(R.id.homeFragment)?.setIcon(R.drawable.ic_menu_home)
+                    bottomNavigationView.menu.findItem(R.id.calendarFragment)?.setIcon(R.drawable.ic_menu_calendar_selected)
+                    bottomNavigationView.menu.findItem(R.id.settingsFragment)?.setIcon(R.drawable.ic_menu_settings)
+                }
+                R.id.settingsFragment -> {
+                    bottomNavigationView.menu.findItem(R.id.homeFragment)?.setIcon(R.drawable.ic_menu_home)
+                    bottomNavigationView.menu.findItem(R.id.calendarFragment)?.setIcon(R.drawable.ic_menu_calendar)
+                    bottomNavigationView.menu.findItem(R.id.settingsFragment)?.setIcon(R.drawable.ic_menu_settings_selected)
+                }
+            }
+        }
     }
 
     private fun showExitConfirmationDialog() {

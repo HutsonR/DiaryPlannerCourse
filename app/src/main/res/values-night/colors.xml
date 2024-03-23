@@ -2,7 +2,7 @@
 <resources>
     <color name="primary">#49A2DD</color>
     <color name="red">#D54343</color>
-    <color name="backgroundMain">#FF000000</color>
+    <color name="backgroundMain">#16171B</color>
     <color name="backgroundDark">#101010</color>
     <color name="black">#FFFFFFFF</color>
     <color name="alwaysBlack">#FF000000</color>
@@ -14,23 +14,28 @@
     <color name="iconGray">#8D95A4</color>
     <color name="scheduleIcon">#605F64</color>
     <color name="scheduleIconDark">#BDBDBD</color>
-    <color name="bgGray">#171717</color>
-    <color name="bgGrayLight">#171717</color>
+    <color name="bgGray">#24272E</color>
+    <color name="bgGrayLight">#24272E</color>
     <color name="darkGray">#676767</color>
     <color name="menuColorGray">#8D95A4</color>
 
-    <color name="divider">#2E2E2E</color>
+    <color name="divider">#3F4450</color>
 
-    <color name="bgDialog">#000000</color>
-    <color name="itemDialog">#151515</color>
-    <color name="bgBorderDialog">#1E1E1E</color>
+    <color name="bgDialog">#16171B</color>
+    <color name="itemDialog">#24272E</color>
+    <color name="bgBorderDialog">#191C20</color>
 
-    <color name="bottom_sheet_background">#101010</color>
-    <color name="bottom_sheet_button_background">#171717</color>
+    <color name="bottom_sheet_background">#16171B</color>
+    <color name="bottom_sheet_button_background">#24272E</color>
     <color name="bottom_sheet_divider">#DBDBDB</color>
 
-    <color name="bgDialogNote">#000000</color>
-    <color name="bgNote">#0E0E0E</color>
+    <color name="bgDialogNote">#16171B</color>
+    <color name="bgNote">#191C20</color>
+
+    <color name="bgNavigation">#24272E</color>
+    <color name="bgNavActiveItem">#EDEDED</color>
+    <color name="navIcon">#E8EAED</color>
+    <color name="navText">#E8EAED</color>
 
     <color name="primaryPicker">#BBBBBB</color>
 
