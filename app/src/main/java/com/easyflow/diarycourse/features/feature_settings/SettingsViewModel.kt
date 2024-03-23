@@ -8,12 +8,16 @@ import javax.inject.Inject
 
 class SettingsViewModel @Inject constructor() : BaseViewModel<SettingsViewModel.State, SettingsViewModel.Actions>(SettingsViewModel.State()) {
 
+    fun themeSwitch() {
+        onAction(Actions.SwitchTheme)
+    }
+
     data class State(
         var list: List<CombineModel> = emptyList()
     )
 
     sealed interface Actions {
-        data class ShowAlert(val alertData: String) : Actions
+        data object SwitchTheme : Actions
     }
 
     class SettingsViewModelFactory @Inject constructor() : ViewModelProvider.Factory {
