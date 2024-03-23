@@ -61,10 +61,13 @@
     <string name="button_uncomplete">Отменить</string>
     <string name="button_edit">Редактировать</string>
 
+
+    <!--  SETTINGS  -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_theme">Внешний вид</string>
+
     <string name="error">Возникла ошибка, попробуйте позже</string>
     <string name="fetch_error">Возникла ошибка получения данных, попробуйте позже</string>
     <string name="success">Закрыть</string>
-
-
 
 </resources>
