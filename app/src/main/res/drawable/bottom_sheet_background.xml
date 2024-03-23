@@ -3,6 +3,6 @@
     <solid
         android:color="@color/bottom_sheet_background" />
     <corners
-        android:topLeftRadius="26dp"
-        android:topRightRadius="26dp" />
+        android:topLeftRadius="18dp"
+        android:topRightRadius="18dp" />
 </shape>
