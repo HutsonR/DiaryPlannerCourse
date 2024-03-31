@@ -34,4 +34,12 @@
         android:name="com.easyflow.diarycourse.features.feature_settings.SettingsFragment"
         android:label="Settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/settingsAppearanceFragment"
+        android:name="com.easyflow.diarycourse.features.feature_settings.appearance.AppearanceFragment"
+        android:label="Settings Appearance"
+        tools:layout="@layout/fragment_settings_appearance" />
+    <action
+        android:id="@+id/actionSettingsGoToAppearance"
+        app:destination="@id/settingsAppearanceFragment" />
 </navigation>
