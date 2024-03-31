@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundMain"
     tools:context=".MainActivity">
 
     <androidx.fragment.app.FragmentContainerView
@@ -15,10 +16,16 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/bottomNavigation" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/bottomNavigation"
+        android:background="@color/navDivider" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
-        android:layout_height="68dp"
+        android:layout_height="70dp"
         android:layout_alignParentBottom="true"
         android:background="@color/bgNavigation"
         app:itemIconTint="@color/navIcon"

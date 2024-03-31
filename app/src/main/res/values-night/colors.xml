@@ -30,6 +30,7 @@
 
     <color name="settingsIcon">#d4d4d4</color>
 
+    <color name="navDivider">#272a31</color>
     <color name="bgNavigation">#272a31</color>
     <color name="bgNavActiveItem">#414659</color>
     <color name="navIcon">#E8EAED</color>

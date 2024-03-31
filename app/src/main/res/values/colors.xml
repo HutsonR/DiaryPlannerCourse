@@ -2,7 +2,7 @@
 <resources>
     <color name="primary">#49A2DD</color>
     <color name="red">#D54343</color>
-    <color name="backgroundMain">#fbfcff</color>
+    <color name="backgroundMain">#FDFFFF</color>
     <color name="black">#1b1b1d</color>
     <color name="alwaysBlack">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
@@ -12,7 +12,7 @@
     <color name="iconGray">#605F64</color>
     <color name="scheduleIcon">#605F64</color>
     <color name="scheduleIconDark">#BDBDBD</color>
-    <color name="bgGray">#e6eaf3</color>
+    <color name="bgGray">#EDEDED</color>
     <color name="menuColorGray">#ACACAC</color>
 
     <color name="divider">#ECECEC</color>
@@ -31,8 +31,9 @@
     <color name="settingsText">#1b1b1d</color>
     <color name="settingsIcon">#1b1b1d</color>
 
-    <color name="bgNavigation">#EDF0F6</color>
-    <color name="bgNavActiveItem">#DDE5FA</color>
+    <color name="navDivider">#f1f2f6</color>
+    <color name="bgNavigation">#FDFFFF</color>
+    <color name="bgNavActiveItem">#f1f2f6</color>
     <color name="navIcon">#1B1B1D</color>
     <color name="navText">#1B1B1D</color>
 
