@@ -31,7 +31,7 @@
     <color name="settingsText">#1b1b1d</color>
     <color name="settingsIcon">#1b1b1d</color>
 
-    <color name="bgNavigation">#EDF0F7</color>
+    <color name="bgNavigation">#EDF0F6</color>
     <color name="bgNavActiveItem">#DDE5FA</color>
     <color name="navIcon">#1B1B1D</color>
     <color name="navText">#1B1B1D</color>
