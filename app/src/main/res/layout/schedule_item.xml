@@ -62,41 +62,26 @@
             android:paddingBottom="12dp"
             tools:ignore="NestedWeights">
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/priorityWrapper"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="6dp"
                 android:gravity="center_vertical">
-                <LinearLayout
-                    android:id="@+id/priorityWrapper"
+                <ImageView
+                    android:id="@+id/priorityIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    <ImageView
-                        android:id="@+id/priorityIcon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        app:srcCompat="@drawable/ic_flag_small" />
-                    <TextView
-                        android:id="@+id/priorityText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Обычное"
-                        android:layout_marginStart="2dp"
-                        android:textSize="12sp"
-                        android:textColor="@color/textGray" />
-                </LinearLayout>
+                    android:layout_marginTop="1dp"
+                    app:srcCompat="@drawable/ic_flag_small_active" />
                 <TextView
-                    android:id="@+id/scheduleActive"
+                    android:id="@+id/priorityText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/task_active"
+                    android:text="Важное"
+                    android:layout_marginStart="2dp"
                     android:textSize="12sp"
-                    android:textColor="@color/red"
-                    android:layout_marginStart="8dp"
-                    android:visibility="gone"/>
+                    android:textColor="@color/primary" />
             </LinearLayout>
             <TextView
                 android:id="@+id/schedule_text"
@@ -109,25 +94,39 @@
                 android:textStyle="bold"
                 android:layout_marginEnd="8dp"/>
             <LinearLayout
-                android:id="@+id/timeLayout"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-                <ImageView
-                    android:id="@+id/time_schedule_icon"
-                    android:layout_width="wrap_content"
+                android:orientation="horizontal">
+                <LinearLayout
+                    android:id="@+id/timeLayout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    app:srcCompat="@drawable/ic_main_clock_small" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:id="@+id/time_schedule_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        app:srcCompat="@drawable/ic_main_clock_small" />
+                    <TextView
+                        android:id="@+id/schedule_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="5 мин."
+                        android:layout_marginStart="4dp"
+                        android:textSize="12sp"
+                        android:textColor="@color/textGray" />
+                </LinearLayout>
                 <TextView
-                    android:id="@+id/schedule_duration"
+                    android:id="@+id/scheduleActive"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=" 5 мин."
-                    android:layout_marginLeft="4dp"
+                    android:text="@string/task_active"
                     android:textSize="12sp"
-                    android:textColor="@color/textGray" />
+                    android:textColor="@color/red"
+                    android:layout_marginStart="8dp"
+                    android:visibility="gone"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

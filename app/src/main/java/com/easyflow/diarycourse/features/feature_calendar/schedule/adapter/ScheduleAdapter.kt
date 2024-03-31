@@ -89,6 +89,10 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             priorityTextView.text = getPriorityString(item.priority)
             color.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
 
+            if (item.priority == Priority.STANDARD) {
+                priorityWrapper.visibility = View.GONE
+            }
+
             // Установка активности задачи
             val calendar = Calendar.getInstance()
             val dateFormat = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
@@ -112,18 +116,6 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
                 holder.itemView.post {
                     holder.activeTextView.visibility = View.INVISIBLE
                 }
-            }
-
-            if (item.priority == Priority.IMPORTANT) {
-                val primaryColor = ContextCompat.getColor(holder.itemView.context, R.color.primary)
-                val flagActive = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_flag_small_active)
-                priorityTextView.setTextColor(primaryColor)
-                priorityIcon.setImageDrawable(flagActive)
-            } else {
-                val grayColor = ContextCompat.getColor(holder.itemView.context, R.color.textGray)
-                val flagInactive = ContextCompat.getDrawable(holder.itemView.context, R.drawable.ic_flag_small)
-                priorityTextView.setTextColor(grayColor)
-                priorityIcon.setImageDrawable(flagInactive)
             }
 
             isCompleteButton.setImageDrawable(
@@ -217,6 +209,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
         val contentTextView: TextView = itemView.findViewById(R.id.schedule_text)
         val durationTextView: TextView = itemView.findViewById(R.id.schedule_duration)
         val color: LinearLayout = itemView.findViewById(R.id.schedule_oval_background)
+        val priorityWrapper: LinearLayout = itemView.findViewById(R.id.priorityWrapper)
         val priorityIcon: ImageView = itemView.findViewById(R.id.priorityIcon)
         val priorityTextView: TextView = itemView.findViewById(R.id.priorityText)
         val activeTextView: TextView = itemView.findViewById(R.id.scheduleActive)
