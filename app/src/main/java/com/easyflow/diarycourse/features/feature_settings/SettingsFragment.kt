@@ -1,16 +1,15 @@
 package com.easyflow.diarycourse.features.feature_settings
 
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.databinding.FragmentSettingsBinding
@@ -54,7 +53,7 @@ class SettingsFragment : BaseFragment() {
     }
 
     private fun setClickListeners() {
-        binding.settingTheme.setOnClickListener { viewModel.themeSwitch() }
+        binding.settingTheme.setOnClickListener { viewModel.goToAppearance() }
     }
 
     private fun setObservers() {
@@ -67,25 +66,10 @@ class SettingsFragment : BaseFragment() {
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { action ->
                 when (action) {
-                    is SettingsViewModel.Actions.SwitchTheme -> themeSwitch()
-                    else -> Unit
+                    is SettingsViewModel.Actions.GoToAppearance -> navigateTo(R.id.actionSettingsGoToAppearance)
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
-    }
-
-    private fun themeSwitch() {
-        if (isDarkTheme()) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        }
-        requireActivity().recreate()
-    }
-
-    private fun isDarkTheme(): Boolean {
-        val currentTheme = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        return currentTheme == Configuration.UI_MODE_NIGHT_YES
     }
 
 }

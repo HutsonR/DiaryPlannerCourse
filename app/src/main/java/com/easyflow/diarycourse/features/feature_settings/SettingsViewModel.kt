@@ -8,8 +8,8 @@ import javax.inject.Inject
 
 class SettingsViewModel @Inject constructor() : BaseViewModel<SettingsViewModel.State, SettingsViewModel.Actions>(SettingsViewModel.State()) {
 
-    fun themeSwitch() {
-        onAction(Actions.SwitchTheme)
+    fun goToAppearance() {
+        onAction(Actions.GoToAppearance)
     }
 
     data class State(
@@ -17,7 +17,7 @@ class SettingsViewModel @Inject constructor() : BaseViewModel<SettingsViewModel.
     )
 
     sealed interface Actions {
-        data object SwitchTheme : Actions
+        data object GoToAppearance : Actions
     }
 
     class SettingsViewModelFactory @Inject constructor() : ViewModelProvider.Factory {

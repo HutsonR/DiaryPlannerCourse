@@ -65,6 +65,13 @@
     <!--  SETTINGS  -->
     <string name="settings_title">Настройки</string>
     <string name="settings_theme">Внешний вид</string>
+    <string name="settings_theme_mode">Тема</string>
+    <string name="settings_theme_mode_auto">Как в системе</string>
+    <string name="settings_theme_mode_light">Светлая</string>
+    <string name="settings_theme_mode_dark">Темная</string>
+    <string name="settings_theme_navigation">Размер панели навигации</string>
+    <string name="settings_theme_navigation_full">Средняя</string>
+    <string name="settings_theme_navigation_compact">Компактная</string>
 
     <string name="error">Возникла ошибка, попробуйте позже</string>
     <string name="fetch_error">Возникла ошибка получения данных, попробуйте позже</string>
