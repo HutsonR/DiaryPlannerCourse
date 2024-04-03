@@ -10,8 +10,8 @@
     <color name="textGray">#8D95A4</color>
     <color name="textHintGray">#8D95A4</color>
     <color name="iconGray">#8D95A4</color>
-    <color name="scheduleIcon">#605F64</color>
-    <color name="scheduleIconDark">#BDBDBD</color>
+    <color name="scheduleIcon">#48484C</color>
+    <color name="scheduleCircleCompleteIcon">#BDBDBD</color>
     <color name="bgGray">#24272E</color>
     <color name="menuColorGray">#8D95A4</color>
 
