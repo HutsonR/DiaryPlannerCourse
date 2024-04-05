@@ -2,9 +2,9 @@ package com.easyflow.diarycourse.data.repository_impl
 
 import com.easyflow.diarycourse.data.database.ScheduleItemDao
 import com.easyflow.diarycourse.data.mapper.Mapper
-import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.data.models.ScheduleItemDto
 import com.easyflow.diarycourse.data.repository_api.ScheduleRepository
+import com.easyflow.diarycourse.domain.models.ScheduleItem
 import javax.inject.Inject
 
 class ScheduleRepositoryImpl @Inject constructor (
@@ -19,6 +19,11 @@ class ScheduleRepositoryImpl @Inject constructor (
 
     override suspend fun getAll(): List<ScheduleItem> {
         val scheduleItemDtos: List<ScheduleItemDto> = scheduleItemDao.getAll()
+        return scheduleItemDtos.map { mapper.mapTo(it) }
+    }
+
+    override suspend fun getByDate(date: String): List<ScheduleItem> {
+        val scheduleItemDtos: List<ScheduleItemDto> = scheduleItemDao.getByDate(date)
         return scheduleItemDtos.map { mapper.mapTo(it) }
     }
 

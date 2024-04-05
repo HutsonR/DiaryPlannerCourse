@@ -2,12 +2,13 @@ package com.easyflow.diarycourse.domain.domain_api
 
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import kotlinx.coroutines.flow.Flow
 
 interface ScheduleUseCase {
     suspend fun insert(item: ScheduleItem): Resource
 
     suspend fun getAll(): List<ScheduleItem>
+
+    suspend fun getByDate(date: String): List<ScheduleItem>
 
     suspend fun deleteById(itemId: Int): Resource
 

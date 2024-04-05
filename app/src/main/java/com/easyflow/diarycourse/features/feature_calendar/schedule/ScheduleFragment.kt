@@ -15,12 +15,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.BaseFragment
-import com.easyflow.diarycourse.core.utils.formatDate
-import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.databinding.FragmentScheduleBinding
+import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_calendar.schedule.adapter.ScheduleAdapter
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
@@ -29,7 +28,6 @@ import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.util.Calendar
 import javax.inject.Inject
 
 class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedListener {
@@ -57,6 +55,7 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentScheduleBinding.inflate(inflater, container, false)
+        Log.d("debugTag", "ScheduleFragment onCreateView")
         return _binding?.root
     }
 
@@ -95,13 +94,14 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
             .state
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
-                dataCollect(state.list)
+                dataCollect(state.tasks)
+                sortedDataCollect(state.sortedTasks)
             }
             .launchIn(viewLifecycleOwner.lifecycleScope) // запускаем сборку потока
     }
 
     private fun dataCollect(items: List<ScheduleItem>) {
-        Log.d("debugTag", "SCHEDULE dataCollect")
+        Log.d("debugTag", "SCHEDULE dataCollect items: $items")
         dataList.apply {
             clear()
             addAll(items)
@@ -109,6 +109,18 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         sortItems(dataList)
         adapter.notifyDataSetChanged()
         countSchedules(adapterList)
+    }
+
+    private fun sortedDataCollect(items: List<ScheduleItem>) {
+        Log.d("debugTag", "SCHEDULE sortedDataCollect items: $items")
+        adapterList.apply {
+            clear()
+            addAll(items)
+        }
+        adapter.notifyDataSetChanged()
+        countSchedules(adapterList)
+
+        sendDataList(adapterList)
     }
 
     private fun observeActions() {
@@ -154,9 +166,12 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         // Из HomeFragment
         setFragmentResultListener(KEY_FRAGMENT_SCHEDULE_RESULT_DATE) { _, bundle ->
             val requestValue = bundle.getString(FRAGMENT_DATE)
-            requestValue?.let {
-                dateSelected = it
-                sortItems(dataList)
+            requestValue?.let { date ->
+                if (date.isNotEmpty()) {
+                    viewModel.onChangeDate(date)
+                    dateSelected = date
+                    sortItems(dataList)
+                }
             }
         }
         // Из TaskFragment
@@ -211,36 +226,8 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         }
     }
 
-    private fun sortItemsByDate(dataList: List<ScheduleItem>): List<ScheduleItem> {
-        val sortedData: MutableList<ScheduleItem> = mutableListOf()
-        return if (dateSelected.isNotEmpty()) {
-            dataList.forEach {
-                if (it.date == dateSelected)
-                    sortedData.add(it)
-            }
-            sortedData
-        } else {
-            val today = Calendar.getInstance()
-            dateSelected = formatDate(today)
-            sortItemsByDate(dataList)
-        }
-    }
-
-    private fun sortItemsByTime(dataList: List<ScheduleItem>): List<ScheduleItem> {
-        return dataList.sortedBy { it.startTime }
-    }
-
     private fun sortItems(dataList: List<ScheduleItem>) {
-        val sortedDataByDate = sortItemsByDate(dataList)
-        val sortedItemsByTime = sortItemsByTime(sortedDataByDate)
-        adapterList.apply {
-            clear()
-            addAll(sortedItemsByTime)
-        }
-        adapter.notifyDataSetChanged()
-        countSchedules(adapterList)
-
-        sendDataList(adapterList)
+        viewModel.sortItems(dataList)
     }
 
     // Подсчет кол-ва записей на день
@@ -256,7 +243,7 @@ class ScheduleFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         recyclerView = binding.recycleSchedule
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        adapter = ScheduleAdapter(adapterList, viewModel, activity)
+//        adapter = ScheduleAdapter(adapterList, viewModel, activity)
         recyclerView.adapter = adapter
     }
 

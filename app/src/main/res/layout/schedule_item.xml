@@ -50,7 +50,7 @@
                 android:id="@+id/schedule_icon"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                app:srcCompat="@drawable/ic_main_hashtag" />
+                app:srcCompat="@drawable/ic_task_hashtag" />
         </LinearLayout>
 
         <LinearLayout

@@ -15,22 +15,30 @@
     <color name="bgGray">#EDEDED</color>
     <color name="menuColorGray">#ACACAC</color>
 
+    <!--  Calendar  -->
+    <color name="calendar_group_icon">#48484C</color>
+    <color name="calendar_group_note_background">#E6B46C</color>
+
     <color name="divider">#ECECEC</color>
 
     <color name="bgDialog">#F2F5FA</color>
     <color name="itemDialog">#FFFFFF</color>
     <color name="bgBorderDialog">#E8E8E8</color>
 
+    <!--  Bottom Dialog Sheet  -->
     <color name="bottom_sheet_background">#fbfcff</color>
     <color name="bottom_sheet_button_background">#F4F4F4</color>
     <color name="bottom_sheet_divider">#CDCDCD</color>
 
+    <!--  Note  -->
     <color name="bgDialogNote">#FDFFFF</color>
     <color name="bgNote">#F8F8F8</color>
 
+    <!--  Settings  -->
     <color name="settingsText">#1b1b1d</color>
     <color name="settingsIcon">#1b1b1d</color>
 
+    <!--  Navigation  -->
     <color name="navDivider">#f1f2f6</color>
     <color name="bgNavigation">#FDFFFF</color>
     <color name="bgNavActiveItem">#f1f2f6</color>
