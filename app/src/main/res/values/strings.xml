@@ -25,7 +25,7 @@
     <string name="task_repeat">Повторение</string>
 
     <!--  Main Screen  -->
-    <string name="main_count_task">Кол-во записей: </string>
+    <string name="main_count_task">Записей: </string>
     <string name="main_task_tab">Распорядок</string>
     <string name="main_note_tab">Заметка</string>
     <string name="main_low_priority">Обычное</string>

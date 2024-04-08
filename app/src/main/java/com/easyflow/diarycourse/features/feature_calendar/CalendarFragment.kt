@@ -92,7 +92,6 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
 
         setCalendarListener()
         setCurrentDay()
-        setSelectedDayButtons()
 
         // Content
         setAddButton()
@@ -329,16 +328,6 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
                 else -> getString(R.string.week_unknown)
             }
             binding.textDayOfWeek.text = if (formattedToday == formattedSelectedDay) getString(R.string.week_today) else dayOfWeek
-        }
-    }
-
-    // Обработка переключения дней в календаре с помощью кнопок
-    private fun setSelectedDayButtons() {
-        binding.dayBackButton.setOnClickListener {
-            collapsibleCalendar.prevDay()
-        }
-        binding.dayNextButton.setOnClickListener {
-            collapsibleCalendar.nextDay()
         }
     }
 
