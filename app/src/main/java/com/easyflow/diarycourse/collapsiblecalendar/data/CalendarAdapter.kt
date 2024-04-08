@@ -98,7 +98,7 @@ class CalendarAdapter(context: Context, cal: Calendar) {
 
             val view = mInflater.inflate(R.layout.calendar_day_layout, null)
             val txtDay = view.findViewById<View>(R.id.txt_day) as TextView
-            val imgEventTag = view.findViewById<View>(R.id.img_event_tag) as TextView
+            val eventTag = view.findViewById<View>(R.id.event_tag) as TextView
 
             txtDay.text = day.day.toString()
             if (day.month != calendar.get(Calendar.MONTH)) {
@@ -110,8 +110,8 @@ class CalendarAdapter(context: Context, cal: Calendar) {
                 if (day.year == event.getYear()
                         && day.month == event.getMonth()
                         && day.day == event.getDay()) {
-                    imgEventTag.visibility = View.VISIBLE
-                    imgEventTag.setTextColor(event.getColor())
+                    eventTag.visibility = View.VISIBLE
+                    eventTag.setTextColor(event.getColor())
                 }
             }
 

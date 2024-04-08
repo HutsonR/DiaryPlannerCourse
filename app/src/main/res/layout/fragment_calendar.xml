@@ -20,10 +20,10 @@
             app:primaryColor="@color/backgroundMain"
             app:textColor="@color/black"
             app:selectedItem_textColor="@color/alwaysWhite"
-            app:todayItem_textColor="@color/primary"
+            app:todayItem_textColor="@color/black"
             app:firstDayOfWeek="monday"
             android:animateLayoutChanges="true"
-            app:selectedItem_background="@drawable/circle_primary_background"
+            app:selectedItem_background="@drawable/circle_day_stroke_background"
             app:expandIconColor="@color/black">
         </com.easyflow.diarycourse.collapsiblecalendar.widget.CollapsibleCalendar>
 

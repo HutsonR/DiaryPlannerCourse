@@ -3,8 +3,8 @@
 
     <!-- day -->
     <dimen name="day_circle_width">32dp</dimen>
-    <dimen name="day_circle_height">32dp</dimen>
-    <dimen name="day_circle_radius">120dp</dimen>
+    <dimen name="day_circle_height">46dp</dimen>
+    <dimen name="day_circle_radius">8dp</dimen>
     <dimen name="day_circle_stroke_width">1dp</dimen>
 
 </resources>

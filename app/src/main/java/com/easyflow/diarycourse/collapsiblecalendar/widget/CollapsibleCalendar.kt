@@ -236,18 +236,19 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
                 val day = mAdapter!!.getItem(i)
                 val view = mAdapter!!.getView(i)
                 val txtDay = view.findViewById<View>(R.id.txt_day) as TextView
-                txtDay.setBackgroundColor(Color.TRANSPARENT)
+                val dayLayout = view.findViewById<View>(R.id.dayLayout) as LinearLayout
+                dayLayout.setBackgroundColor(Color.TRANSPARENT)
                 txtDay.setTextColor(textColor)
 
                 // set today's item
                 if (isToday(day)) {
-                    txtDay.setBackgroundDrawable(todayItemBackgroundDrawable)
+                    dayLayout.background = todayItemBackgroundDrawable
                     txtDay.setTextColor(todayItemTextColor)
                 }
 
                 // set the selected item
                 if (isSelectedDay(day)) {
-                    txtDay.setBackgroundDrawable(selectedItemBackgroundDrawable)
+                    dayLayout.background = selectedItemBackgroundDrawable
                     txtDay.setTextColor(selectedItemTextColor)
                 }
             }
@@ -359,15 +360,9 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
         mCurrentWeekIndex = suitableRowIndex
     }
 
-    fun addEventTag(numYear: Int, numMonth: Int, numDay: Int) {
-        mAdapter!!.addEvent(Event(numYear, numMonth, numDay, eventColor))
-
-        reload()
-    }
 
     fun addEventTag(numYear: Int, numMonth: Int, numDay: Int, color: Int) {
         mAdapter!!.addEvent(Event(numYear, numMonth, numDay, color))
-
 
         reload()
     }
