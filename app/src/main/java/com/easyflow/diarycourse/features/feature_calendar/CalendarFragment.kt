@@ -16,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.collapsiblecalendar.widget.CollapsibleCalendar
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.core.utils.formatDate
@@ -28,7 +29,6 @@ import com.easyflow.diarycourse.features.feature_calendar.schedule.ScheduleFragm
 import com.easyflow.diarycourse.features.feature_calendar.schedule.adapter.ScheduleAdapter
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
 import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
-import com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -180,7 +180,7 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
                     }
                 }
             }.let {
-                // updateEventsTag(dataList, noteList)
+                 updateEventsTag(taskList)
             }
         }
     }
@@ -241,18 +241,14 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         }
     }
 
-    private fun updateEventsTag(dataList: List<ScheduleItem>, noteList: List<NoteItem>) {
+    private fun updateEventsTag(dataList: List<ScheduleItem>) {
         Log.d("debugTag", "HOME updateEventsTag")
-        val color = ContextCompat.getColor(requireContext(), R.color.blue)
+        val color = ContextCompat.getColor(requireContext(), R.color.primary)
         val processedDates = mutableSetOf<String>()
         val datesToProcess = mutableListOf<String>()
 
-        for (item in dataList + noteList) {
-            val date = when (item) {
-                is ScheduleItem -> item.date
-                is NoteItem -> item.date
-                else -> continue // Пропустить элементы, не являющиеся ни ScheduleItem, ни NoteItem
-            }
+        for (item in dataList) {
+            val date = item.date
 
             if (!processedDates.contains(date)) {
                 processedDates.add(date)

@@ -13,20 +13,19 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
+        <com.easyflow.diarycourse.collapsiblecalendar.widget.CollapsibleCalendar
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:primaryColor="@color/backgroundMain"
             app:textColor="@color/black"
-            app:selectedItem_textColor="@color/white"
-            app:todayItem_textColor="@color/red"
+            app:selectedItem_textColor="@color/alwaysWhite"
+            app:todayItem_textColor="@color/primary"
+            app:firstDayOfWeek="monday"
             android:animateLayoutChanges="true"
             app:selectedItem_background="@drawable/circle_primary_background"
-            app:buttonLeft_drawableTintColor="@color/black"
-            app:buttonRight_drawableTintColor="@color/black"
             app:expandIconColor="@color/black">
-        </com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar>
+        </com.easyflow.diarycourse.collapsiblecalendar.widget.CollapsibleCalendar>
 
         <LinearLayout
             android:layout_width="match_parent"
