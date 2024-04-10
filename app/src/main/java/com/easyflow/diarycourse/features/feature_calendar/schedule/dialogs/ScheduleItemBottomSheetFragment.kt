@@ -19,7 +19,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Calendar
 
 class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
-    private val TAG = "debugTag"
     private lateinit var title: String
     private lateinit var dayOfWeek: String
     private lateinit var startTime: String
@@ -44,6 +43,7 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
         val dayOfWeekTV: TextView = view.findViewById(R.id.schedule_sheet_day_of_week)
         val priorityTV: TextView = view.findViewById(R.id.priorityText)
         val priorityIcon: ImageView = view.findViewById(R.id.priorityIcon)
+        val separator: View = view.findViewById(R.id.schedule_sheet_separator)
 
         val deleteButton: Button = view.findViewById(R.id.schedule_sheet_buttonDelete)
         val completeButton: Button = view.findViewById(R.id.schedule_sheet_buttonComplete)
@@ -60,13 +60,16 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
 
             if (parcelItem.priority == Priority.IMPORTANT) {
                 val primaryColor = ContextCompat.getColor(requireContext(), R.color.primary)
-                val flagActive = ContextCompat.getDrawable(requireContext(), R.drawable.ic_flag_small_active)
                 priorityTV.setTextColor(primaryColor)
-                priorityIcon.setImageDrawable(flagActive)
+                priorityIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.primary))
             }
 
             if (parcelItem.isCompleteTask)
                 completeButton.text = getString(R.string.button_uncomplete)
+
+            if (description.isEmpty()) {
+                separator.visibility = View.INVISIBLE
+            }
 
             deleteButton.setOnClickListener {
                 sendItemToDelete(parcelItem)

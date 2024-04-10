@@ -110,7 +110,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        app:srcCompat="@drawable/ic_main_clock_small" />
+                        app:srcCompat="@drawable/ic_clock_small" />
                     <TextView
                         android:id="@+id/schedule_duration"
                         android:layout_width="wrap_content"
