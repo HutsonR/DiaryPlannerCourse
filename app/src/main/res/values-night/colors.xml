@@ -16,9 +16,9 @@
     <color name="bgGray">#24272E</color>
     <color name="menuColorGray">#8D95A4</color>
 
-    <!--  Calendar  -->
+    <!--  CALENDAR GROUPS  -->
     <color name="calendar_group_icon">#ECECEC</color>
-    <color name="calendar_group_note_background">#414659</color>
+    <color name="calendar_group_note_background">#272930</color>
 
     <color name="divider">#3F4450</color>
 
@@ -46,6 +46,9 @@
     <color name="navText">#E8EAED</color>
 
     <color name="primaryPicker">#BBBBBB</color>
+
+    <!--  TASK ITEM  -->
+    <color name="oval">#272930</color>
 
     <color name="blue">#BAEEFF</color>
     <color name="green">#BAFFD6</color>

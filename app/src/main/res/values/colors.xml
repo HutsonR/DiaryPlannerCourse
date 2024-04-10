@@ -16,7 +16,7 @@
     <color name="bgGray">#EDEDED</color>
     <color name="menuColorGray">#ACACAC</color>
 
-    <!--  Calendar  -->
+    <!--  CALENDAR GROUPS  -->
     <color name="calendar_group_icon">#48484C</color>
     <color name="calendar_group_note_background">#E6B46C</color>
 
@@ -47,6 +47,9 @@
     <color name="navText">#1B1B1D</color>
 
     <color name="primaryPicker">#378BC3</color>
+
+    <!--  TASK ITEM  -->
+    <color name="oval">#EDEDED</color>
 
     <color name="blue">#BAEEFF</color>
     <color name="green">#BAFFD6</color>
