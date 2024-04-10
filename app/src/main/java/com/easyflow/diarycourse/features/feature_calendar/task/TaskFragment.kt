@@ -197,7 +197,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             }
         }
 
-        setBackgroundIconColor(color)
+        setTaskStyle(color)
         binding.timeEndPicker.alpha = 0.5f
 
         taskIconBackground.setOnClickListener {
@@ -246,7 +246,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             timeStartPickerTV.text = parcelItem.startTime
             timeEndPickerTV.text = parcelItem.endTime.ifEmpty { getString(R.string.task_time_blank) }
             setColor()
-            setBackgroundIconColor(parcelItem.color)
+            setTaskStyle(parcelItem.color)
             // Для активации кнопки конца времени
             isStartTimeAfterEndTime()
             timePicked()
@@ -467,7 +467,7 @@ class TaskFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun setBackgroundIconColor(color: Color) {
+    private fun setTaskStyle(color: Color) {
         val colorStateList = when (color) {
             Color.BLUE -> ColorStateList.valueOf(
                 ContextCompat.getColor(
@@ -480,13 +480,6 @@ class TaskFragment : BottomSheetDialogFragment() {
                 ContextCompat.getColor(
                     requireContext(),
                     R.color.green
-                )
-            )
-
-            Color.YELLOW -> ColorStateList.valueOf(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.yellow
                 )
             )
 
@@ -510,8 +503,16 @@ class TaskFragment : BottomSheetDialogFragment() {
                     R.color.pink
                 )
             )
+
+            Color.BLACK -> ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.alwaysBlack
+                )
+            )
         }
         taskIconBackground.backgroundTintList = colorStateList
+        binding.addSave.backgroundTintList = colorStateList
     }
 
     private fun setColor() {
@@ -721,7 +722,7 @@ class TaskFragment : BottomSheetDialogFragment() {
 
             val selectedColor: Color = viewModel.getColorEnum(selectedColorTag)
             color = selectedColor
-            setBackgroundIconColor(color)
+            setTaskStyle(color)
 
             updateSaveButtonState()
         }

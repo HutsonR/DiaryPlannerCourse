@@ -3,7 +3,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/bgDialog">
+    android:background="@color/task_dialog_bg">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -143,7 +143,7 @@
                         android:layout_width="match_parent"
                         android:layout_marginHorizontal="24dp"
                         android:layout_height="1dp"
-                        android:background="@color/divider" />
+                        android:background="@color/task_dialog_divider" />
 
                     <LinearLayout
                         android:id="@+id/datePickerToday"
@@ -249,7 +249,7 @@
                         android:layout_width="match_parent"
                         android:layout_marginHorizontal="24dp"
                         android:layout_height="1dp"
-                        android:background="@color/divider" />
+                        android:background="@color/task_dialog_divider" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -380,17 +380,6 @@
                             android:textAlignment="center" />
 
                         <RadioButton
-                            android:id="@+id/radio_yellow"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:layout_marginEnd="16dp"
-                            android:background="@drawable/add_button"
-                            android:backgroundTint="@color/yellow"
-                            android:button="@drawable/add_button"
-                            android:tag="YELLOW"
-                            android:textAlignment="center" />
-
-                        <RadioButton
                             android:id="@+id/radio_red"
                             android:layout_width="28dp"
                             android:layout_height="28dp"
@@ -416,10 +405,21 @@
                             android:id="@+id/radio_pink"
                             android:layout_width="28dp"
                             android:layout_height="28dp"
+                            android:layout_marginEnd="16dp"
                             android:background="@drawable/add_button"
                             android:backgroundTint="@color/pink"
                             android:button="@drawable/add_button"
                             android:tag="PINK"
+                            android:textAlignment="center" />
+
+                        <RadioButton
+                            android:id="@+id/radio_black"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="@drawable/add_button"
+                            android:backgroundTint="@color/alwaysBlack"
+                            android:button="@drawable/add_button"
+                            android:tag="BLACK"
                             android:textAlignment="center" />
                     </RadioGroup>
                 </LinearLayout>
@@ -506,7 +506,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:background="@drawable/round_corner_15"
-            android:backgroundTint="@color/bgDialog"
+            android:backgroundTint="@color/task_dialog_bg"
             android:paddingTop="12dp"
             android:paddingBottom="16dp"
             android:paddingHorizontal="16dp"
@@ -549,7 +549,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/background_radius25_primary"
+                    android:background="@null"
                     android:contentDescription="@string/apply"
                     app:srcCompat="@drawable/ic_add_check"
                     app:tint="@color/alwaysWhite"
