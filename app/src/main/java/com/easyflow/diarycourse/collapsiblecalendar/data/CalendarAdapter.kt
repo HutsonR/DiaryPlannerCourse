@@ -107,11 +107,11 @@ class CalendarAdapter(context: Context, cal: Calendar) {
 
             for (j in mEventList.indices) {
                 val event = mEventList[j]
-                if (day.year == event.getYear()
-                        && day.month == event.getMonth()
-                        && day.day == event.getDay()) {
+                if (day.year == event.year
+                        && day.month == event.month
+                        && day.day == event.day) {
                     eventTag.visibility = View.VISIBLE
-                    eventTag.setTextColor(event.getColor())
+                    eventTag.setTextColor(event.color)
                 }
             }
 

@@ -19,8 +19,8 @@
             android:layout_height="wrap_content"
             app:primaryColor="@color/backgroundMain"
             app:textColor="@color/black"
-            app:selectedItem_textColor="@color/alwaysWhite"
-            app:todayItem_textColor="@color/black"
+            app:selectedItem_textColor="@color/black"
+            app:todayItem_textColor="@color/primary"
             app:firstDayOfWeek="monday"
             android:animateLayoutChanges="true"
             app:selectedItem_background="@drawable/circle_day_stroke_background"
@@ -33,7 +33,7 @@
             android:orientation="horizontal"
             android:paddingLeft="14dp"
             android:paddingRight="14dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:gravity="center_vertical">
             <LinearLayout
                 android:layout_width="match_parent"

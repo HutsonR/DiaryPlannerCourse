@@ -30,6 +30,8 @@ import com.easyflow.diarycourse.features.feature_calendar.schedule.adapter.Sched
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
 import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
 import dagger.Lazy
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -145,13 +147,18 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     private fun dataCollect(items: List<CombineModel>) {
-        Log.d("debugTag", "dataCollect")
-        dataList.addAll(items)
-        if (taskList.isEmpty() || noteList.isEmpty()) {
+        val newDataList = mutableListOf<CombineModel>()
+        newDataList.addAll(items)
+
+        if (dataList.size != newDataList.size) {
+            dataList.clear()
+            dataList.addAll(newDataList)
+
+            Log.d("debugTag", "dataCollect dataList size ${dataList.size}")
             taskList.clear()
             noteList.clear()
 
-            items.map { combineModel ->
+            dataList.map { combineModel ->
                 when {
                     combineModel.startTime.isNotBlank() || combineModel.duration.isNotBlank() -> {
                         taskList.add(
@@ -179,10 +186,10 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
                         )
                     }
                 }
-            }.let {
-                 updateEventsTag(taskList)
             }
+
         }
+        updateEventsTag(taskList)
     }
 
     private fun sortedDataCollect(items: List<ScheduleItem>) {
@@ -256,14 +263,15 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
             }
         }
 
-        for (date in datesToProcess) {
-            val dayOfMonth = date.substring(0, 2).toInt()
-            val month = date.substring(3, 5).toInt() - 1
-            val year = date.substring(6).toInt()
-            collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, color)
+        CoroutineScope(Dispatchers.Default).launch {
+            for (date in datesToProcess) {
+                val dayOfMonth = date.substring(0, 2).toInt()
+                val month = date.substring(3, 5).toInt() - 1
+                val year = date.substring(6).toInt()
+                collapsibleCalendar.addEventTag("20$year".toInt(), month, dayOfMonth, color)
+            }
         }
     }
-
 
     // Обработка нажатий календаря
     private fun setCalendarListener() {

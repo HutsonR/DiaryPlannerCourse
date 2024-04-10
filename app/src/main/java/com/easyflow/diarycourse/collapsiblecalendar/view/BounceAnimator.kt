@@ -1,5 +1,8 @@
 package com.easyflow.diarycourse.collapsiblecalendar.view
 
+import kotlin.math.cos
+import kotlin.math.pow
+
 class BounceAnimator(amplitude: Double, frequency: Double) : android.view.animation.Interpolator {
     private var mAmplitude = 1.0
     private var mFrequency = 10.0
@@ -10,7 +13,7 @@ class BounceAnimator(amplitude: Double, frequency: Double) : android.view.animat
     }
 
     override fun getInterpolation(time: Float): Float {
-        return (-1.0 * Math.pow(Math.E, -time / mAmplitude) *
-                Math.cos(mFrequency * time) + 1).toFloat()
+        return (-1.0 * Math.E.pow(-time / mAmplitude) *
+                cos(mFrequency * time) + 1).toFloat()
     }
 }

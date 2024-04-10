@@ -78,13 +78,27 @@
     <string name="fetch_error">Возникла ошибка получения данных, попробуйте позже</string>
     <string name="success">Закрыть</string>
 
+    <!--  CALENDAR  -->
+    <string name="month_january">Январь</string>
+    <string name="month_february">Февраль</string>
+    <string name="month_march">Март</string>
+    <string name="month_april">Апрель</string>
+    <string name="month_may">Май</string>
+    <string name="month_june">Июнь</string>
+    <string name="month_july">Июль</string>
+    <string name="month_august">Август</string>
+    <string name="month_september">Сентябрь</string>
+    <string name="month_october">Октябрь</string>
+    <string name="month_november">Ноябрь</string>
+    <string name="month_december">Декабрь</string>
+    <string name="month_unknown">Неизвестно</string>
 
-    <string name="monday">MON</string>
-    <string name="tuesday">TUE</string>
-    <string name="wednesday">WED</string>
-    <string name="thursday">THU</string>
-    <string name="friday">FRI</string>
-    <string name="saturday">SAT</string>
-    <string name="sunday">SUN</string>
+    <string name="monday">пн</string>
+    <string name="tuesday">вт</string>
+    <string name="wednesday">ср</string>
+    <string name="thursday">чт</string>
+    <string name="friday">пт</string>
+    <string name="saturday">сб</string>
+    <string name="sunday">вс</string>
 
 </resources>

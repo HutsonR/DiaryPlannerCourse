@@ -7,6 +7,7 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
+import kotlin.math.abs
 
 abstract class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
 
@@ -37,8 +38,8 @@ abstract class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
             try {
                 val diffY = e2.y - e1!!.y
                 val diffX = e2.x - e1.x
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                if (abs(diffX) > Math.abs(diffY)) {
+                    if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
                             onSwipeRight()
                         } else {
@@ -46,7 +47,7 @@ abstract class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
                         }
                         result = true
                     }
-                } else if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                } else if (abs(diffY) > SWIPE_THRESHOLD && abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                     if (diffY > 0) {
                         onSwipeBottom()
                     } else {
@@ -64,9 +65,8 @@ abstract class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
     }
 
     companion object {
-
-        private val SWIPE_THRESHOLD = 100
-        private val SWIPE_VELOCITY_THRESHOLD = 100
+        private const val SWIPE_THRESHOLD = 100
+        private const val SWIPE_VELOCITY_THRESHOLD = 100
     }
 
     abstract fun onSwipeRight()

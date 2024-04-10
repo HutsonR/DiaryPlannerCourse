@@ -1,10 +1,5 @@
 package com.easyflow.diarycourse.collapsiblecalendar.widget
 
-/**
- * Created by shrikanthravi on 07/03/18.
- */
-
-
 import android.content.Context
 import android.graphics.Color
 import android.os.Handler
@@ -24,13 +19,60 @@ import com.easyflow.diarycourse.collapsiblecalendar.data.Day
 import com.easyflow.diarycourse.collapsiblecalendar.data.Event
 import com.easyflow.diarycourse.collapsiblecalendar.view.BounceAnimator
 import com.easyflow.diarycourse.collapsiblecalendar.view.ExpandIconView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.DateFormatSymbols
-import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.GregorianCalendar
 
 
 class CollapsibleCalendar : UICalendar, View.OnClickListener {
+    private var mAdapter: CalendarAdapter? = null
+    private var mListener: CalendarListener? = null
+    private var expanded = false
+    private var mInitHeight = 0
+    private val mHandler = Handler()
+    private var mIsWaitingForUpdate = false
+    private var mCurrentWeekIndex = 0
+    private var reloadJob: Job? = null
+
+    constructor(context: Context) : super(context) {
+        init(context)
+    }
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+        init(context)
+    }
+
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        init(context)
+    }
+
+    private fun init(context: Context) {
+        val cal = Calendar.getInstance()
+        val adapter = CalendarAdapter(context, cal)
+        setAdapter(adapter)
+
+        // Bind events
+        mBtnPrevMonth.setOnClickListener { prevMonth() }
+        mBtnNextMonth.setOnClickListener { nextMonth() }
+        mBtnPrevWeek.setOnClickListener { prevWeek() }
+        mBtnNextWeek.setOnClickListener { nextWeek() }
+        mTodayIcon.setOnClickListener { changeToToday() }
+        expandIconView.setState(ExpandIconView.MORE, true)
+        expandIconView.setOnClickListener {
+            if (expanded) {
+                collapse(400)
+            } else {
+                expand(400)
+            }
+        }
+        this.post { collapseTo(mCurrentWeekIndex) }
+    }
+
     override fun changeToToday() {
         val calendar = Calendar.getInstance()
         val calenderAdapter = CalendarAdapter(context, calendar);
@@ -43,30 +85,6 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
         mCurrentWeekIndex = suitableRowIndex
         setAdapter(calenderAdapter)
     }
-
-    override fun onClick(view: View?) {
-        view?.let {
-            mListener.let { mListener ->
-                if (mListener == null) {
-                    expandIconView.performClick()
-                } else {
-                    mListener.onClickListener()
-                }
-            }
-        }
-    }
-
-    private var mAdapter: CalendarAdapter? = null
-    private var mListener: CalendarListener? = null
-
-    var expanded = false
-
-    private var mInitHeight = 0
-
-    private val mHandler = Handler()
-    private var mIsWaitingForUpdate = false
-
-    private var mCurrentWeekIndex: Int = 0
 
     private val suitableRowIndex: Int
         get() {
@@ -159,54 +177,6 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
             }
         }
 
-    constructor(context: Context) : super(context) {
-        init(context)
-    }
-
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        init(context)
-    }
-
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        init(context)
-    }
-
-    protected fun init(context: Context) {
-
-
-        val cal = Calendar.getInstance()
-        val adapter = CalendarAdapter(context, cal)
-        setAdapter(adapter)
-
-
-        // bind events
-
-        mBtnPrevMonth.setOnClickListener { prevMonth() }
-
-        mBtnNextMonth.setOnClickListener { nextMonth() }
-
-        mBtnPrevWeek.setOnClickListener { prevWeek() }
-
-        mBtnNextWeek.setOnClickListener { nextWeek() }
-
-        mTodayIcon.setOnClickListener { changeToToday() }
-
-        expandIconView.setState(ExpandIconView.MORE, true)
-
-
-        expandIconView.setOnClickListener {
-            if (expanded) {
-                collapse(400)
-            } else {
-                expand(400)
-            }
-        }
-
-        this.post { collapseTo(mCurrentWeekIndex) }
-
-
-    }
-
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
@@ -223,30 +193,22 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
     }
 
     override fun redraw() {
-        // redraw all views of week
-        val rowWeek = mTableHead.getChildAt(0) as TableRow?
-        if (rowWeek != null) {
-            for (i in 0 until rowWeek.childCount) {
-                (rowWeek.getChildAt(i) as TextView).setTextColor(textColor)
-            }
-        }
-        // redraw all views of day
-        if (mAdapter != null) {
-            for (i in 0 until mAdapter!!.count) {
-                val day = mAdapter!!.getItem(i)
-                val view = mAdapter!!.getView(i)
+        mAdapter?.let { adapter ->
+            for (i in 0 until adapter.count) {
+                val day = adapter.getItem(i)
+                val view = adapter.getView(i)
                 val txtDay = view.findViewById<View>(R.id.txt_day) as TextView
                 val dayLayout = view.findViewById<View>(R.id.dayLayout) as LinearLayout
                 dayLayout.setBackgroundColor(Color.TRANSPARENT)
                 txtDay.setTextColor(textColor)
 
-                // set today's item
+                // Установка фона для сегодняшнего дня
                 if (isToday(day)) {
                     dayLayout.background = todayItemBackgroundDrawable
                     txtDay.setTextColor(todayItemTextColor)
                 }
 
-                // set the selected item
+                // Установка фона для выбранного дня
                 if (isSelectedDay(day)) {
                     dayLayout.background = selectedItemBackgroundDrawable
                     txtDay.setTextColor(selectedItemTextColor)
@@ -258,20 +220,38 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
     override fun reload() {
         mAdapter?.let { mAdapter ->
             mAdapter.refresh()
-            val calendar = Calendar.getInstance()
-            val tempDatePattern: String
-            if (calendar.get(Calendar.YEAR) != mAdapter.calendar.get(Calendar.YEAR)) {
-                tempDatePattern = "MMMM YYYY"
-            } else {
-                tempDatePattern = datePattern
-            }
+
             // reset UI
-            val dateFormat = SimpleDateFormat(tempDatePattern, getCurrentLocale(context))
-            dateFormat.timeZone = mAdapter.calendar.timeZone
-            mTxtTitle.text = dateFormat.format(mAdapter.calendar.time)
+            val month = mAdapter.calendar.get(Calendar.MONTH)
+            val year = mAdapter.calendar.get(Calendar.YEAR)
+            val monthText = when (month) {
+                Calendar.JANUARY -> context.getString(R.string.month_january)
+                Calendar.FEBRUARY -> context.getString(R.string.month_february)
+                Calendar.MARCH -> context.getString(R.string.month_march)
+                Calendar.APRIL -> context.getString(R.string.month_april)
+                Calendar.MAY -> context.getString(R.string.month_may)
+                Calendar.JUNE -> context.getString(R.string.month_june)
+                Calendar.JULY -> context.getString(R.string.month_july)
+                Calendar.AUGUST -> context.getString(R.string.month_august)
+                Calendar.SEPTEMBER -> context.getString(R.string.month_september)
+                Calendar.OCTOBER -> context.getString(R.string.month_october)
+                Calendar.NOVEMBER -> context.getString(R.string.month_november)
+                Calendar.DECEMBER -> context.getString(R.string.month_december)
+                else -> context.getString(R.string.month_unknown)
+            }
+
+            val currentMonthText = if (year == Calendar.getInstance().get(Calendar.YEAR)) {
+                monthText
+            } else {
+                "$monthText $year"
+            }
+
+            mTxtTitle.text = currentMonthText
+
             mTableHead.removeAllViews()
             mTableBody.removeAllViews()
 
+            // Установка заголовка недели
             var rowCurrent: TableRow
             rowCurrent = TableRow(context)
             rowCurrent.layoutParams = TableLayout.LayoutParams(
@@ -280,7 +260,7 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
             for (i in 0..6) {
                 val view = mInflater.inflate(R.layout.calendar_layout_day_of_week, null)
                 val txtDayOfWeek = view.findViewById<View>(R.id.txt_day_of_week) as TextView
-                txtDayOfWeek.setText(DateFormatSymbols().getShortWeekdays()[(i + firstDayOfWeek) % 7 + 1])
+                txtDayOfWeek.text = DateFormatSymbols().shortWeekdays[(i + firstDayOfWeek) % 7 + 1]
                 view.layoutParams = TableRow.LayoutParams(
                         0,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -289,7 +269,7 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
             }
             mTableHead.addView(rowCurrent)
 
-            // set day view
+            // Установка дней месяца
             for (i in 0 until mAdapter.count) {
 
                 if (i % 7 == 0) {
@@ -349,14 +329,11 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
         }
     }
 
-    // public methods
+    // Установка адаптера календаря
     fun setAdapter(adapter: CalendarAdapter) {
         mAdapter = adapter
         adapter.setFirstDayOfWeek(firstDayOfWeek)
-
         reload()
-
-        // init week
         mCurrentWeekIndex = suitableRowIndex
     }
 
@@ -364,54 +341,68 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
     fun addEventTag(numYear: Int, numMonth: Int, numDay: Int, color: Int) {
         mAdapter!!.addEvent(Event(numYear, numMonth, numDay, color))
 
-        reload()
-    }
+        reloadJob?.cancel()
 
+        // Создаем новый Job с задержкой в 200 миллисекунд
+        reloadJob = CoroutineScope(Dispatchers.Main).launch {
+            delay(ADD_EVENT_DELAY)
+            reload()
+        }
+    }
     fun prevMonth() {
         val cal = mAdapter!!.calendar
-        params.let {
-            if (it != null && (Calendar.getInstance().get(Calendar.YEAR) * 12 + Calendar.getInstance().get(Calendar.MONTH) + it.prevDays / 30) > (cal.get(Calendar.YEAR) * 12 + cal.get(Calendar.MONTH))) {
+        params?.let {
+            val currentYearMonth = Calendar.getInstance().get(Calendar.YEAR) * 12 + Calendar.getInstance().get(Calendar.MONTH)
+            val targetYearMonth = cal.get(Calendar.YEAR) * 12 + cal.get(Calendar.MONTH)
+            if (currentYearMonth + it.prevDays / 30 > targetYearMonth) {
                 val myAnim = AnimationUtils.loadAnimation(context, R.anim.bounce)
                 val interpolator = BounceAnimator(0.1, 10.0)
-                myAnim.setInterpolator(interpolator)
+                myAnim.interpolator = interpolator
                 mTableBody.startAnimation(myAnim)
                 mTableHead.startAnimation(myAnim)
                 return
             }
-            if (cal.get(Calendar.MONTH) == cal.getActualMinimum(Calendar.MONTH)) {
-                cal.set(cal.get(Calendar.YEAR) - 1, cal.getActualMaximum(Calendar.MONTH), 1)
-            } else {
-                cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) - 1)
-            }
-            reload()
-            if (mListener != null) {
-                mListener!!.onMonthChange()
-            }
         }
 
+        if (cal.get(Calendar.MONTH) == cal.getActualMinimum(Calendar.MONTH)) {
+            cal.set(cal.get(Calendar.YEAR) - 1, cal.getActualMaximum(Calendar.MONTH), 1)
+        } else {
+            cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) - 1)
+        }
+        reload()
+        mListener?.onMonthChange()
     }
 
     fun nextMonth() {
         val cal = mAdapter!!.calendar
-        params.let {
-            if (it != null && (Calendar.getInstance().get(Calendar.YEAR) * 12 + Calendar.getInstance().get(Calendar.MONTH) + it.nextDaysBlocked / 30) < (cal.get(Calendar.YEAR) * 12 + cal.get(Calendar.MONTH))) {
+        params?.let {
+            val currentYearMonth = Calendar.getInstance().get(Calendar.YEAR) * 12 + Calendar.getInstance().get(Calendar.MONTH)
+            val targetYearMonth = cal.get(Calendar.YEAR) * 12 + cal.get(Calendar.MONTH)
+            if (currentYearMonth + it.nextDaysBlocked / 30 < targetYearMonth) {
                 val myAnim = AnimationUtils.loadAnimation(context, R.anim.bounce)
                 val interpolator = BounceAnimator(0.1, 10.0)
-                myAnim.setInterpolator(interpolator)
+                myAnim.interpolator = interpolator
                 mTableBody.startAnimation(myAnim)
                 mTableHead.startAnimation(myAnim)
                 return
             }
-            if (cal.get(Calendar.MONTH) == cal.getActualMaximum(Calendar.MONTH)) {
-                cal.set(cal.get(Calendar.YEAR) + 1, cal.getActualMinimum(Calendar.MONTH), 1)
-            } else {
-                cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) + 1)
-            }
-            reload()
-            if (mListener != null) {
-                mListener!!.onMonthChange()
-            }
         }
+
+        if (cal.get(Calendar.MONTH) == cal.getActualMaximum(Calendar.MONTH)) {
+            cal.set(cal.get(Calendar.YEAR) + 1, cal.getActualMinimum(Calendar.MONTH), 1)
+        } else {
+            cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) + 1)
+        }
+        reload()
+        mListener?.onMonthChange()
+    }
+
+    private fun isToday(day: Day?): Boolean {
+        val todayCal = Calendar.getInstance()
+        return (day != null
+                && day.year == todayCal.get(Calendar.YEAR)
+                && day.month == todayCal.get(Calendar.MONTH)
+                && day.day == todayCal.get(Calendar.DAY_OF_MONTH))
     }
 
     fun nextDay() {
@@ -473,19 +464,10 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
                 && day.day == selectedItem!!.day)
     }
 
-    fun isToday(day: Day?): Boolean {
-        val todayCal = Calendar.getInstance()
-        return (day != null
-                && day.year == todayCal.get(Calendar.YEAR)
-                && day.month == todayCal.get(Calendar.MONTH)
-                && day.day == todayCal.get(Calendar.DAY_OF_MONTH))
-    }
-
     /**
      * collapse in milliseconds
      */
     open fun collapse(duration: Int) {
-
         if (state == STATE_EXPANDED) {
             state = STATE_PROCESSING
 
@@ -618,46 +600,41 @@ class CollapsibleCalendar : UICalendar, View.OnClickListener {
         }
     }
 
-    // callback
+    // Интерфейс слушателя календаря
+    interface CalendarListener {
+        fun onDaySelect()
+        fun onItemClick(v: View)
+        fun onDataUpdate()
+        fun onMonthChange()
+        fun onWeekChange(position: Int)
+        fun onClickListener()
+        fun onDayChanged()
+    }
+
+    // Установка слушателя календаря
     fun setCalendarListener(listener: CalendarListener) {
         mListener = listener
     }
 
-    interface CalendarListener {
-
-        // triggered when a day is selected programmatically or clicked by user.
-        fun onDaySelect()
-
-        // triggered only when the views of day on calendar are clicked by user.
-        fun onItemClick(v: View)
-
-        // triggered when the data of calendar are updated by changing month or adding events.
-        fun onDataUpdate()
-
-        // triggered when the month are changed.
-        fun onMonthChange()
-
-        // triggered when the week position are changed.
-        fun onWeekChange(position: Int)
-
-        fun onClickListener()
-
-        fun onDayChanged()
-    }
-
+    // Установка видимости иконки раскрытия
     fun setExpandIconVisible(visible: Boolean) {
-        if (visible) {
-            expandIconView.visibility = View.VISIBLE
-        } else {
-            expandIconView.visibility = View.GONE
-        }
+        expandIconView.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     data class Params(val prevDays: Int, val nextDaysBlocked: Int)
 
-    var params: Params? = null
-        set(value) {
-            field = value
+    private var params: Params? = null
+
+    override fun onClick(view: View?) {
+        view?.let {
+            mListener.let { listener ->
+                listener?.onClickListener() ?: expandIconView.performClick()
+            }
         }
+    }
+
+    companion object {
+        const val ADD_EVENT_DELAY = 200L
+    }
 }
 

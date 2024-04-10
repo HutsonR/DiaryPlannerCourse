@@ -20,7 +20,6 @@ import com.easyflow.diarycourse.collapsiblecalendar.view.LockScrollView
 import com.easyflow.diarycourse.collapsiblecalendar.view.OnSwipeTouchListener
 import java.util.Locale
 
-
 @SuppressLint("ClickableViewAccessibility")
 abstract class UICalendar @JvmOverloads constructor(
     context: Context,

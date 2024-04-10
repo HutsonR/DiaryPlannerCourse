@@ -46,26 +46,25 @@
 
         <TextView
             android:id="@+id/txt_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="12dp"
+            android:paddingStart="80dp"
             android:paddingEnd="12dp"
-            android:layout_gravity="center"
             android:paddingBottom="12dp"
             android:paddingTop="10dp"
             android:gravity="center"
+            android:layout_weight="1"
             android:textColor="@android:color/black"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Jun 2015" />
+            android:textSize="18sp"
+            tools:text="Февраль 2023" />
 
         <com.easyflow.diarycourse.collapsiblecalendar.view.ExpandIconView
             android:id="@+id/expandIcon"
             android:layout_width="20dp"
-            android:layout_height="30dp"
+            android:layout_height="match_parent"
             android:visibility="visible"
             android:layout_gravity="center"
+            android:layout_marginEnd="8dp"
             app:eiv_animationDuration="300"
             app:eiv_color="@color/black"
             app:eiv_colorIntermediate="@color/black"
@@ -73,10 +72,7 @@
             app:eiv_colorMore="@color/black"
             app:eiv_roundedCorners="true"
             app:eiv_switchColor="true" />
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"/>
+
         <ImageView
             android:id="@+id/today_icon"
             android:layout_width="40dp"
@@ -111,6 +107,5 @@
         </TableLayout>
 
     </com.easyflow.diarycourse.collapsiblecalendar.view.LockScrollView>
-
 
 </LinearLayout>
