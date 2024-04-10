@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="primary">#49A2DD</color>
+    <color name="lightPrimary">#3A4953</color>
     <color name="red">#D54343</color>
     <color name="backgroundMain">#16171B</color>
     <color name="black">#FFFFFFFF</color>
@@ -15,21 +16,29 @@
     <color name="bgGray">#24272E</color>
     <color name="menuColorGray">#8D95A4</color>
 
+    <!--  Calendar  -->
+    <color name="calendar_group_icon">#ECECEC</color>
+    <color name="calendar_group_note_background">#414659</color>
+
     <color name="divider">#3F4450</color>
 
     <color name="bgDialog">#16171B</color>
     <color name="itemDialog">#24272E</color>
     <color name="bgBorderDialog">#191C20</color>
 
+    <!--  Bottom Dialog Sheet  -->
     <color name="bottom_sheet_background">#16171B</color>
     <color name="bottom_sheet_button_background">#24272E</color>
     <color name="bottom_sheet_divider">#DBDBDB</color>
 
+    <!--  Note  -->
     <color name="bgDialogNote">#16171B</color>
     <color name="bgNote">#191C20</color>
 
+    <!--  Settings  -->
     <color name="settingsIcon">#d4d4d4</color>
 
+    <!--  Navigation  -->
     <color name="navDivider">#272a31</color>
     <color name="bgNavigation">#272a31</color>
     <color name="bgNavActiveItem">#414659</color>

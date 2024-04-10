@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- day -->
+    <dimen name="day_circle_width">32dp</dimen>
+    <dimen name="day_circle_height">46dp</dimen>
+    <dimen name="day_circle_radius">6dp</dimen>
+    <dimen name="day_circle_stroke_width">1dp</dimen>
+
+</resources>

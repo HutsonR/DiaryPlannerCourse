@@ -26,8 +26,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.utils.ReminderWorker
 import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentTaskBinding
@@ -182,6 +182,8 @@ class TaskFragment : BottomSheetDialogFragment() {
         cancelButton.setOnClickListener {
             dismiss()
         }
+
+        titleEditTV.requestFocus()
 
         binding.reminderSwitchButton.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {

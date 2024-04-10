@@ -16,5 +16,6 @@ data class ScheduleItem(
     val duration: String = "",
     val color: Color,
     var isCompleteTask: Boolean = false,
-    val priority: Priority
+    val priority: Priority,
+//    val categories: List<String>
 ) : Parcelable

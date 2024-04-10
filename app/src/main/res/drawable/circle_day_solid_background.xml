@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <stroke
+        android:color="@color/lightPrimary"
+        android:width="@dimen/day_circle_stroke_width" />
+
+    <solid
+        android:color="@color/lightPrimary" />
+
+    <corners
+        android:radius="@dimen/day_circle_radius" />
+
+</shape>

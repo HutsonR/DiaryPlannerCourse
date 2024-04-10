@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_calendar.schedule.ScheduleViewModel
+import com.easyflow.diarycourse.features.feature_calendar.CalendarViewModel
 import com.easyflow.diarycourse.features.feature_calendar.schedule.dialogs.ScheduleItemBottomSheetFragment
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: ScheduleViewModel, private val activity: FragmentActivity?) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
+class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: CalendarViewModel, private val activity: FragmentActivity?) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatisticViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
         return StatisticViewHolder(view)

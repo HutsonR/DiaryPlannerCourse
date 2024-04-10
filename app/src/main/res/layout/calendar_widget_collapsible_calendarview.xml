@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/backgroundMain"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/layout_btn_group_month"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/btn_prev_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/btn_next_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_btn_group_week"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/btn_prev_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/btn_next_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cl_title"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/txt_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="80dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp"
+            android:paddingTop="10dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            tools:text="Февраль 2023" />
+
+        <com.easyflow.diarycourse.collapsiblecalendar.view.ExpandIconView
+            android:id="@+id/expandIcon"
+            android:layout_width="20dp"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            android:layout_gravity="center"
+            android:layout_marginEnd="8dp"
+            app:eiv_animationDuration="300"
+            app:eiv_color="@color/black"
+            app:eiv_colorIntermediate="@color/black"
+            app:eiv_colorLess="@color/black"
+            app:eiv_colorMore="@color/black"
+            app:eiv_roundedCorners="true"
+            app:eiv_switchColor="true" />
+
+        <ImageView
+            android:id="@+id/today_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="10dp"
+            android:layout_gravity="center"
+            android:clickable="true"
+            android:foreground="?android:selectableItemBackgroundBorderless"
+            android:layout_marginEnd="2dp"
+            android:src="@drawable/ic_calendar" />
+
+    </LinearLayout>
+
+    <TableLayout
+        android:id="@+id/table_head"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </TableLayout>
+    <com.easyflow.diarycourse.collapsiblecalendar.view.LockScrollView
+        android:id="@+id/scroll_view_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <TableLayout
+            android:id="@+id/table_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:isScrollContainer="true">
+
+        </TableLayout>
+
+    </com.easyflow.diarycourse.collapsiblecalendar.view.LockScrollView>
+
+</LinearLayout>

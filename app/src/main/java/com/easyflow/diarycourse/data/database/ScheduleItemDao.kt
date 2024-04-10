@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import kotlinx.coroutines.flow.Flow
 import com.easyflow.diarycourse.data.models.ScheduleItemDto
 
 @Dao
@@ -14,6 +13,9 @@ interface ScheduleItemDao {
 
     @Query("SELECT * FROM schedule_items ORDER BY id DESC")
     fun getAll(): List<ScheduleItemDto>
+
+    @Query("SELECT * FROM schedule_items WHERE date = :date")
+    fun getByDate(date: String): List<ScheduleItemDto>
 
     @Query("DELETE FROM schedule_items WHERE id = :itemId")
     suspend fun deleteById(itemId: Int)
