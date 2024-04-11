@@ -25,7 +25,6 @@ import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_calendar.models.CombineModel
-import com.easyflow.diarycourse.features.feature_calendar.schedule.ScheduleFragment
 import com.easyflow.diarycourse.features.feature_calendar.schedule.adapter.ScheduleAdapter
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
 import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
@@ -208,7 +207,7 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
             .onEach { action ->
                 when (action) {
                     is CalendarViewModel.Actions.ShowAlert -> showAlert(action.alertData)
-                    is CalendarViewModel.Actions.GoToTask ->  {
+                    is CalendarViewModel.Actions.GoToTask -> {
                         TaskFragment().show(childFragmentManager, "taskFragment")
                     }
                 }
@@ -219,29 +218,29 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     private fun setFragmentListener() {
         // Из TaskFragment
         activity?.supportFragmentManager?.setFragmentResultListener(
-            ScheduleFragment.KEY_TASK_FRAGMENT_RESULT_ADD,
+            KEY_TASK_FRAGMENT_RESULT_ADD,
             this
         ) { _, bundle ->
-            val requestValue: ScheduleItem? = bundle.getParcelable(ScheduleFragment.FRAGMENT_TASK_ITEM)
+            val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
             requestValue?.let {
                 viewModel.addData(it)
             }
         }
         activity?.supportFragmentManager?.setFragmentResultListener(
-            ScheduleFragment.KEY_FRAGMENT_RESULT_UPD,
+            KEY_FRAGMENT_RESULT_UPD,
             this
         ) { _, bundle ->
-            val requestValue: ScheduleItem? = bundle.getParcelable(ScheduleFragment.FRAGMENT_TASK_ITEM)
+            val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
             requestValue?.let {
                 viewModel.updateData(it)
             }
         }
         // Из ScheduleItemBottomSheetFragment
         activity?.supportFragmentManager?.setFragmentResultListener(
-            ScheduleFragment.KEY_BOTTOM_SHEET_RESULT_DEL,
+            KEY_BOTTOM_SHEET_RESULT_DEL,
             this
         ) { _, bundle ->
-            val requestValue: ScheduleItem? = bundle.getParcelable(ScheduleFragment.FRAGMENT_TASK_ITEM)
+            val requestValue: ScheduleItem? = bundle.getParcelable(FRAGMENT_TASK_ITEM)
             requestValue?.let {
                 it.id?.let { id -> viewModel.deleteItem(id) }
             }
@@ -367,6 +366,16 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
 
     override fun onTimeChanged() {
         adapter.notifyDataSetChanged()
+    }
+
+    companion object {
+        const val KEY_FRAGMENT_SCHEDULE_RESULT_DATE = "dateKeySchedule"
+        const val KEY_FRAGMENT_RESULT_UPD = "KEY_FRAGMENT_RESULT_UPD"
+        const val KEY_TASK_FRAGMENT_RESULT_ADD = "KEY_TASK_FRAGMENT_RESULT_ADD"
+        const val KEY_BOTTOM_SHEET_RESULT_DEL = "KEY_BOTTOM_SHEET_RESULT_DEL"
+
+        const val FRAGMENT_TASK_ITEM = "taskItem"
+        const val FRAGMENT_DATE = "dateSelected"
     }
 
 }
