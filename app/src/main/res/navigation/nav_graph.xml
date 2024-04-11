@@ -16,11 +16,6 @@
         android:label="Calendar"
         tools:layout="@layout/fragment_calendar" />
     <fragment
-        android:id="@+id/scheduleFragment"
-        android:name="com.easyflow.diarycourse.features.feature_calendar.schedule.ScheduleFragment"
-        android:label="Schedule"
-        tools:layout="@layout/fragment_schedule" />
-    <fragment
         android:id="@+id/taskFragment"
         android:name="com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment"
         android:label="Task"
