@@ -19,8 +19,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.work.OneTimeWorkRequestBuilder
@@ -95,7 +97,6 @@ class TaskFragment : BottomSheetDialogFragment() {
     private lateinit var timeEndPickerTV: TextView
     private lateinit var saveButton: LinearLayout
     private lateinit var saveButtonTV: TextView
-    private lateinit var cancelButton: TextView
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -141,6 +142,7 @@ class TaskFragment : BottomSheetDialogFragment() {
 
     private fun setObservers() {
         observeState()
+        observeActions()
     }
 
     private fun observeState() {
@@ -156,13 +158,26 @@ class TaskFragment : BottomSheetDialogFragment() {
     private fun updateCollect(result: Resource?) {
         result?.let {
             when (it) {
-                is Resource.Success<*> -> dismiss()
+                is Resource.Success<*> -> viewModel.goBack()
                 is Resource.Failed -> onFailed()
             }
         }
     }
 
+    private fun observeActions() {
+        viewModel
+            .action
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .onEach { action ->
+                when (action) {
+                    is TaskViewModel.Actions.GoBack -> dismiss()
+                }
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
     private fun initialize() {
+        initializeNavBar()
         setFragmentListener()
         checkPermission()
 
@@ -172,15 +187,11 @@ class TaskFragment : BottomSheetDialogFragment() {
         datePickerTV = binding.datePickerText
         timeStartPickerTV = binding.timeStartPickerText
         timeEndPickerTV = binding.timeEndPickerText
-        saveButtonTV = binding.taskConfirm
+        saveButtonTV = binding.taskConfirmTV
 
-        saveButton = binding.addSave
-        cancelButton = binding.addClose
+        saveButton = binding.taskConfirm
         saveButton.setOnClickListener {
             handleSaveButtonClicked()
-        }
-        cancelButton.setOnClickListener {
-            dismiss()
         }
 
         titleEditTV.requestFocus()
@@ -203,9 +214,16 @@ class TaskFragment : BottomSheetDialogFragment() {
         taskIconBackground.setOnClickListener {
             Toast.makeText(
                 requireContext(),
-                "В разработке...",
+                "Выбор иконки в разработке...",
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    private fun initializeNavBar() {
+        binding.taskToolbar.toolbar.title = getString(R.string.task_main_title)
+        binding.taskToolbar.toolbar.setNavigationOnClickListener {
+            viewModel.goBack()
         }
     }
 
@@ -221,7 +239,7 @@ class TaskFragment : BottomSheetDialogFragment() {
     private fun initializeParcel() {
         parcelItem = arguments?.getParcelable("scheduleItem")
         parcelItem?.let { parcelItem ->
-            binding.titleAddFragment.text = getString(R.string.task_edit_title)
+            binding.taskToolbar.toolbar.title = getString(R.string.task_edit_title)
             saveButtonTV.text = getString(R.string.task_button_edit)
 
             title = parcelItem.text
@@ -302,7 +320,7 @@ class TaskFragment : BottomSheetDialogFragment() {
                         title.isNotEmpty() && date.isNotEmpty() && timeStart.isNotEmpty()
 
             saveButton.isEnabled = isEnabled
-            saveButton.alpha = if (isEnabled) 1.0f else 0.5f
+            saveButtonTV.alpha = if (isEnabled) 1.0f else 0.6f
         } else {
             // По умолчанию обычное добавление элемента
             val isTitleFilled = title.isNotEmpty()
@@ -312,7 +330,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             val isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
 
             saveButton.isEnabled = isEnabled
-            saveButton.alpha = if (isEnabled) 1.0f else 0.5f
+            saveButtonTV.alpha = if (isEnabled) 1.0f else 0.6f
         }
     }
 
@@ -332,7 +350,7 @@ class TaskFragment : BottomSheetDialogFragment() {
                     isCompleteTask = parcelItem!!.isCompleteTask
                 )
                 sendTaskItem(updatedItem)
-                dismiss()
+                viewModel.goBack()
             }
         } else {
             // По умолчанию обычное добавление элемента
@@ -349,13 +367,13 @@ class TaskFragment : BottomSheetDialogFragment() {
             )
             sendTaskItem(taskItem)
             setReminder()
-            dismiss()
+            viewModel.goBack()
         }
     }
 
     private fun onFailed() {
         Toast.makeText(requireContext(), getString(R.string.error), Toast.LENGTH_SHORT).show()
-        dismiss()
+        viewModel.goBack()
     }
 
     private fun setReminder() {
@@ -503,16 +521,13 @@ class TaskFragment : BottomSheetDialogFragment() {
                     R.color.pink
                 )
             )
-
-            Color.BLACK -> ColorStateList.valueOf(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.alwaysBlack
-                )
-            )
         }
         taskIconBackground.backgroundTintList = colorStateList
-        binding.addSave.backgroundTintList = colorStateList
+        val drawable = binding.addTitleTask.background
+        DrawableCompat.setTintList(drawable, colorStateList)
+        binding.addTitleTask.background = drawable
+        binding.taskConfirm.backgroundTintList = colorStateList
+        binding.taskConfirmTV.backgroundTintList = colorStateList
     }
 
     private fun setColor() {

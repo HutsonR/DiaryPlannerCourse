@@ -10,10 +10,6 @@ import javax.inject.Inject
 
 class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, TaskViewModel.Actions>(TaskViewModel.State()) {
 
-    data class State(
-        var update: Resource? = null
-    )
-
     fun calculateDuration(startTime: String, endTime: String): String {
         if (endTime.isEmpty()) {
             return "бессрочно"
@@ -66,8 +62,16 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
         }
     }
 
+    fun goBack() {
+        onAction(Actions.GoBack)
+    }
+
+    data class State(
+        var update: Resource? = null
+    )
+
     sealed interface Actions {
-        data class ShowAlert(val alertData: String) : Actions
+        data object GoBack : Actions
     }
 
     class TaskViewModelFactory @Inject constructor() : ViewModelProvider.Factory {

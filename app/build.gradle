@@ -55,7 +55,6 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:2.7.7"
 //    Room
     implementation 'androidx.room:room-ktx:2.6.1'
-    implementation 'androidx.datastore:datastore-core:1.0.0'
     ksp 'androidx.room:room-compiler:2.6.1'
 //    Dagger
     implementation 'com.google.dagger:dagger-android:2.49'

@@ -5,11 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/task_dialog_bg">
 
+    <include layout="@layout/navbar" android:id="@+id/taskToolbar" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="42dp"
         android:orientation="vertical"
-        android:paddingTop="20dp"
         tools:ignore="UselessParent">
 
         <androidx.core.widget.NestedScrollView
@@ -27,19 +29,10 @@
                 android:paddingBottom="78dp"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/titleAddFragment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-                    android:text="@string/task_main_title"
-                    android:textColor="@color/black"
-                    android:textSize="21sp"
-                    android:textStyle="bold" />
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:orientation="horizontal">
 
                     <LinearLayout
@@ -64,15 +57,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:background="@drawable/add_background"
                         android:hint="@string/task_name"
                         android:inputType="textCapSentences"
                         android:textColor="@color/black"
                         android:gravity="center_vertical"
                         android:textColorHint="@color/textGray"
-                        android:textSize="14sp"
+                        android:textSize="18sp"
                         android:paddingVertical="18dp"
                         tools:ignore="TouchTargetSizeCheck" />
+
                 </LinearLayout>
 
                 <EditText
@@ -341,7 +334,7 @@
                     android:layout_marginBottom="10dp"
                     android:text="@string/task_color"
                     android:textColor="@color/textHintGray"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
@@ -358,8 +351,8 @@
 
                         <RadioButton
                             android:id="@+id/radio_blue"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:layout_marginEnd="16dp"
                             android:background="@drawable/add_button"
                             android:backgroundTint="@color/blue"
@@ -370,8 +363,8 @@
 
                         <RadioButton
                             android:id="@+id/radio_green"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:layout_marginEnd="16dp"
                             android:background="@drawable/add_button"
                             android:backgroundTint="@color/green"
@@ -381,8 +374,8 @@
 
                         <RadioButton
                             android:id="@+id/radio_red"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:layout_marginEnd="16dp"
                             android:background="@drawable/add_button"
                             android:backgroundTint="@color/redDialog"
@@ -392,8 +385,8 @@
 
                         <RadioButton
                             android:id="@+id/radio_purple"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:layout_marginEnd="16dp"
                             android:background="@drawable/add_button"
                             android:backgroundTint="@color/purple"
@@ -403,23 +396,13 @@
 
                         <RadioButton
                             android:id="@+id/radio_pink"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:layout_marginEnd="16dp"
                             android:background="@drawable/add_button"
                             android:backgroundTint="@color/pink"
                             android:button="@drawable/add_button"
                             android:tag="PINK"
-                            android:textAlignment="center" />
-
-                        <RadioButton
-                            android:id="@+id/radio_black"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:background="@drawable/add_button"
-                            android:backgroundTint="@color/alwaysBlack"
-                            android:button="@drawable/add_button"
-                            android:tag="BLACK"
                             android:textAlignment="center" />
                     </RadioGroup>
                 </LinearLayout>
@@ -502,59 +485,27 @@
         </androidx.core.widget.NestedScrollView>
 
         <LinearLayout
+            android:id="@+id/taskConfirm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/round_corner_15"
-            android:backgroundTint="@color/task_dialog_bg"
-            android:paddingTop="12dp"
-            android:paddingBottom="16dp"
-            android:paddingHorizontal="16dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="0dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/taskConfirmTV"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
-                <TextView
-                    android:id="@+id/add_close"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/close"
-                    android:textSize="16sp"
-                    android:textColor="@color/black"
-                    android:background="?attr/selectableItemBackground"
-                    android:paddingVertical="8dp"
-                    android:paddingHorizontal="16dp"/>
-            </androidx.appcompat.widget.LinearLayoutCompat>
-            <LinearLayout
-                android:id="@+id/add_save"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
+                android:paddingVertical="12dp"
                 android:background="@drawable/background_radius25_primary"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical">
-                <TextView
-                    android:id="@+id/taskConfirm"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/task_button_add"
-                    android:textSize="16sp"
-                    android:textColor="@color/alwaysWhite"
-                    android:layout_marginEnd="12dp" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:contentDescription="@string/apply"
-                    app:srcCompat="@drawable/ic_add_check"
-                    app:tint="@color/alwaysWhite"
-                    tools:ignore="SpeakableTextPresentCheck" />
-            </LinearLayout>
+                android:textSize="18sp"
+                android:text="@string/task_button_add"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                android:textColor="@color/alwaysWhite" />
         </LinearLayout>
 
     </RelativeLayout>
