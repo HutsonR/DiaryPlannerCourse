@@ -28,7 +28,7 @@
     <color name="task_dialog_divider">#E6E6E6</color>
 
     <!--  Bottom Dialog Sheet  -->
-    <color name="bottom_sheet_background">#fbfcff</color>
+    <color name="bottom_sheet_background">#FFFFFF</color>
     <color name="bottom_sheet_button_background">#F4F4F4</color>
     <color name="bottom_sheet_divider">#CDCDCD</color>
 
