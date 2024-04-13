@@ -105,6 +105,7 @@
                         android:orientation="horizontal">
 
                         <ImageView
+                            android:id="@+id/datePickerIcon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:srcCompat="@drawable/ic_add_calendar" />
@@ -211,6 +212,7 @@
                         android:orientation="horizontal">
 
                         <ImageView
+                            android:id="@+id/timePickerIcon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:srcCompat="@drawable/ic_clock" />

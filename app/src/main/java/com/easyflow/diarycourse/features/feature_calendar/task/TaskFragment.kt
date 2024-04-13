@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -522,12 +523,22 @@ class TaskFragment : BottomSheetDialogFragment() {
                 )
             )
         }
+        // Задний фон иконки задачи
         taskIconBackground.backgroundTintList = colorStateList
+        // Цвет нижней черты у заголовка задачи
         val drawable = binding.addTitleTask.background
         DrawableCompat.setTintList(drawable, colorStateList)
         binding.addTitleTask.background = drawable
-        binding.taskConfirm.backgroundTintList = colorStateList
+        // Цвет кнопки добавления задачи
         binding.taskConfirmTV.backgroundTintList = colorStateList
+        // Устанавливаем цвет для переключателя
+        binding.reminderSwitchButton.thumbTintList = colorStateList
+        binding.reminderSwitchButton.trackTintList = colorStateList
+        binding.repeatSwitchButton.thumbTintList = colorStateList
+        binding.repeatSwitchButton.trackTintList = colorStateList
+        // Галочки для даты
+        binding.datePickerTodayChecked.setColorFilter(colorStateList.defaultColor, PorterDuff.Mode.SRC_IN)
+        binding.datePickerTomorrowChecked.setColorFilter(colorStateList.defaultColor, PorterDuff.Mode.SRC_IN)
     }
 
     private fun setColor() {
