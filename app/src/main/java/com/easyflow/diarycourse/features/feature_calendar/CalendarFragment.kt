@@ -21,10 +21,8 @@ import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentCalendarBinding
-import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_calendar.models.CombineModel
 import com.easyflow.diarycourse.features.feature_calendar.schedule.adapter.ScheduleAdapter
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
 import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
@@ -53,10 +51,6 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     private lateinit var collapsibleCalendar: CollapsibleCalendar
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ScheduleAdapter
-    private var dataList: MutableList<CombineModel> = mutableListOf()
-    private var taskList: MutableList<ScheduleItem> = mutableListOf()
-    // TODO Удалить note(переделать под общие ScheduleItem с категорией note)
-    private var noteList: MutableList<NoteItem> = mutableListOf()
     private var adapterList: MutableList<ScheduleItem> = mutableListOf()
     private var dateSelected: String = ""
 
@@ -137,58 +131,17 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     private fun observeState() {
         viewModel
             .state
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle) // добавляем flowWithLifecycle
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .onEach { state ->
                 dataCollect(state.list)
                 sortedDataCollect(state.selectedTasks)
             }
-            .launchIn(viewLifecycleOwner.lifecycleScope) // запускаем сборку потока
+            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-    private fun dataCollect(items: List<CombineModel>) {
-        val newDataList = mutableListOf<CombineModel>()
-        newDataList.addAll(items)
-
-        if (dataList.size != newDataList.size) {
-            dataList.clear()
-            dataList.addAll(newDataList)
-
-            Log.d("debugTag", "dataCollect dataList size ${dataList.size}")
-            taskList.clear()
-            noteList.clear()
-
-            dataList.map { combineModel ->
-                when {
-                    combineModel.startTime.isNotBlank() || combineModel.duration.isNotBlank() -> {
-                        taskList.add(
-                            ScheduleItem(
-                                id = combineModel.id,
-                                text = combineModel.text,
-                                description = combineModel.description,
-                                date = combineModel.date,
-                                startTime = combineModel.startTime,
-                                endTime = combineModel.endTime,
-                                duration = combineModel.duration,
-                                color = combineModel.color,
-                                isCompleteTask = combineModel.isCompleteTask,
-                                priority = combineModel.priority
-                            )
-                        )
-                    }
-                    else -> {
-                        noteList.add(
-                            NoteItem(
-                                id = combineModel.id,
-                                text = combineModel.text,
-                                date = combineModel.date
-                            )
-                        )
-                    }
-                }
-            }
-
-        }
-        updateEventsTag(taskList)
+    private fun dataCollect(items: List<ScheduleItem>) {
+        // TODO исправить повторное обновление тэгов при выборе дня
+        updateEventsTag(items)
     }
 
     private fun sortedDataCollect(items: List<ScheduleItem>) {
@@ -369,13 +322,11 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     companion object {
-        const val KEY_FRAGMENT_SCHEDULE_RESULT_DATE = "dateKeySchedule"
         const val KEY_FRAGMENT_RESULT_UPD = "KEY_FRAGMENT_RESULT_UPD"
         const val KEY_TASK_FRAGMENT_RESULT_ADD = "KEY_TASK_FRAGMENT_RESULT_ADD"
         const val KEY_BOTTOM_SHEET_RESULT_DEL = "KEY_BOTTOM_SHEET_RESULT_DEL"
 
         const val FRAGMENT_TASK_ITEM = "taskItem"
-        const val FRAGMENT_DATE = "dateSelected"
     }
 
 }

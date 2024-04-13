@@ -17,15 +17,19 @@
     <color name="menuColorGray">#8D95A4</color>
 
     <!--  CALENDAR GROUPS  -->
+    <color name="calendar_group_background">#202127</color>
     <color name="calendar_group_icon">#ECECEC</color>
+    <color name="calendar_group_icon_background">#272930</color>
     <color name="calendar_group_note_background">#272930</color>
 
     <color name="divider">#3F4450</color>
 
+    <!--  Task  -->
     <color name="task_dialog_bg">#16171B</color>
     <color name="task_dialog_item">#24272E</color>
     <color name="task_dialog_border">#24272E</color>
     <color name="task_dialog_divider">#3F4450</color>
+    <color name="task_dialog_tag_border">#3F4450</color>
 
     <!--  Bottom Dialog Sheet  -->
     <color name="bottom_sheet_background">#16171B</color>
@@ -49,10 +53,9 @@
     <color name="primaryPicker">#BBBBBB</color>
 
     <!--  TASK ITEM  -->
-    <color name="oval">#272930</color>
-
+    <color name="gray">#272930</color>
     <color name="blue">#7DCBFF</color>
-    <color name="green">#A1FFAD</color>
+    <color name="green">#7ECA76</color>
     <color name="redDialog">#FFA6A6</color>
     <color name="purple">#DD9BFF</color>
     <color name="pink">#FFA4F6</color>

@@ -40,7 +40,7 @@ class HomeViewModel @Inject constructor(
                             startTime = scheduleItem.startTime,
                             endTime = scheduleItem.endTime,
                             duration = scheduleItem.duration,
-                            color = scheduleItem.color,
+                            taskColor = scheduleItem.taskColor,
                             isCompleteTask = scheduleItem.isCompleteTask,
                             priority = scheduleItem.priority
                         )
