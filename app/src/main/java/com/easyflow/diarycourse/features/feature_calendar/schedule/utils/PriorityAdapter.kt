@@ -14,7 +14,7 @@ class PriorityAdapter(context: Context, items: List<String>) :
     private val inflater: LayoutInflater = LayoutInflater.from(context)
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = convertView ?: inflater.inflate(R.layout.item_priority, parent, false)
+        val view = convertView ?: inflater.inflate(R.layout.task_item_priority, parent, false)
         val priorityItem = getItem(position)
         val textView: TextView = view.findViewById(R.id.priorityPickerText)
         textView.text = priorityItem

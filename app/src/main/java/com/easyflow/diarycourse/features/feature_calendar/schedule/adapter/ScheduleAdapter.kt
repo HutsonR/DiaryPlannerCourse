@@ -1,7 +1,6 @@
 package com.easyflow.diarycourse.features.feature_calendar.schedule.adapter
 
 import android.annotation.SuppressLint
-import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
@@ -21,7 +20,7 @@ import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_calendar.CalendarViewModel
 import com.easyflow.diarycourse.features.feature_calendar.schedule.dialogs.ScheduleItemBottomSheetFragment
-import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
 import kotlinx.coroutines.CoroutineScope
@@ -59,14 +58,14 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
         val item = adapterList[position]
 
         // Получение id цвета из Enum
-        val colorMap: Map<Color, Int> = mapOf(
-            Color.BLUE to ContextCompat.getColor(holder.itemView.context, R.color.blue),
-            Color.GREEN to ContextCompat.getColor(holder.itemView.context, R.color.green),
-            Color.RED to ContextCompat.getColor(holder.itemView.context, R.color.redDialog),
-            Color.PURPLE to ContextCompat.getColor(holder.itemView.context, R.color.purple),
-            Color.PINK to ContextCompat.getColor(holder.itemView.context, R.color.pink)
+        val taskColorMap: Map<TaskColor, Int> = mapOf(
+            TaskColor.BLUE to ContextCompat.getColor(holder.itemView.context, R.color.blue),
+            TaskColor.GREEN to ContextCompat.getColor(holder.itemView.context, R.color.green),
+            TaskColor.RED to ContextCompat.getColor(holder.itemView.context, R.color.redDialog),
+            TaskColor.PURPLE to ContextCompat.getColor(holder.itemView.context, R.color.purple),
+            TaskColor.PINK to ContextCompat.getColor(holder.itemView.context, R.color.pink)
         )
-        val itemColorInt = colorMap[item.color]
+        val itemColorInt = taskColorMap[item.taskColor]
 
         // Установка отступа к последнему элементу
         val density = holder.itemView.context.resources.displayMetrics.density
@@ -86,7 +85,8 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             contentTextView.text = item.text
             durationTextView.text = item.duration
             priorityTextView.text = getPriorityString(item.priority)
-            taskOval.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
+            // taskOval.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
+            scheduleIcon.setColorFilter(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.black))
             isCompleteButton.setColorFilter(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
 
             if (item.priority == Priority.STANDARD) {

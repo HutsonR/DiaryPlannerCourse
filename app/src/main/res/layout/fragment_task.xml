@@ -48,7 +48,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:srcCompat="@drawable/ic_task_hashtag"
-                            app:tint="@color/alwaysBlack"
+                            app:tint="@color/alwaysWhite"
                             tools:ignore="ContentDescription" />
                     </LinearLayout>
 
@@ -65,6 +65,16 @@
                         android:textSize="18sp"
                         android:paddingVertical="18dp"
                         tools:ignore="TouchTargetSizeCheck" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <include layout="@layout/task_tag_item" android:id="@+id/taskTagAdd" />
 
                 </LinearLayout>
 
@@ -350,7 +360,6 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:orientation="horizontal">
-
                         <RadioButton
                             android:id="@+id/radio_blue"
                             android:layout_width="32dp"
@@ -362,7 +371,6 @@
                             android:checked="true"
                             android:tag="BLUE"
                             android:textAlignment="center" />
-
                         <RadioButton
                             android:id="@+id/radio_green"
                             android:layout_width="32dp"
@@ -373,7 +381,6 @@
                             android:button="@drawable/add_button"
                             android:tag="GREEN"
                             android:textAlignment="center" />
-
                         <RadioButton
                             android:id="@+id/radio_red"
                             android:layout_width="32dp"
@@ -384,7 +391,6 @@
                             android:button="@drawable/add_button"
                             android:tag="RED"
                             android:textAlignment="center" />
-
                         <RadioButton
                             android:id="@+id/radio_purple"
                             android:layout_width="32dp"
@@ -395,7 +401,6 @@
                             android:button="@drawable/add_button"
                             android:tag="PURPLE"
                             android:textAlignment="center" />
-
                         <RadioButton
                             android:id="@+id/radio_pink"
                             android:layout_width="32dp"

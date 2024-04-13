@@ -3,12 +3,23 @@ package com.easyflow.diarycourse.features.feature_calendar.task
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.easyflow.diarycourse.core.BaseViewModel
+import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import javax.inject.Inject
 
 class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, TaskViewModel.Actions>(TaskViewModel.State()) {
+    private var title: String = ""
+    private var text: String = ""
+    private var date: String = ""
+    private var priority: Priority = Priority.STANDARD
+    private var timeStart: String = ""
+    private var timeEnd: String = ""
+    private var taskColor: TaskColor = TaskColor.BLUE
+    private var parcelItem: ScheduleItem? = null
+
+
 
     fun calculateDuration(startTime: String, endTime: String): String {
         if (endTime.isEmpty()) {
@@ -54,11 +65,11 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
         }
     }
 
-    fun getColorEnum(colorString: String): Color {
+    fun getColorEnum(colorString: String): TaskColor {
         return try {
-            Color.valueOf(colorString)
+            TaskColor.valueOf(colorString)
         } catch (e: IllegalArgumentException) {
-            Color.BLUE
+            TaskColor.BLUE
         }
     }
 
