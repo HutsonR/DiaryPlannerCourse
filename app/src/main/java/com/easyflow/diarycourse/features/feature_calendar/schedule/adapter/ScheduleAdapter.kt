@@ -1,7 +1,6 @@
 package com.easyflow.diarycourse.features.feature_calendar.schedule.adapter
 
 import android.annotation.SuppressLint
-import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
@@ -19,9 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_calendar.schedule.ScheduleViewModel
+import com.easyflow.diarycourse.features.feature_calendar.CalendarViewModel
 import com.easyflow.diarycourse.features.feature_calendar.schedule.dialogs.ScheduleItemBottomSheetFragment
-import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
 import kotlinx.coroutines.CoroutineScope
@@ -32,7 +31,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: ScheduleViewModel, private val activity: FragmentActivity?) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
+class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, private val viewModel: CalendarViewModel, private val activity: FragmentActivity?) : RecyclerView.Adapter<ScheduleAdapter.StatisticViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatisticViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
         return StatisticViewHolder(view)
@@ -59,15 +58,14 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
         val item = adapterList[position]
 
         // Получение id цвета из Enum
-        val colorMap: Map<Color, Int> = mapOf(
-            Color.BLUE to ContextCompat.getColor(holder.itemView.context, R.color.blue),
-            Color.GREEN to ContextCompat.getColor(holder.itemView.context, R.color.green),
-            Color.YELLOW to ContextCompat.getColor(holder.itemView.context, R.color.yellow),
-            Color.RED to ContextCompat.getColor(holder.itemView.context, R.color.redDialog),
-            Color.PURPLE to ContextCompat.getColor(holder.itemView.context, R.color.purple),
-            Color.PINK to ContextCompat.getColor(holder.itemView.context, R.color.pink)
+        val taskColorMap: Map<TaskColor, Int> = mapOf(
+            TaskColor.BLUE to ContextCompat.getColor(holder.itemView.context, R.color.blue),
+            TaskColor.GREEN to ContextCompat.getColor(holder.itemView.context, R.color.green),
+            TaskColor.RED to ContextCompat.getColor(holder.itemView.context, R.color.redDialog),
+            TaskColor.PURPLE to ContextCompat.getColor(holder.itemView.context, R.color.purple),
+            TaskColor.PINK to ContextCompat.getColor(holder.itemView.context, R.color.pink)
         )
-        val itemColorInt = colorMap[item.color]
+        val itemColorInt = taskColorMap[item.taskColor]
 
         // Установка отступа к последнему элементу
         val density = holder.itemView.context.resources.displayMetrics.density
@@ -77,7 +75,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
         if (position == itemCount - 1) {
             layoutParams.bottomMargin = dpToPx(120f)
         } else {
-            layoutParams.bottomMargin = dpToPx(10f)
+            layoutParams.bottomMargin = dpToPx(14f)
         }
         holder.scheduleItem.layoutParams = layoutParams
 
@@ -87,7 +85,9 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             contentTextView.text = item.text
             durationTextView.text = item.duration
             priorityTextView.text = getPriorityString(item.priority)
-            color.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
+            // taskOval.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
+            scheduleIcon.setColorFilter(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.black))
+            isCompleteButton.setColorFilter(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
 
             if (item.priority == Priority.STANDARD) {
                 priorityWrapper.visibility = View.GONE
@@ -203,12 +203,13 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
 
     class StatisticViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val scheduleItem: LinearLayout = itemView.findViewById(R.id.scheduleItem)
+        val scheduleIcon: ImageView = itemView.findViewById(R.id.schedule_icon)
         val contentWrapper: LinearLayout = itemView.findViewById(R.id.contentWrapper)
         val startTimeTextView: TextView = itemView.findViewById(R.id.start_time)
         val endTimeTextView: TextView = itemView.findViewById(R.id.end_time)
         val contentTextView: TextView = itemView.findViewById(R.id.schedule_text)
         val durationTextView: TextView = itemView.findViewById(R.id.schedule_duration)
-        val color: LinearLayout = itemView.findViewById(R.id.schedule_oval_background)
+        val taskOval: LinearLayout = itemView.findViewById(R.id.schedule_oval_background)
         val priorityWrapper: LinearLayout = itemView.findViewById(R.id.priorityWrapper)
         val priorityIcon: ImageView = itemView.findViewById(R.id.priorityIcon)
         val priorityTextView: TextView = itemView.findViewById(R.id.priorityText)

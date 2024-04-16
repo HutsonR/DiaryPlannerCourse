@@ -2,6 +2,7 @@ package com.easyflow.diarycourse.features.feature_calendar.note
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +13,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentNoteBinding
@@ -51,6 +52,7 @@ class NoteFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentNoteBinding.inflate(inflater, container, false)
+        Log.d("debugTag", "NoteFragment onCreateView")
         return _binding?.root
     }
 

@@ -17,12 +17,12 @@
 
     <style name="MaterialCalendarPickerTheme" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
         <item name="colorPrimary">@color/primaryPicker</item>
-        <item name="android:colorBackground">@color/bgDialog</item>
+        <item name="android:colorBackground">@color/task_dialog_bg</item>
     </style>
 
     <style name="MaterialTimePickerTheme" parent="ThemeOverlay.MaterialComponents.TimePicker">
         <item name="colorPrimary">@color/primaryPicker</item>
-        <item name="android:colorBackground">@color/bgDialog</item>
+        <item name="android:colorBackground">@color/task_dialog_bg</item>
     </style>
 
     <style name="FullScreenDialog" parent="Theme.AppCompat.Dialog">

@@ -13,20 +13,19 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar
+        <com.easyflow.diarycourse.collapsiblecalendar.widget.CollapsibleCalendar
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:primaryColor="@color/backgroundMain"
             app:textColor="@color/black"
-            app:selectedItem_textColor="@color/white"
-            app:todayItem_textColor="@color/red"
+            app:selectedItem_textColor="@color/black"
+            app:todayItem_textColor="@color/primary"
+            app:firstDayOfWeek="monday"
             android:animateLayoutChanges="true"
-            app:selectedItem_background="@drawable/circle_primary_background"
-            app:buttonLeft_drawableTintColor="@color/black"
-            app:buttonRight_drawableTintColor="@color/black"
+            app:selectedItem_background="@drawable/circle_day_stroke_background"
             app:expandIconColor="@color/black">
-        </com.shrikanthravi.collapsiblecalendarview.widget.CollapsibleCalendar>
+        </com.easyflow.diarycourse.collapsiblecalendar.widget.CollapsibleCalendar>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,13 +33,22 @@
             android:orientation="horizontal"
             android:paddingLeft="14dp"
             android:paddingRight="14dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:gravity="center_vertical">
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/textDayOfWeek"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Вторник"
+                    android:textSize="24sp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -60,69 +68,53 @@
                         android:textSize="12sp"
                         android:textColor="@color/textGray" />
                 </LinearLayout>
-                <TextView
-                    android:id="@+id/textDayOfWeek"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Вторник"
-                    android:textSize="24sp"
-                    android:textColor="@color/black"
-                    android:textStyle="bold" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/dayBackButton"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/circle_gray_background"
-                    android:drawableTop="@drawable/ic_left_arrow_small"
-                    android:stateListAnimator="@anim/bounce"
-                    android:paddingTop="12dp"
-                    android:textColor="@color/black" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/dayNextButton"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="16dp"
-                    android:background="@drawable/circle_gray_background"
-                    android:drawableTop="@drawable/ic_right_arrow_small"
-                    android:paddingTop="12dp"
-                    android:stateListAnimator="@android:anim/accelerate_decelerate_interpolator"
-                    android:textColor="@color/black" />
-            </LinearLayout>
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/main_swiper_container"
+        <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/main_tab_layout"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/calendar_groups_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="10dp"
-                android:background="@color/backgroundMain"
-                app:tabIndicatorColor="@color/primary"
-                app:tabMode="scrollable"
-                app:tabRippleColor="@null"
-                app:tabSelectedTextColor="@color/primary"
-                app:tabTextColor="@color/black"
-                />
+                android:layout_marginTop="14dp"
+                android:layout_marginHorizontal="16dp"
+                android:orientation="horizontal">
+                <include layout="@layout/calendar_group_item" android:id="@+id/calendar_group_job" />
+            </LinearLayout>
+        </HorizontalScrollView>
 
-            <FrameLayout
-                android:id="@+id/main_fragment_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-        </LinearLayout>
+    <!--   Content    -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycleSchedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="14dp"
+            android:layout_marginTop="14dp"/>
+
+        <TextView
+            android:id="@+id/scheduleBlank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_add_blank"
+            android:textSize="16sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="100dp"
+            android:textColor="@color/textGray" />
 
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/fabAdd"
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:background="@drawable/img_add"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="30dp"
+        android:layout_marginEnd="30dp"
+        tools:ignore="TouchTargetSizeCheck"
+        android:contentDescription="@string/task_main_title" />
 
 </FrameLayout>

@@ -4,84 +4,105 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.easyflow.diarycourse.core.BaseViewModel
-import com.easyflow.diarycourse.domain.domain_api.NoteUseCase
 import com.easyflow.diarycourse.domain.domain_api.ScheduleUseCase
-import com.easyflow.diarycourse.features.feature_calendar.models.CombineModel
+import com.easyflow.diarycourse.domain.models.ScheduleItem
+import com.easyflow.diarycourse.domain.util.Resource
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class CalendarViewModel @Inject constructor(
-    private val scheduleUseCase: ScheduleUseCase,
-    private val noteUseCase: NoteUseCase
+    private val scheduleUseCase: ScheduleUseCase
 ) : BaseViewModel<CalendarViewModel.State, CalendarViewModel.Actions>(CalendarViewModel.State()) {
+
+    private var list: MutableList<ScheduleItem> = mutableListOf()
+
+    private val _result = MutableSharedFlow<Resource>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val result: SharedFlow<Resource> = _result.asSharedFlow()
 
     init {
         fetchData()
     }
 
+    fun addData(data: ScheduleItem) {
+        viewModelScope.launch {
+            val addData = scheduleUseCase.insert(data)
+            _result.emit(addData)
+        }
+    }
+
+    fun updateData(data: ScheduleItem) {
+        viewModelScope.launch {
+            val updateData = scheduleUseCase.update(data)
+            _result.emit(updateData)
+        }
+    }
+
+    fun deleteItem(itemId: Int) {
+        viewModelScope.launch {
+            val deleteItem = scheduleUseCase.deleteById(itemId)
+            _result.emit(deleteItem)
+        }
+    }
+
+    fun fetchTasksByDate(date: String) {
+        viewModelScope.launch {
+            val taskItems = scheduleUseCase.getByDate(date)
+            modifyState { copy(selectedTasks = taskItems) }
+        }
+    }
+
     private fun fetchData() {
         viewModelScope.launch {
-            val combineModels: MutableList<CombineModel> = mutableListOf()
+            val fetchList: MutableList<ScheduleItem> = mutableListOf()
 
             coroutineScope {
                 val scheduleItemsDeferred = async { scheduleUseCase.getAll() }
-                val noteItemsDeferred = async { noteUseCase.getAll() }
-
-                // Ждем выполнения обеих корутин
                 val scheduleItems = scheduleItemsDeferred.await()
-                val noteItems = noteItemsDeferred.await()
-
-                // Создаем список CombineModel и добавляем в него элементы из обеих списков
-                combineModels.addAll(
-                    scheduleItems.map { scheduleItem ->
-                        CombineModel(
-                            id = scheduleItem.id,
-                            text = scheduleItem.text,
-                            description = scheduleItem.description,
-                            date = scheduleItem.date,
-                            startTime = scheduleItem.startTime,
-                            endTime = scheduleItem.endTime,
-                            duration = scheduleItem.duration,
-                            color = scheduleItem.color,
-                            isCompleteTask = scheduleItem.isCompleteTask,
-                            priority = scheduleItem.priority
-                        )
-                    }
-                )
-                combineModels.addAll(
-                    noteItems.map { noteItem ->
-                        CombineModel(
-                            id = noteItem.id,
-                            text = noteItem.text,
-                            date = noteItem.date
-                        )
-                    }
-                )
+                fetchList.addAll(scheduleItems)
+                list.addAll(scheduleItems)
             }
 
-            if (combineModels.isNotEmpty()) {
-                modifyState { copy(list = combineModels) }
+            if (fetchList.isNotEmpty()) {
+                modifyState { copy(list = fetchList) }
             }
         }
     }
 
+    private fun sortTaskByGroup() {
+
+    }
+
+//    Actions
+    fun goToTask() {
+        onAction(Actions.GoToTask)
+    }
+
     data class State(
-        var list: List<CombineModel> = emptyList()
+        var list: List<ScheduleItem> = emptyList(),
+        var selectedTasks: List<ScheduleItem> = emptyList(),
+        var dateSelected: String = ""
     )
 
     sealed interface Actions {
         data class ShowAlert(val alertData: String) : Actions
+        data object GoToTask : Actions
     }
 
     class CalendarViewModelFactory @Inject constructor(
-        private val scheduleUseCase: ScheduleUseCase,
-        private val noteUseCase: NoteUseCase
+        private val scheduleUseCase: ScheduleUseCase
     ) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return CalendarViewModel(scheduleUseCase, noteUseCase) as T
+            return CalendarViewModel(scheduleUseCase) as T
         }
     }
 }

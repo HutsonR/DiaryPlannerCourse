@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.graphics.PorterDuff
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,21 +21,23 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.utils.ReminderWorker
 import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentTaskBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.PriorityAdapter
 import com.easyflow.diarycourse.features.feature_calendar.task.dialogs.ReminderDialogFragment
@@ -71,7 +75,7 @@ class TaskFragment : BottomSheetDialogFragment() {
     private var previousPriority: Priority = Priority.STANDARD
     private var previousTimeStart: String = ""
     private var previousTimeEnd: String = ""
-    private var previousColor: Color = Color.BLUE
+    private var previousTaskColor: TaskColor = TaskColor.BLUE
 
     private var title: String = ""
     private var text: String = ""
@@ -79,7 +83,7 @@ class TaskFragment : BottomSheetDialogFragment() {
     private var priority: Priority = Priority.STANDARD
     private var timeStart: String = ""
     private var timeEnd: String = ""
-    private var color: Color = Color.BLUE
+    private var taskColor: TaskColor = TaskColor.BLUE
 
     private var chosenYear = 0
     private var chosenMonth = 0
@@ -95,7 +99,6 @@ class TaskFragment : BottomSheetDialogFragment() {
     private lateinit var timeEndPickerTV: TextView
     private lateinit var saveButton: LinearLayout
     private lateinit var saveButtonTV: TextView
-    private lateinit var cancelButton: TextView
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -141,6 +144,7 @@ class TaskFragment : BottomSheetDialogFragment() {
 
     private fun setObservers() {
         observeState()
+        observeActions()
     }
 
     private fun observeState() {
@@ -156,13 +160,26 @@ class TaskFragment : BottomSheetDialogFragment() {
     private fun updateCollect(result: Resource?) {
         result?.let {
             when (it) {
-                is Resource.Success<*> -> dismiss()
+                is Resource.Success<*> -> viewModel.goBack()
                 is Resource.Failed -> onFailed()
             }
         }
     }
 
+    private fun observeActions() {
+        viewModel
+            .action
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .onEach { action ->
+                when (action) {
+                    is TaskViewModel.Actions.GoBack -> dismiss()
+                }
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
     private fun initialize() {
+        initializeNavBar()
         setFragmentListener()
         checkPermission()
 
@@ -172,16 +189,14 @@ class TaskFragment : BottomSheetDialogFragment() {
         datePickerTV = binding.datePickerText
         timeStartPickerTV = binding.timeStartPickerText
         timeEndPickerTV = binding.timeEndPickerText
-        saveButtonTV = binding.taskConfirm
+        saveButtonTV = binding.taskConfirmTV
 
-        saveButton = binding.addSave
-        cancelButton = binding.addClose
+        saveButton = binding.taskConfirm
         saveButton.setOnClickListener {
             handleSaveButtonClicked()
         }
-        cancelButton.setOnClickListener {
-            dismiss()
-        }
+
+        titleEditTV.requestFocus()
 
         binding.reminderSwitchButton.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -195,15 +210,22 @@ class TaskFragment : BottomSheetDialogFragment() {
             }
         }
 
-        setBackgroundIconColor(color)
+        setTaskStyle(taskColor)
         binding.timeEndPicker.alpha = 0.5f
 
         taskIconBackground.setOnClickListener {
             Toast.makeText(
                 requireContext(),
-                "В разработке...",
+                "Выбор иконки в разработке...",
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    private fun initializeNavBar() {
+        binding.taskToolbar.toolbar.title = getString(R.string.task_main_title)
+        binding.taskToolbar.toolbar.setNavigationOnClickListener {
+            viewModel.goBack()
         }
     }
 
@@ -219,7 +241,7 @@ class TaskFragment : BottomSheetDialogFragment() {
     private fun initializeParcel() {
         parcelItem = arguments?.getParcelable("scheduleItem")
         parcelItem?.let { parcelItem ->
-            binding.titleAddFragment.text = getString(R.string.task_edit_title)
+            binding.taskToolbar.toolbar.title = getString(R.string.task_edit_title)
             saveButtonTV.text = getString(R.string.task_button_edit)
 
             title = parcelItem.text
@@ -228,7 +250,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             priority = parcelItem.priority
             timeStart = parcelItem.startTime
             timeEnd = parcelItem.endTime
-            color = parcelItem.color
+            taskColor = parcelItem.taskColor
 
             previousTitle = title
             previousText = text
@@ -236,7 +258,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             previousPriority = priority
             previousTimeStart = timeStart
             previousTimeEnd = timeEnd
-            previousColor = color
+            previousTaskColor = taskColor
 
             titleEditTV.text = parcelItem.text
             textEditTV.text = parcelItem.description
@@ -244,7 +266,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             timeStartPickerTV.text = parcelItem.startTime
             timeEndPickerTV.text = parcelItem.endTime.ifEmpty { getString(R.string.task_time_blank) }
             setColor()
-            setBackgroundIconColor(parcelItem.color)
+            setTaskStyle(parcelItem.taskColor)
             // Для активации кнопки конца времени
             isStartTimeAfterEndTime()
             timePicked()
@@ -292,7 +314,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             val isTimeStartChanged = timeStart != previousTimeStart
             val isTextChanged = text != previousText
             val isTimeEndChanged = timeEnd != previousTimeEnd
-            val isColorChanged = color != previousColor
+            val isColorChanged = taskColor != previousTaskColor
             val isPriorityChanged = priority != previousPriority
 
             val isEnabled =
@@ -300,7 +322,7 @@ class TaskFragment : BottomSheetDialogFragment() {
                         title.isNotEmpty() && date.isNotEmpty() && timeStart.isNotEmpty()
 
             saveButton.isEnabled = isEnabled
-            saveButton.alpha = if (isEnabled) 1.0f else 0.5f
+            saveButtonTV.alpha = if (isEnabled) 1.0f else 0.6f
         } else {
             // По умолчанию обычное добавление элемента
             val isTitleFilled = title.isNotEmpty()
@@ -310,7 +332,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             val isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
 
             saveButton.isEnabled = isEnabled
-            saveButton.alpha = if (isEnabled) 1.0f else 0.5f
+            saveButtonTV.alpha = if (isEnabled) 1.0f else 0.6f
         }
     }
 
@@ -326,11 +348,11 @@ class TaskFragment : BottomSheetDialogFragment() {
                     startTime = timeStart,
                     endTime = timeEnd,
                     duration = viewModel.calculateDuration(timeStart, timeEnd),
-                    color = color,
+                    taskColor = taskColor,
                     isCompleteTask = parcelItem!!.isCompleteTask
                 )
                 sendTaskItem(updatedItem)
-                dismiss()
+                viewModel.goBack()
             }
         } else {
             // По умолчанию обычное добавление элемента
@@ -342,18 +364,18 @@ class TaskFragment : BottomSheetDialogFragment() {
                 startTime = timeStart,
                 endTime = timeEnd,
                 duration = viewModel.calculateDuration(timeStart, timeEnd),
-                color = color,
+                taskColor = taskColor,
                 isCompleteTask = false
             )
             sendTaskItem(taskItem)
             setReminder()
-            dismiss()
+            viewModel.goBack()
         }
     }
 
     private fun onFailed() {
         Toast.makeText(requireContext(), getString(R.string.error), Toast.LENGTH_SHORT).show()
-        dismiss()
+        viewModel.goBack()
     }
 
     private fun setReminder() {
@@ -465,55 +487,66 @@ class TaskFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun setBackgroundIconColor(color: Color) {
-        val colorStateList = when (color) {
-            Color.BLUE -> ColorStateList.valueOf(
+    private fun setTaskStyle(taskColor: TaskColor) {
+        val taskColorStateList = when (taskColor) {
+            TaskColor.BLUE -> ColorStateList.valueOf(
                 ContextCompat.getColor(
                     requireContext(),
                     R.color.blue
                 )
             )
-
-            Color.GREEN -> ColorStateList.valueOf(
+            TaskColor.GREEN -> ColorStateList.valueOf(
                 ContextCompat.getColor(
                     requireContext(),
                     R.color.green
                 )
             )
-
-            Color.YELLOW -> ColorStateList.valueOf(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.yellow
-                )
-            )
-
-            Color.RED -> ColorStateList.valueOf(
+            TaskColor.RED -> ColorStateList.valueOf(
                 ContextCompat.getColor(
                     requireContext(),
                     R.color.redDialog
                 )
             )
-
-            Color.PURPLE -> ColorStateList.valueOf(
+            TaskColor.PURPLE -> ColorStateList.valueOf(
                 ContextCompat.getColor(
                     requireContext(),
                     R.color.purple
                 )
             )
-
-            Color.PINK -> ColorStateList.valueOf(
+            TaskColor.PINK -> ColorStateList.valueOf(
                 ContextCompat.getColor(
                     requireContext(),
                     R.color.pink
                 )
             )
         }
-        taskIconBackground.backgroundTintList = colorStateList
+        // Задний фон иконки задачи
+        taskIconBackground.backgroundTintList = taskColorStateList
+        // Цвет нижней черты у заголовка задачи
+        val drawable = binding.addTitleTask.background
+        DrawableCompat.setTintList(drawable, taskColorStateList)
+        binding.addTitleTask.background = drawable
+        // Цвет кнопки добавления задачи
+        binding.taskConfirmTV.backgroundTintList = taskColorStateList
+        // Устанавливаем цвет для переключателя
+        binding.reminderSwitchButton.thumbTintList = taskColorStateList
+        binding.reminderSwitchButton.trackTintList = taskColorStateList
+        binding.repeatSwitchButton.thumbTintList = taskColorStateList
+        binding.repeatSwitchButton.trackTintList = taskColorStateList
+        // Галочки для даты
+        binding.datePickerTodayChecked.setColorFilter(taskColorStateList.defaultColor, PorterDuff.Mode.SRC_IN)
+        binding.datePickerTomorrowChecked.setColorFilter(taskColorStateList.defaultColor, PorterDuff.Mode.SRC_IN)
+        // Метки
+        val backgroundDrawable = GradientDrawable().apply {
+            setStroke(2, taskColorStateList)
+            cornerRadius = 50F
+        }
+        binding.taskTagAdd.tagWrapper.background = backgroundDrawable
+        binding.taskTagAdd.tagIcon.setColorFilter(taskColorStateList.defaultColor, PorterDuff.Mode.SRC_IN)
     }
 
     private fun setColor() {
-        val colorToSet = parcelItem?.color ?: Color.BLUE
+        val taskColorToSet = parcelItem?.taskColor ?: TaskColor.BLUE
 
         // Пройти по всем RadioButton в группе и установить isChecked для соответствующего цвета
         for (i in 0 until binding.colorPicker.childCount) {
@@ -521,7 +554,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             val colorTag = radioButton?.tag as? String
             val colorEnum = colorTag?.let { viewModel.getColorEnum(it) }
 
-            if (colorEnum == colorToSet) {
+            if (colorEnum == taskColorToSet) {
                 radioButton.isChecked = true
                 break
             }
@@ -717,9 +750,9 @@ class TaskFragment : BottomSheetDialogFragment() {
                 view?.findViewById(checkedId) ?: return@setOnCheckedChangeListener
             val selectedColorTag: String = selectedRadioButton.tag as String
 
-            val selectedColor: Color = viewModel.getColorEnum(selectedColorTag)
-            color = selectedColor
-            setBackgroundIconColor(color)
+            val selectedTaskColor: TaskColor = viewModel.getColorEnum(selectedColorTag)
+            taskColor = selectedTaskColor
+            setTaskStyle(taskColor)
 
             updateSaveButtonState()
         }

@@ -1,10 +1,9 @@
 package com.easyflow.diarycourse.domain.domain_impl
 
-import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.data.repository_api.ScheduleRepository
 import com.easyflow.diarycourse.domain.domain_api.ScheduleUseCase
+import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ScheduleUseCaseImpl @Inject constructor (
@@ -20,6 +19,10 @@ class ScheduleUseCaseImpl @Inject constructor (
 
     override suspend fun getAll(): List<ScheduleItem> {
         return scheduleRepository.getAll()
+    }
+
+    override suspend fun getByDate(date: String): List<ScheduleItem> {
+        return scheduleRepository.getByDate(date)
     }
 
     override suspend fun deleteById(itemId: Int): Resource =

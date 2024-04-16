@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
+import com.easyflow.diarycourse.databinding.FragmentScheduleItemBottomSheetBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
@@ -19,12 +20,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Calendar
 
 class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
-    private val TAG = "debugTag"
-    private lateinit var title: String
-    private lateinit var dayOfWeek: String
-    private lateinit var startTime: String
-    private lateinit var description: String
-    private lateinit var priority: String
+    private var _binding: FragmentScheduleItemBottomSheetBinding? = null
+    private val binding get() = _binding!!
+
+    private var title: String = ""
+    private var dayOfWeek: String = ""
+    private var startTime: String = ""
+    private var description: String = ""
+    private var priority: String = ""
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -36,18 +39,28 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_schedule_item_bottom_sheet, container, false)
+        _binding = FragmentScheduleItemBottomSheetBinding.inflate(inflater)
+        return _binding?.root
+    }
 
-        val titleTV: TextView = view.findViewById(R.id.schedule_sheet_title)
-        val descriptionTV: TextView = view.findViewById(R.id.schedule_sheet_description)
-        val startTimeTV: TextView = view.findViewById(R.id.schedule_sheet_timeStart)
-        val dayOfWeekTV: TextView = view.findViewById(R.id.schedule_sheet_day_of_week)
-        val priorityTV: TextView = view.findViewById(R.id.priorityText)
-        val priorityIcon: ImageView = view.findViewById(R.id.priorityIcon)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        val deleteButton: Button = view.findViewById(R.id.schedule_sheet_buttonDelete)
-        val completeButton: Button = view.findViewById(R.id.schedule_sheet_buttonComplete)
-        val editButton: Button = view.findViewById(R.id.schedule_sheet_buttonEdit)
+        initialize()
+    }
+
+    private fun initialize() {
+        val titleTV: TextView = binding.scheduleSheetTitle
+        val descriptionTV: TextView = binding.scheduleSheetDescription
+        val startTimeTV: TextView = binding.scheduleSheetTimeStart
+        val dayOfWeekTV: TextView = binding.scheduleSheetDayOfWeek
+        val priorityTV: TextView = binding.priorityText
+        val priorityIcon: ImageView = binding.priorityIcon
+        val separator: View = binding.scheduleSheetSeparator
+
+        val deleteButton: Button = binding.scheduleSheetButtonDelete
+        val completeButton: Button = binding.scheduleSheetButtonComplete
+        val editButton: Button = binding.scheduleSheetButtonEdit
 
         val parcelItem = arguments?.getParcelable<ScheduleItem>("scheduleItem")
 
@@ -60,13 +73,16 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
 
             if (parcelItem.priority == Priority.IMPORTANT) {
                 val primaryColor = ContextCompat.getColor(requireContext(), R.color.primary)
-                val flagActive = ContextCompat.getDrawable(requireContext(), R.drawable.ic_flag_small_active)
                 priorityTV.setTextColor(primaryColor)
-                priorityIcon.setImageDrawable(flagActive)
+                priorityIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.primary))
             }
 
             if (parcelItem.isCompleteTask)
                 completeButton.text = getString(R.string.button_uncomplete)
+
+            if (description.isEmpty()) {
+                separator.visibility = View.INVISIBLE
+            }
 
             deleteButton.setOnClickListener {
                 sendItemToDelete(parcelItem)
@@ -93,8 +109,6 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
         startTimeTV.text = startTime
         dayOfWeekTV.text = "${setDayOfWeek(dayOfWeek)},"
         priorityTV.text = priority
-
-        return view
     }
 
     private fun sendItemToDelete(item: ScheduleItem) {
@@ -139,6 +153,11 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
             Calendar.SATURDAY -> "Суббота"
             else -> "Неизвестно"
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {

@@ -23,9 +23,10 @@
     <string name="task_color">Цвет</string>
     <string name="task_reminder">Напоминание</string>
     <string name="task_repeat">Повторение</string>
+    <string name="task_tag">Добавить метку</string>
 
     <!--  Main Screen  -->
-    <string name="main_count_task">Кол-во записей: </string>
+    <string name="main_count_task">Записей: </string>
     <string name="main_task_tab">Распорядок</string>
     <string name="main_note_tab">Заметка</string>
     <string name="main_low_priority">Обычное</string>
@@ -36,7 +37,7 @@
     <string name="task_active">Активно</string>
 
     <!--  Note  -->
-    <string name="note">Заметка</string>
+    <string name="note">Заметки</string>
     <string name="note_blank">Создайте заметку на день</string>
 
     <!--  Reminder Dialog  -->
@@ -54,6 +55,7 @@
     <string name="week_saturday">Суббота</string>
     <string name="week_sunday">Воскресенье</string>
     <string name="week_unknown">Неизвестно</string>
+    <string name="week_today">Сегодня</string>
 
     <!--  Buttons  -->
     <string name="button_delete">Удалить</string>
@@ -76,5 +78,28 @@
     <string name="error">Возникла ошибка, попробуйте позже</string>
     <string name="fetch_error">Возникла ошибка получения данных, попробуйте позже</string>
     <string name="success">Закрыть</string>
+
+    <!--  CALENDAR  -->
+    <string name="month_january">Январь</string>
+    <string name="month_february">Февраль</string>
+    <string name="month_march">Март</string>
+    <string name="month_april">Апрель</string>
+    <string name="month_may">Май</string>
+    <string name="month_june">Июнь</string>
+    <string name="month_july">Июль</string>
+    <string name="month_august">Август</string>
+    <string name="month_september">Сентябрь</string>
+    <string name="month_october">Октябрь</string>
+    <string name="month_november">Ноябрь</string>
+    <string name="month_december">Декабрь</string>
+    <string name="month_unknown">Неизвестно</string>
+
+    <string name="monday">пн</string>
+    <string name="tuesday">вт</string>
+    <string name="wednesday">ср</string>
+    <string name="thursday">чт</string>
+    <string name="friday">пт</string>
+    <string name="saturday">сб</string>
+    <string name="sunday">вс</string>
 
 </resources>

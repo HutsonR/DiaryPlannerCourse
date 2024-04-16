@@ -29,7 +29,7 @@
         android:text="Заголовок"
         android:textColor="@color/black"
         android:textStyle="bold"
-        android:textSize="18sp"/>
+        android:textSize="21sp"/>
 
     <LinearLayout
         android:id="@+id/timeLayout"
@@ -42,23 +42,22 @@
             android:id="@+id/schedule_sheet_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            app:srcCompat="@drawable/ic_main_clock_small" />
+            app:srcCompat="@drawable/ic_clock_medium" />
         <TextView
             android:id="@+id/schedule_sheet_day_of_week"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Вторник"
-            android:layout_marginLeft="4dp"
-            android:textSize="12sp"
+            android:layout_marginStart="4dp"
+            android:textSize="14sp"
             android:textColor="@color/textGray" />
         <TextView
             android:id="@+id/schedule_sheet_timeStart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="14:20"
-            android:layout_marginLeft="4dp"
-            android:textSize="12sp"
+            android:layout_marginStart="4dp"
+            android:textSize="14sp"
             android:textColor="@color/textGray" />
 
         <LinearLayout
@@ -72,32 +71,38 @@
                 android:id="@+id/priorityIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                app:srcCompat="@drawable/ic_flag_small" />
+                app:srcCompat="@drawable/ic_flag_medium" />
             <TextView
                 android:id="@+id/priorityText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Обычное"
                 android:layout_marginStart="2dp"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textColor="@color/textGray" />
         </LinearLayout>
     </LinearLayout>
+    <View
+        android:id="@+id/schedule_sheet_separator"
+        android:layout_width="match_parent"
+        android:layout_marginTop="14dp"
+        android:layout_height="1dp"
+        android:background="@color/divider" />
     <TextView
         android:id="@+id/schedule_sheet_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Описание"
-        android:layout_marginTop="10dp"
-        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp"
+        android:textSize="16sp"
         android:textColor="@color/black" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginTop="46dp">
+        android:layout_marginTop="52dp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

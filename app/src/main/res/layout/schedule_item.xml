@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:layout_marginBottom="10dp">
+    android:layout_marginBottom="14dp">
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -40,7 +40,7 @@
         android:orientation="horizontal">
         <LinearLayout
             android:id="@+id/schedule_oval_background"
-            android:layout_width="50dp"
+            android:layout_width="46dp"
             android:layout_height="match_parent"
             android:gravity="center"
             android:layout_marginStart="14dp"
@@ -50,7 +50,7 @@
                 android:id="@+id/schedule_icon"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                app:srcCompat="@drawable/ic_main_hashtag" />
+                app:srcCompat="@drawable/ic_task_hashtag" />
         </LinearLayout>
 
         <LinearLayout
@@ -92,7 +92,8 @@
                 android:textSize="16sp"
                 android:textColor="@color/black"
                 android:paddingBottom="4dp"
-                android:maxLines="3"
+                android:maxLines="2"
+                android:ellipsize="end"
                 android:textStyle="bold"
                 android:layout_marginEnd="8dp"/>
             <LinearLayout
@@ -110,7 +111,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        app:srcCompat="@drawable/ic_main_clock_small" />
+                        app:srcCompat="@drawable/ic_clock_small" />
                     <TextView
                         android:id="@+id/schedule_duration"
                         android:layout_width="wrap_content"
@@ -141,5 +142,6 @@
         app:srcCompat="@drawable/ic_main_complete_circle"
         android:background="@null"
         tools:ignore="SpeakableTextPresentCheck" />
+
 
 </LinearLayout>

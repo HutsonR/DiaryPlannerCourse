@@ -4,7 +4,7 @@ import com.easyflow.diarycourse.data.models.NoteItemDto
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.data.models.ScheduleItemDto
 import com.easyflow.diarycourse.domain.models.NoteItem
-import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 
 object Mapper {
@@ -33,7 +33,7 @@ object Mapper {
             startTime = scheduleItemDto.startTime,
             endTime = scheduleItemDto.endTime,
             duration = scheduleItemDto.duration,
-            color = getColorEnum(scheduleItemDto.color),
+            taskColor = getColorEnum(scheduleItemDto.color),
             isCompleteTask = scheduleItemDto.isCompleteTask,
             priority = getPriorityEnum(scheduleItemDto.priority)
         )
@@ -47,17 +47,17 @@ object Mapper {
             startTime = scheduleItem.startTime,
             endTime = scheduleItem.endTime,
             duration = scheduleItem.duration,
-            color = scheduleItem.color.name,
+            color = scheduleItem.taskColor.name,
             isCompleteTask = scheduleItem.isCompleteTask,
             priority = scheduleItem.priority.name
         )
     }
 
-    private fun getColorEnum(colorString: String): Color {
+    private fun getColorEnum(colorString: String): TaskColor {
         return try {
-            Color.valueOf(colorString)
+            TaskColor.valueOf(colorString)
         } catch (e: IllegalArgumentException) {
-            Color.BLUE
+            TaskColor.BLUE
         }
     }
 

@@ -1,8 +1,8 @@
 package com.easyflow.diarycourse.domain.models
 
 import android.os.Parcelable
-import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Color
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -14,7 +14,7 @@ data class ScheduleItem(
     val startTime: String,
     val endTime: String,
     val duration: String = "",
-    val color: Color,
+    val taskColor: TaskColor,
     var isCompleteTask: Boolean = false,
     val priority: Priority
 ) : Parcelable
