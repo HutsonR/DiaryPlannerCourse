@@ -55,9 +55,9 @@
 
     <!--  TASK ITEM  -->
     <color name="gray">#ECECEC</color>
-    <color name="blue">#4F7F9F</color>
+    <color name="blue">#5F96BA</color>
     <color name="green">#6BAC64</color>
     <color name="redDialog">#EC9999</color>
     <color name="purple">#B27FCD</color>
-    <color name="pink">#DA8BD1</color>
+    <color name="pink">#FFA4F6</color>
 </resources>

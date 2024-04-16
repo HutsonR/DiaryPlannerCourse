@@ -19,7 +19,85 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
     private var taskColor: TaskColor = TaskColor.BLUE
     private var parcelItem: ScheduleItem? = null
 
-
+//    fun setParcelItem(item: ScheduleItem) {
+//        title = item.text
+//        text = item.description
+//        date = item.date
+//        priority = item.priority
+//        timeStart = item.startTime
+//        timeEnd = item.endTime
+//        taskColor = item.taskColor
+//
+//        parcelItem = item
+//    }
+//
+//    fun setReminder() {
+//
+//    }
+//
+//    fun updateSaveButtonState() {
+//        if (parcelItem != null) {
+//            parcelItem !=
+//            // Для редактирования элемента
+//            val isTitleChanged = title != previousTitle
+//            val isDateChanged = date != previousDate
+//            val isTimeStartChanged = timeStart != previousTimeStart
+//            val isTextChanged = text != previousText
+//            val isTimeEndChanged = timeEnd != previousTimeEnd
+//            val isColorChanged = taskColor != previousTaskColor
+//            val isPriorityChanged = priority != previousPriority
+//
+//            val isEnabled =
+//                (isTitleChanged || isDateChanged || isTimeStartChanged || isTextChanged || isTimeEndChanged || isColorChanged || isPriorityChanged) &&
+//                        title.isNotEmpty() && date.isNotEmpty() && timeStart.isNotEmpty()
+//
+//            saveButton.isEnabled = isEnabled
+//            saveButtonTV.alpha = if (isEnabled) 1.0f else 0.6f
+//        } else {
+//            // По умолчанию обычное добавление элемента
+//            val isTitleFilled = title.isNotEmpty()
+//            val isDateFilled = date.isNotEmpty()
+//            val isTimeStartFilled = timeStart.isNotEmpty()
+//
+//            val isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
+//
+//            saveButton.isEnabled = isEnabled
+//            saveButtonTV.alpha = if (isEnabled) 1.0f else 0.6f
+//        }
+//    }
+//
+//    fun onSaveButtonClicked() {
+//        val item: ScheduleItem
+//        if (parcelItem != null) {
+//            // Для редактирования элемента
+//            item = parcelItem!!.copy(
+//                text = title,
+//                description = text,
+//                date = date,
+//                priority = priority,
+//                startTime = timeStart,
+//                endTime = timeEnd,
+//                duration = calculateDuration(timeStart, timeEnd),
+//                taskColor = taskColor,
+//                isCompleteTask = parcelItem!!.isCompleteTask
+//            )
+//        } else {
+//            // По умолчанию обычное добавление элемента
+//            item = ScheduleItem(
+//                text = title,
+//                description = text,
+//                date = date,
+//                priority = priority,
+//                startTime = timeStart,
+//                endTime = timeEnd,
+//                duration = calculateDuration(timeStart, timeEnd),
+//                taskColor = taskColor,
+//                isCompleteTask = false
+//            )
+//            setReminder()
+//        }
+//        onAction(Actions.GoBackWithItem(item))
+//    }
 
     fun calculateDuration(startTime: String, endTime: String): String {
         if (endTime.isEmpty()) {
@@ -83,6 +161,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
 
     sealed interface Actions {
         data object GoBack : Actions
+//        data class GoBackWithItem(val item: ScheduleItem) : Actions
     }
 
     class TaskViewModelFactory @Inject constructor() : ViewModelProvider.Factory {
