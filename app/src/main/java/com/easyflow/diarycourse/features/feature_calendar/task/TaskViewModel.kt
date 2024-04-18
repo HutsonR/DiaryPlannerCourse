@@ -44,13 +44,17 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
     fun clearTime() {
         if (type == TaskType.CHANGE) {
             parcelTask?.let {
-                updateTask(it.copy(startTime = ""))
-                updateTask(it.copy(endTime = ""))
+                updateTask(it.copy(
+                    startTime = "",
+                    endTime = ""
+                ))
             }
         } else {
             currentTask?.let {
-                updateTask(it.copy(startTime = ""))
-                updateTask(it.copy(endTime = ""))
+                updateTask(it.copy(
+                    startTime = "",
+                    endTime = ""
+                ))
             }
         }
         updateSaveButtonState()
