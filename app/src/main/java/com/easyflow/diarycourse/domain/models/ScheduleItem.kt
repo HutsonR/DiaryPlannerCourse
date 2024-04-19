@@ -14,7 +14,7 @@ data class ScheduleItem(
     val startTime: String,
     val endTime: String,
     val duration: String = "",
-    val taskColor: TaskColor,
+    val taskColor: TaskColor = TaskColor.BLUE,
     var isCompleteTask: Boolean = false,
-    val priority: Priority
+    val priority: Priority = Priority.STANDARD
 ) : Parcelable
