@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.easyflow.diarycourse.core.BaseViewModel
 import com.easyflow.diarycourse.domain.models.ScheduleItem
-import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import com.easyflow.diarycourse.features.feature_calendar.task.util.TaskType
@@ -17,7 +16,6 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
     private var type: TaskType = TaskType.ADD
 
     fun setParcelItem(item: ScheduleItem) {
-        Log.d("debugTag", "setParcelItem $item")
         parcelTask = item
         currentTask = item
         type = TaskType.CHANGE
@@ -31,14 +29,14 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
         } else {
             currentTask = item
         }
-        Log.d("debugTag", "updateTask currentTask $currentTask")
-        Log.d("debugTag", "updateTask parcelTask $parcelTask")
-        updateSaveButtonState()
+
         if (type == TaskType.CHANGE) {
-            parcelTask?.let { onAction(Actions.ActualizeItem(it)) }
+            modifyState { copy(item = parcelTask) }
         } else {
-            currentTask?.let { onAction(Actions.ActualizeItem(it)) }
+            modifyState { copy(item = currentTask) }
         }
+
+        updateSaveButtonState()
     }
 
     fun clearTime() {
@@ -74,9 +72,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
                 val isTimeStartFilled = it.startTime.isNotEmpty()
 
                 isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
-                Log.d("debugTag", "isEnabled $isEnabled")
             }
-            Log.d("debugTag", "isEnabled $isEnabled")
             onAction(Actions.ChangeButtonState(isEnabled))
         }
     }
@@ -172,12 +168,11 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
     }
 
     data class State(
-        var update: Resource? = null
+        var item: ScheduleItem? = null
     )
 
     sealed interface Actions {
         data object GoBack : Actions
-        data class ActualizeItem(val item: ScheduleItem) : Actions
         data class GoBackWithItem(val item: ScheduleItem) : Actions
         data class ChangeButtonState(val state: Boolean): Actions
     }

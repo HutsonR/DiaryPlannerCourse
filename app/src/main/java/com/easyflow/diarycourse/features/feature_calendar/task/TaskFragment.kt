@@ -36,7 +36,6 @@ import com.easyflow.diarycourse.core.utils.ReminderWorker
 import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentTaskBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
-import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.PriorityAdapter
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
@@ -73,12 +72,12 @@ class TaskFragment : BottomSheetDialogFragment() {
         description = "",
         date = "",
         startTime = "",
-        endTime = "",
-        priority = Priority.STANDARD
+        endTime = ""
     )
 
     private var purposeTask: TaskType = TaskType.ADD
 
+    // For Reminder
     private var chosenYear = 0
     private var chosenMonth = 0
     private var chosenDay = 0
@@ -118,11 +117,6 @@ class TaskFragment : BottomSheetDialogFragment() {
         viewModel.updateSaveButtonState()
     }
 
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
-    }
-
     private fun setStyle() {
         setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme)
         dialog?.setOnShowListener { dialog ->
@@ -146,18 +140,9 @@ class TaskFragment : BottomSheetDialogFragment() {
             .state
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .onEach { state ->
-                updateCollect(state.update)
+                updateItem(state.item)
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
-    }
-
-    private fun updateCollect(result: Resource?) {
-        result?.let {
-            when (it) {
-                is Resource.Success<*> -> viewModel.goBack()
-                is Resource.Failed -> onFailed()
-            }
-        }
     }
 
     private fun observeActions() {
@@ -167,7 +152,6 @@ class TaskFragment : BottomSheetDialogFragment() {
             .onEach { action ->
                 when (action) {
                     is TaskViewModel.Actions.GoBack -> dismiss()
-                    is TaskViewModel.Actions.ActualizeItem -> updateItem(action.item)
                     is TaskViewModel.Actions.GoBackWithItem -> saveButtonClicked(action.item)
                     is TaskViewModel.Actions.ChangeButtonState -> updateSaveButtonState(action.state)
                 }
@@ -289,8 +273,8 @@ class TaskFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun updateItem(item: ScheduleItem) {
-        currentTask = item
+    private fun updateItem(item: ScheduleItem?) {
+        item?.let { currentTask = it }
     }
 
     private fun updateReminderSwitchState(isChecked: Boolean) {
@@ -312,11 +296,6 @@ class TaskFragment : BottomSheetDialogFragment() {
             setReminder()
         }
         sendTaskItem(item)
-        viewModel.goBack()
-    }
-
-    private fun onFailed() {
-        Toast.makeText(requireContext(), getString(R.string.error), Toast.LENGTH_SHORT).show()
         viewModel.goBack()
     }
 
@@ -520,25 +499,25 @@ class TaskFragment : BottomSheetDialogFragment() {
     //    Listeners
     private fun titleListener() {
         titleEditTV.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.updateTask(currentTask.copy(text = s.toString()))
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) = Unit
         })
     }
 
     private fun descriptionListener() {
         textEditTV.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.updateTask(currentTask.copy(description = s.toString()))
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) = Unit
         })
     }
 
@@ -678,7 +657,7 @@ class TaskFragment : BottomSheetDialogFragment() {
                 viewModel.updateTask(currentTask.copy(priority = selectedPriority))
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
     }
 
@@ -694,6 +673,11 @@ class TaskFragment : BottomSheetDialogFragment() {
 
             viewModel.updateSaveButtonState()
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {
