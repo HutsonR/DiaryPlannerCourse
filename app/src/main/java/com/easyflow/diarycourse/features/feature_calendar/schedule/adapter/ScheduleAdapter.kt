@@ -1,6 +1,7 @@
 package com.easyflow.diarycourse.features.feature_calendar.schedule.adapter
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
@@ -20,8 +21,8 @@ import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_calendar.CalendarViewModel
 import com.easyflow.diarycourse.features.feature_calendar.schedule.dialogs.ScheduleItemBottomSheetFragment
-import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -85,12 +86,14 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             contentTextView.text = item.text
             durationTextView.text = item.duration
             priorityTextView.text = getPriorityString(item.priority)
-            // taskOval.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
-            scheduleIcon.setColorFilter(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.black))
+            taskOval.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
+            // scheduleIcon.setColorFilter(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.black))
             isCompleteButton.setColorFilter(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
 
             if (item.priority == Priority.STANDARD) {
                 priorityWrapper.visibility = View.GONE
+            } else {
+                priorityWrapper.visibility = View.VISIBLE
             }
 
             // Установка активности задачи

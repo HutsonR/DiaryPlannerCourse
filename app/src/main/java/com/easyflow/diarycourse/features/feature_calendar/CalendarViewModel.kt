@@ -89,7 +89,6 @@ class CalendarViewModel @Inject constructor(
     data class State(
         var list: List<ScheduleItem> = emptyList(),
         var selectedTasks: List<ScheduleItem> = emptyList(),
-        var dateSelected: String = ""
     )
 
     sealed interface Actions {
