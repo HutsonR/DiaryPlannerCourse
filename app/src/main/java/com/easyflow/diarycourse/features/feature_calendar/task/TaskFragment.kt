@@ -200,7 +200,6 @@ class TaskFragment : BottomSheetDialogFragment() {
                 "Выбор иконки в разработке...",
                 Toast.LENGTH_SHORT
             ).show()
-            Log.d("debugTag", "currentTask $currentTask")
         }
     }
 
@@ -225,7 +224,7 @@ class TaskFragment : BottomSheetDialogFragment() {
         parcelItem?.let {
             binding.taskToolbar.toolbar.title = getString(R.string.task_edit_title)
             saveButtonTV.text = getString(R.string.task_button_edit)
-            Log.d("debugTag", "initializeParcel")
+
             viewModel.setParcelItem(parcelItem)
             purposeTask = TaskType.CHANGE
             currentTask = parcelItem
