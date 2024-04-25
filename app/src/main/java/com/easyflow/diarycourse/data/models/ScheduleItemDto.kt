@@ -12,6 +12,7 @@ data class ScheduleItemDto(
     val startTime: String,
     val endTime: String,
     val duration: String,
+    val alarmTime: Long?,
     val color: String,
     var isCompleteTask: Boolean = false,
     val priority: String

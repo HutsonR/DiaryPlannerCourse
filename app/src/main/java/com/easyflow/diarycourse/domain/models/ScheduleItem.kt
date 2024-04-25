@@ -14,6 +14,7 @@ data class ScheduleItem(
     val startTime: String,
     val endTime: String,
     val duration: String = "",
+    val alarmTime: Long? = null,
     val taskColor: TaskColor = TaskColor.BLUE,
     var isCompleteTask: Boolean = false,
     val priority: Priority = Priority.STANDARD

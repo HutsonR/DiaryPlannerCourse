@@ -13,18 +13,18 @@ class ScheduleRepositoryImpl @Inject constructor (
 
     private val mapper = Mapper
     override suspend fun insert(item: ScheduleItem) {
-        val scheduleItemDto = mapper.mapFrom(item)
+        val scheduleItemDto = mapper.mapToScheduleItemDto(item)
         return scheduleItemDao.insert(scheduleItemDto)
     }
 
     override suspend fun getAll(): List<ScheduleItem> {
         val scheduleItemDtos: List<ScheduleItemDto> = scheduleItemDao.getAll()
-        return scheduleItemDtos.map { mapper.mapTo(it) }
+        return scheduleItemDtos.map { mapper.mapToScheduleItem(it) }
     }
 
     override suspend fun getByDate(date: String): List<ScheduleItem> {
         val scheduleItemDtos: List<ScheduleItemDto> = scheduleItemDao.getByDate(date)
-        return scheduleItemDtos.map { mapper.mapTo(it) }
+        return scheduleItemDtos.map { mapper.mapToScheduleItem(it) }
     }
 
     override suspend fun deleteById(itemId: Int) {
@@ -36,7 +36,7 @@ class ScheduleRepositoryImpl @Inject constructor (
     }
 
     override suspend fun update(item: ScheduleItem) {
-        val scheduleItemDto = mapper.mapFrom(item)
+        val scheduleItemDto = mapper.mapToScheduleItemDto(item)
         return scheduleItemDao.update(scheduleItemDto)
     }
 
