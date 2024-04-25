@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.easyflow.diarycourse.core.BaseViewModel
 import javax.inject.Inject
 
-class ReminderDialogViewModel @Inject constructor() : BaseViewModel<ReminderDialogViewModel.State, ReminderDialogViewModel.Actions>(ReminderDialogViewModel.State()) {
+class ReminderBottomDialogViewModel @Inject constructor() : BaseViewModel<ReminderBottomDialogViewModel.State, ReminderBottomDialogViewModel.Actions>(ReminderBottomDialogViewModel.State()) {
 
     private var time: String = ""
 
@@ -38,7 +38,7 @@ class ReminderDialogViewModel @Inject constructor() : BaseViewModel<ReminderDial
 
     class ReminderViewModelFactory @Inject constructor() : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ReminderDialogViewModel() as T
+            return ReminderBottomDialogViewModel() as T
         }
     }
 }

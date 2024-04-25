@@ -1,14 +1,12 @@
 package com.easyflow.diarycourse
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.easyflow.diarycourse.databinding.ActivityMainBinding
@@ -23,7 +21,24 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        createNotificationChannel()
         setNavigation()
+    }
+
+    private fun createNotificationChannel() {
+        val channelId = "alarm_id"
+        val channelName = "alarm_name"
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channel = NotificationChannel(
+            channelId,
+            channelName,
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        channel.enableLights(true)
+        channel.enableVibration(true)
+        channel.lightColor = Color.GREEN
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun setNavigation() {

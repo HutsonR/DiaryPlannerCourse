@@ -56,8 +56,12 @@ class CalendarViewModel @Inject constructor(
     fun fetchTasksByDate(date: String) {
         viewModelScope.launch {
             val taskItems = scheduleUseCase.getByDate(date)
-            modifyState { copy(selectedTasks = taskItems) }
+            modifyState { copy(selectedTasks = sortItemsByTime(taskItems)) }
         }
+    }
+
+    private fun sortItemsByTime(dataList: List<ScheduleItem>): List<ScheduleItem> {
+        return dataList.sortedBy { it.startTime }
     }
 
     private fun fetchData() {

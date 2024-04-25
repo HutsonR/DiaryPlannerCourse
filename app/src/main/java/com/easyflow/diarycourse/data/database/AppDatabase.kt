@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.easyflow.diarycourse.data.models.NoteItemDto
 import com.easyflow.diarycourse.data.models.ScheduleItemDto
 
-@Database(entities = [ScheduleItemDto::class, NoteItemDto::class], version = 8)
+@Database(entities = [ScheduleItemDto::class, NoteItemDto::class], version = 10)
 abstract class AppDatabase : RoomDatabase() {
     abstract val scheduleItemDao: ScheduleItemDao
     abstract val noteItemDao: NoteItemDao

@@ -1,19 +1,25 @@
 package com.easyflow.diarycourse.features.feature_calendar.task.dialogs
 
 import android.content.Context
+import android.content.DialogInterface
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.fragment.app.DialogFragment
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
-import com.easyflow.diarycourse.databinding.DialogFragmentReminderBinding
+import com.easyflow.diarycourse.databinding.TaskDialogFragmentReminderBinding
+import com.easyflow.diarycourse.domain.models.ScheduleItem
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -23,12 +29,12 @@ import java.util.Locale
 import javax.inject.Inject
 
 
-class ReminderDialogFragment : DialogFragment() {
-    private var _binding: DialogFragmentReminderBinding? = null
+class ReminderBottomDialogFragment : BottomSheetDialogFragment() {
+    private var _binding: TaskDialogFragmentReminderBinding? = null
     private val binding get() = _binding!!
     @Inject
-    lateinit var reminderViewModelFactory: Lazy<ReminderDialogViewModel.ReminderViewModelFactory>
-    private val viewModel: ReminderDialogViewModel by viewModels {
+    lateinit var reminderViewModelFactory: Lazy<ReminderBottomDialogViewModel.ReminderViewModelFactory>
+    private val viewModel: ReminderBottomDialogViewModel by viewModels {
         reminderViewModelFactory.get()
     }
     private lateinit var saveButton: LinearLayout
@@ -40,12 +46,13 @@ class ReminderDialogFragment : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = DialogFragmentReminderBinding.inflate(inflater, container, false)
+        _binding = TaskDialogFragmentReminderBinding.inflate(inflater, container, false)
         return _binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initialize()
+        initializeParcel()
         setObservers()
     }
 
@@ -56,11 +63,61 @@ class ReminderDialogFragment : DialogFragment() {
         dialog!!.window?.setLayout(width, height)
     }
 
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        viewModel.sendItem(true)
+    }
+
     private fun initialize() {
-        saveButton = binding.btnSave
+        saveButton = binding.btnConfirm
         cancelButton = binding.btnClose
 
         setListeners()
+    }
+
+    private fun initializeParcel() {
+        val parcelItem = arguments?.getParcelable<ScheduleItem>(REMINDER_TASK)
+
+        parcelItem?.let {
+            setStyle(it.taskColor)
+        }
+    }
+
+    private fun setStyle(taskColor: TaskColor) {
+        val taskColorStateList = when (taskColor) {
+            TaskColor.BLUE -> ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.blue
+                )
+            )
+            TaskColor.GREEN -> ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.green
+                )
+            )
+            TaskColor.RED -> ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.redDialog
+                )
+            )
+            TaskColor.PURPLE -> ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.purple
+                )
+            )
+            TaskColor.PINK -> ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.pink
+                )
+            )
+        }
+        // Цвет кнопки добавления задачи
+        binding.btnConfirm.backgroundTintList = taskColorStateList
     }
 
     private fun setListeners() {
@@ -99,7 +156,7 @@ class ReminderDialogFragment : DialogFragment() {
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { action ->
                 when (action) {
-                    is ReminderDialogViewModel.Actions.GoBack -> sendItem(action.item)
+                    is ReminderBottomDialogViewModel.Actions.GoBack -> sendItem(action.item)
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
@@ -142,6 +199,7 @@ class ReminderDialogFragment : DialogFragment() {
     companion object {
         const val KEY_REMINDER_FRAGMENT_RESULT_SET = "KEY_REMINDER_FRAGMENT_RESULT_SET"
 
+        const val REMINDER_TASK = "REMINDER_TASK"
         const val FRAGMENT_REMIND_ITEM = "REMIND_ITEM"
     }
 }

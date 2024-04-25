@@ -20,6 +20,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
         currentTask = item
         type = TaskType.CHANGE
 
+        Log.d("debugTag", "updateSaveButtonState FROM VM setParcelItem")
         updateSaveButtonState()
     }
 
@@ -36,6 +37,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
             modifyState { copy(item = currentTask) }
         }
 
+        Log.d("debugTag", "updateSaveButtonState FROM VM updateTask")
         updateSaveButtonState()
     }
 
@@ -55,26 +57,13 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
                 ))
             }
         }
+        Log.d("debugTag", "updateSaveButtonState FROM VM clearTime")
         updateSaveButtonState()
     }
 
-    fun updateSaveButtonState() {
-        Log.d("debugTag", "updateSaveButtonState currentTask $currentTask")
-        Log.d("debugTag", "updateSaveButtonState parcelTask $parcelTask")
-        if (type == TaskType.CHANGE) {
-            val isEnabled = currentTask != parcelTask
-            onAction(Actions.ChangeButtonState(isEnabled))
-        } else {
-            var isEnabled = false
-            currentTask?.let {
-                val isTitleFilled = it.text.isNotEmpty()
-                val isDateFilled = it.date.isNotEmpty()
-                val isTimeStartFilled = it.startTime.isNotEmpty()
-
-                isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
-            }
-            onAction(Actions.ChangeButtonState(isEnabled))
-        }
+    fun reminderOpen(isChecked: Boolean) {
+        Log.d("debugTag", "reminderOpen")
+        onAction(Actions.OpenReminder(isChecked))
     }
 
     fun onSaveButtonClicked() {
@@ -138,8 +127,37 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
         }
     }
 
-//    Вспомогательные функции для форматирования данных или конвертации
+//    States
+    fun updateReminderState() {
+        Log.d("debugTag", "updateReminderState")
+        currentTask?.let { task ->
+            Log.d("debugTag", "updateReminderState task not null")
+            if (task.date.isNotEmpty()) {
+                onAction(Actions.ChangeReminderState(true))
+            }
+        }
+    }
 
+    fun updateSaveButtonState() {
+        Log.d("debugTag", "updateSaveButtonState currentTask $currentTask")
+        Log.d("debugTag", "updateSaveButtonState parcelTask $parcelTask")
+        if (type == TaskType.CHANGE) {
+            val isEnabled = currentTask != parcelTask
+            onAction(Actions.ChangeSaveButtonState(isEnabled))
+        } else {
+            var isEnabled = false
+            currentTask?.let {
+                val isTitleFilled = it.text.isNotEmpty()
+                val isDateFilled = it.date.isNotEmpty()
+                val isTimeStartFilled = it.startTime.isNotEmpty()
+
+                isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
+            }
+            onAction(Actions.ChangeSaveButtonState(isEnabled))
+        }
+    }
+
+//    Вспомогательные функции для форматирования данных или конвертации
     fun getPriorityString(priority: Priority): String {
         return when (priority) {
             Priority.STANDARD -> "Обычный приоритет"
@@ -164,6 +182,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
     }
 
     fun goBack() {
+        Log.d("debugTag", "goBack")
         onAction(Actions.GoBack)
     }
 
@@ -173,8 +192,10 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
 
     sealed interface Actions {
         data object GoBack : Actions
+        data class OpenReminder(val isChecked: Boolean) : Actions
         data class GoBackWithItem(val item: ScheduleItem) : Actions
-        data class ChangeButtonState(val state: Boolean): Actions
+        data class ChangeReminderState(val state: Boolean): Actions
+        data class ChangeSaveButtonState(val state: Boolean): Actions
     }
 
     class TaskViewModelFactory @Inject constructor() : ViewModelProvider.Factory {
