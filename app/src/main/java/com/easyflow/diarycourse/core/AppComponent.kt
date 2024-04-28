@@ -11,6 +11,7 @@ import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
 import com.easyflow.diarycourse.features.feature_calendar.task.dialogs.ReminderBottomDialogFragment
 import com.easyflow.diarycourse.features.feature_settings.SettingsFragment
 import com.easyflow.diarycourse.features.feature_settings.appearance.AppearanceFragment
+import com.easyflow.diarycourse.features.feature_settings.security.SecurityFragment
 import dagger.BindsInstance
 import dagger.Component
 
@@ -24,6 +25,7 @@ interface AppComponent {
     fun inject(fragment: ReminderBottomDialogFragment)
     fun inject(fragment: SettingsFragment)
     fun inject(fragment: AppearanceFragment)
+    fun inject(fragment: SecurityFragment)
 
     @Component.Builder
     interface Builder {
