@@ -41,4 +41,28 @@
             android:textColor="@color/black" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/settingFingerprint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="18dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        tools:ignore="UseCompoundDrawables">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_settings_fingerprint"
+            android:paddingHorizontal="24dp"
+            android:contentDescription="@string/settings_security"
+            app:tint="@color/settingsIcon" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_security"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
 </LinearLayout>

@@ -12,12 +12,17 @@ class SettingsViewModel @Inject constructor() : BaseViewModel<SettingsViewModel.
         onAction(Actions.GoToAppearance)
     }
 
+    fun goToSecurity() {
+        onAction(Actions.GoToSecurity)
+    }
+
     data class State(
         var list: List<CombineModel> = emptyList()
     )
 
     sealed interface Actions {
         data object GoToAppearance : Actions
+        data object GoToSecurity : Actions
     }
 
     class SettingsViewModelFactory @Inject constructor() : ViewModelProvider.Factory {

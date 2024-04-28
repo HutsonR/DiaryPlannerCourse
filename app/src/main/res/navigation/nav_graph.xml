@@ -37,4 +37,13 @@
     <action
         android:id="@+id/actionSettingsGoToAppearance"
         app:destination="@id/settingsAppearanceFragment" />
+
+    <fragment
+        android:id="@+id/settingsSecurityFragment"
+        android:name="com.easyflow.diarycourse.features.feature_settings.security.SecurityFragment"
+        android:label="Settings Appearance"
+        tools:layout="@layout/fragment_settings_security" />
+    <action
+        android:id="@+id/actionSettingsGoToSecurity"
+        app:destination="@id/settingsSecurityFragment" />
 </navigation>
