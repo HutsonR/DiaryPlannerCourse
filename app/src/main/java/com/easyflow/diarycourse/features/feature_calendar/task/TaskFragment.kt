@@ -187,6 +187,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             viewModel.onSaveButtonClicked()
         }
 
+        Log.d("debugTag", "FRAGMENT updateTask initialize")
         viewModel.updateTask(currentTask)
 
         (titleEditTV as EditText).setSelection(titleEditTV.text.length)
@@ -260,6 +261,7 @@ class TaskFragment : BottomSheetDialogFragment() {
                     val delayInSeconds = (userSelectedDateTime.timeInMillis/1000L) - (todayDateTime.timeInMillis/1000L)
 
                     binding.reminderPickerText.text = "в $requestValue"
+                    Log.d("debugTag", "FRAGMENT updateTask setFragmentListener")
                     viewModel.updateTask(currentTask.copy(alarmTime = delayInSeconds))
                     updateReminderSwitchState(true)
                 } else {
@@ -290,6 +292,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             chosenMin = 0
 
             binding.reminderPickerText.text = ""
+            Log.d("debugTag", "FRAGMENT updateTask handleReminderSwitchButton")
             viewModel.updateTask(currentTask.copy(alarmTime = null))
         }
     }
@@ -530,6 +533,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                Log.d("debugTag", "FRAGMENT updateTask titleListener")
                 viewModel.updateTask(currentTask.copy(text = s.toString()))
             }
 
@@ -542,6 +546,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                Log.d("debugTag", "FRAGMENT updateTask descriptionListener")
                 viewModel.updateTask(currentTask.copy(description = s.toString()))
             }
 
@@ -567,6 +572,7 @@ class TaskFragment : BottomSheetDialogFragment() {
 
                 val formattedDate = formatDate(selectedDate)
 
+                Log.d("debugTag", "FRAGMENT updateTask datePickerListener")
                 viewModel.updateTask(currentTask.copy(date = formattedDate))
                 datePickerTV.text = formattedDate
                 checkDate()
@@ -586,6 +592,8 @@ class TaskFragment : BottomSheetDialogFragment() {
             chosenDay = day.get(Calendar.DAY_OF_MONTH)
 
             val formattedDate = formatDate(day)
+
+            Log.d("debugTag", "FRAGMENT updateTask dateFastPickerListener today")
             viewModel.updateTask(currentTask.copy(date = formattedDate))
             datePickerTV.text = formattedDate
             checkDate()
@@ -600,6 +608,8 @@ class TaskFragment : BottomSheetDialogFragment() {
             chosenDay = day.get(Calendar.DAY_OF_MONTH)
 
             val formattedDate = formatDate(day)
+
+            Log.d("debugTag", "FRAGMENT updateTask dateFastPickerListener tomorrow")
             viewModel.updateTask(currentTask.copy(date = formattedDate))
             datePickerTV.text = formattedDate
             checkDate()
@@ -623,6 +633,7 @@ class TaskFragment : BottomSheetDialogFragment() {
                 val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
                 val formattedTime = selectedTimeForStart.time.let { timeFormat.format(it) }
 
+                Log.d("debugTag", "FRAGMENT updateTask startTimePickerListener")
                 viewModel.updateTask(currentTask.copy(startTime = formattedTime))
                 timeStartPickerTV.text = formattedTime
                 timePicked()
@@ -650,6 +661,8 @@ class TaskFragment : BottomSheetDialogFragment() {
 
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
             val formattedTime = selectedTimeForEnd.time.let { timeFormat.format(it) }
+
+            Log.d("debugTag", "FRAGMENT updateTask endTimePickerListener")
             viewModel.updateTask(currentTask.copy(endTime = formattedTime))
             timeEndPickerTV.text = formattedTime
             timePicked()
@@ -682,6 +695,8 @@ class TaskFragment : BottomSheetDialogFragment() {
             ) {
                 val currentPriority = parent?.getItemAtPosition(position).toString()
                 val selectedPriority: Priority = viewModel.getPriorityEnum(currentPriority)
+
+                Log.d("debugTag", "FRAGMENT updateTask priorityPickerListener $currentTask")
                 viewModel.updateTask(currentTask.copy(priority = selectedPriority))
             }
 
@@ -696,6 +711,8 @@ class TaskFragment : BottomSheetDialogFragment() {
             val selectedColorTag: String = selectedRadioButton.tag as String
 
             val selectedTaskColor: TaskColor = viewModel.getColorEnum(selectedColorTag)
+
+            Log.d("debugTag", "FRAGMENT updateTask colorPickerListener")
             viewModel.updateTask(currentTask.copy(taskColor = selectedTaskColor))
             setTaskStyle(selectedTaskColor)
 

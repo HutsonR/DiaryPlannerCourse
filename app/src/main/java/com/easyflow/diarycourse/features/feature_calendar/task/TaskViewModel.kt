@@ -18,6 +18,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
     fun setParcelItem(item: ScheduleItem) {
         parcelTask = item
         currentTask = item
+        updateTask(item) // Для установки currentTask в Fragment
         type = TaskType.CHANGE
 
         Log.d("debugTag", "updateSaveButtonState FROM VM setParcelItem")
