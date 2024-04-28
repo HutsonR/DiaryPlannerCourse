@@ -143,20 +143,21 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
         Log.d("debugTag", "updateSaveButtonState currentTask $currentTask")
         Log.d("debugTag", "updateSaveButtonState parcelTask $parcelTask")
         if (type == TaskType.CHANGE) {
-            val isEnabled = currentTask != parcelTask
-            onAction(Actions.ChangeSaveButtonState(isEnabled))
+            if (currentTask != null && parcelTask != null) {
+                val isEnabled = currentTask != parcelTask && fieldRequiredFilled(parcelTask!!)
+                onAction(Actions.ChangeSaveButtonState(isEnabled))
+            }
         } else {
             var isEnabled = false
             currentTask?.let {
-                val isTitleFilled = it.text.isNotEmpty()
-                val isDateFilled = it.date.isNotEmpty()
-                val isTimeStartFilled = it.startTime.isNotEmpty()
-
-                isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
+                isEnabled = fieldRequiredFilled(it)
             }
             onAction(Actions.ChangeSaveButtonState(isEnabled))
         }
     }
+
+    private fun fieldRequiredFilled(task: ScheduleItem) =
+        task.text.isNotEmpty() && task.date.isNotEmpty() && task.startTime.isNotEmpty()
 
 //    Вспомогательные функции для форматирования данных или конвертации
     fun getPriorityString(priority: Priority): String {
