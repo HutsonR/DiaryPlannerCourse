@@ -219,7 +219,7 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
             }
         }
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             for (date in datesToProcess) {
                 val dayOfMonth = date.substring(0, 2).toInt()
                 val month = date.substring(3, 5).toInt() - 1
