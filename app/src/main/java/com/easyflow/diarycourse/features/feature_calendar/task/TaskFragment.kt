@@ -1,6 +1,7 @@
 package com.easyflow.diarycourse.features.feature_calendar.task
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -18,6 +19,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RadioButton
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -85,6 +87,7 @@ class TaskFragment : BottomSheetDialogFragment() {
     private var chosenDay = 0
     private var chosenHour = 0
     private var chosenMin = 0
+    private var reminderDelay: Long = 0
 
     private lateinit var taskIconBackground: LinearLayout
     private lateinit var titleEditTV: TextView
@@ -233,6 +236,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             
             setColor()
             setTaskStyle(parcelItem.taskColor)
+            setReminderUI()
             // Для активации кнопки конца времени
             isStartTimeAfterEndTime()
             timePicked()
@@ -253,16 +257,9 @@ class TaskFragment : BottomSheetDialogFragment() {
                     val (hours, minutes) = requestValue.split(":").map { it.toInt() }
                     chosenHour = hours
                     chosenMin = minutes
-
-                    val userSelectedDateTime = Calendar.getInstance()
-                    userSelectedDateTime.set(chosenYear, chosenMonth, chosenDay, chosenHour , chosenMin)
-
-                    val todayDateTime = Calendar.getInstance()
-                    val delayInSeconds = (userSelectedDateTime.timeInMillis/1000L) - (todayDateTime.timeInMillis/1000L)
-
-                    binding.reminderPickerText.text = "в $requestValue"
-                    Log.d("debugTag", "FRAGMENT updateTask setFragmentListener")
-                    viewModel.updateTask(currentTask.copy(alarmTime = delayInSeconds))
+                    setReminderUI()
+                    Log.d("debugTag", "reminderDelay $reminderDelay")
+                    viewModel.updateTask(currentTask.copy(alarmTime = reminderDelay))
                     updateReminderSwitchState(true)
                 } else {
                     chosenHour = 0
@@ -272,6 +269,21 @@ class TaskFragment : BottomSheetDialogFragment() {
                     updateReminderSwitchState(false)
                 }
             }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setReminderUI() {
+        val userSelectedDateTime = Calendar.getInstance()
+        userSelectedDateTime.set(chosenYear, chosenMonth, chosenDay, chosenHour , chosenMin)
+
+        val todayDateTime = Calendar.getInstance()
+        reminderDelay = (userSelectedDateTime.timeInMillis/1000L) - (todayDateTime.timeInMillis/1000L)
+
+        binding.reminderPickerText.text = "через ${viewModel.calculateReminderDelay()}"
+        if (purposeTask == TaskType.CHANGE) {
+            updateReminderSwitchState(true)
+            updateReminderState(true)
         }
     }
 
@@ -293,6 +305,7 @@ class TaskFragment : BottomSheetDialogFragment() {
 
             binding.reminderPickerText.text = ""
             Log.d("debugTag", "FRAGMENT updateTask handleReminderSwitchButton")
+            setTaskStyle(currentTask.taskColor)
             viewModel.updateTask(currentTask.copy(alarmTime = null))
         }
     }
@@ -315,6 +328,7 @@ class TaskFragment : BottomSheetDialogFragment() {
 
     private fun updateReminderSwitchState(isChecked: Boolean) {
         binding.reminderSwitchButton.isChecked = isChecked
+        setTaskStyle(currentTask.taskColor)
     }
 
     private fun updateSaveButtonState(state: Boolean) {
@@ -476,10 +490,8 @@ class TaskFragment : BottomSheetDialogFragment() {
         // Цвет кнопки добавления задачи
         binding.taskConfirmTV.backgroundTintList = taskColorStateList
         // Устанавливаем цвет для переключателя
-        binding.reminderSwitchButton.thumbTintList = taskColorStateList
-        binding.reminderSwitchButton.trackTintList = taskColorStateList
-        binding.repeatSwitchButton.thumbTintList = taskColorStateList
-        binding.repeatSwitchButton.trackTintList = taskColorStateList
+        setSwitchStyle(binding.reminderSwitchButton, taskColorStateList)
+        setSwitchStyle(binding.repeatSwitchButton, taskColorStateList)
 
         binding.reminderPickerText.setTextColor(taskColorStateList)
         // Галочки для даты
@@ -492,6 +504,19 @@ class TaskFragment : BottomSheetDialogFragment() {
         }
         binding.taskTagAdd.tagWrapper.background = backgroundDrawable
         binding.taskTagAdd.tagIcon.setColorFilter(taskColorStateList.defaultColor, PorterDuff.Mode.SRC_IN)
+    }
+
+    private fun setSwitchStyle(switchButton: Switch, taskColorStateList: ColorStateList) {
+        val defaultColor = ColorStateList.valueOf(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.switchColor
+            )
+        )
+        switchButton.apply {
+            thumbTintList = if (isChecked) taskColorStateList else defaultColor
+            trackTintList = if (isChecked) taskColorStateList else defaultColor
+        }
     }
 
     private fun setColor() {

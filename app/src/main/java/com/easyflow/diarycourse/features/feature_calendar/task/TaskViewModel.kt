@@ -78,7 +78,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
                     priority = it.priority,
                     startTime = it.startTime,
                     endTime = it.endTime,
-                    duration = calculateDuration(it.startTime, it.endTime),
+                    duration = calculateTaskDuration(it.startTime, it.endTime),
                     taskColor = it.taskColor,
                     isCompleteTask = it.isCompleteTask
                 )
@@ -92,7 +92,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
                     priority = it.priority,
                     startTime = it.startTime,
                     endTime = it.endTime,
-                    duration = calculateDuration(it.startTime, it.endTime),
+                    duration = calculateTaskDuration(it.startTime, it.endTime),
                     taskColor = it.taskColor,
                     isCompleteTask = it.isCompleteTask
                 )
@@ -101,7 +101,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
         item?.let { onAction(Actions.GoBackWithItem(it)) }
     }
 
-    private fun calculateDuration(startTime: String, endTime: String): String {
+    private fun calculateTaskDuration(startTime: String, endTime: String): String {
         if (endTime.isEmpty()) {
             return "бессрочно"
         }
@@ -126,6 +126,18 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
             remainingMinutes > 0 -> "$remainingMinutes мин."
             else -> "0 мин."
         }
+    }
+
+    fun calculateReminderDelay(): String {
+        currentTask?.let { task ->
+            val delay: Long? = task.alarmTime
+            return if (delay != null) {
+                "${delay / 60} мин."
+            } else {
+                ""
+            }
+        }
+        return ""
     }
 
 //    States
