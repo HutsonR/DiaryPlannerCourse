@@ -47,7 +47,7 @@
     <!--  Navigation  -->
     <color name="navDivider">#f1f2f6</color>
     <color name="bgNavigation">#FDFFFF</color>
-    <color name="bgNavActiveItem">#f1f2f6</color>
+    <color name="bgNavActiveItem">#E9F6FF</color>
     <color name="navIcon">#1B1B1D</color>
     <color name="navText">#1B1B1D</color>
 
