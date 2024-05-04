@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
@@ -29,6 +30,8 @@ import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
 import dagger.Lazy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -53,6 +56,7 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     private lateinit var adapter: ScheduleAdapter
     private var adapterList: MutableList<ScheduleItem> = mutableListOf()
     private var dateSelected: String = ""
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -292,6 +296,14 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         binding.fabAdd.setOnClickListener {
             viewModel.goToTask()
         }
+        val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.wave_animation)
+
+        coroutineScope.launch {
+            while (true) {
+                delay(3000)
+                binding.fabAddRipple.startAnimation(animation)
+            }
+        }
     }
 
     // Подсчет кол-ва записей на день
@@ -313,6 +325,7 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     override fun onDestroyView() {
+        coroutineScope.cancel()
         _binding = null
         super.onDestroyView()
     }
