@@ -1,105 +1,107 @@
 package com.easyflow.diarycourse.features.feature_calendar.task
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.easyflow.diarycourse.core.BaseViewModel
 import com.easyflow.diarycourse.domain.models.ScheduleItem
-import com.easyflow.diarycourse.domain.util.Resource
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
+import com.easyflow.diarycourse.features.feature_calendar.task.util.TaskType
 import javax.inject.Inject
 
 class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, TaskViewModel.Actions>(TaskViewModel.State()) {
-    private var title: String = ""
-    private var text: String = ""
-    private var date: String = ""
-    private var priority: Priority = Priority.STANDARD
-    private var timeStart: String = ""
-    private var timeEnd: String = ""
-    private var taskColor: TaskColor = TaskColor.BLUE
-    private var parcelItem: ScheduleItem? = null
+    private var currentTask: ScheduleItem? = null
+    private var parcelTask: ScheduleItem? = null
+    private var type: TaskType = TaskType.ADD
 
-//    fun setParcelItem(item: ScheduleItem) {
-//        title = item.text
-//        text = item.description
-//        date = item.date
-//        priority = item.priority
-//        timeStart = item.startTime
-//        timeEnd = item.endTime
-//        taskColor = item.taskColor
-//
-//        parcelItem = item
-//    }
-//
-//    fun setReminder() {
-//
-//    }
-//
-//    fun updateSaveButtonState() {
-//        if (parcelItem != null) {
-//            parcelItem !=
-//            // Для редактирования элемента
-//            val isTitleChanged = title != previousTitle
-//            val isDateChanged = date != previousDate
-//            val isTimeStartChanged = timeStart != previousTimeStart
-//            val isTextChanged = text != previousText
-//            val isTimeEndChanged = timeEnd != previousTimeEnd
-//            val isColorChanged = taskColor != previousTaskColor
-//            val isPriorityChanged = priority != previousPriority
-//
-//            val isEnabled =
-//                (isTitleChanged || isDateChanged || isTimeStartChanged || isTextChanged || isTimeEndChanged || isColorChanged || isPriorityChanged) &&
-//                        title.isNotEmpty() && date.isNotEmpty() && timeStart.isNotEmpty()
-//
-//            saveButton.isEnabled = isEnabled
-//            saveButtonTV.alpha = if (isEnabled) 1.0f else 0.6f
-//        } else {
-//            // По умолчанию обычное добавление элемента
-//            val isTitleFilled = title.isNotEmpty()
-//            val isDateFilled = date.isNotEmpty()
-//            val isTimeStartFilled = timeStart.isNotEmpty()
-//
-//            val isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
-//
-//            saveButton.isEnabled = isEnabled
-//            saveButtonTV.alpha = if (isEnabled) 1.0f else 0.6f
-//        }
-//    }
-//
-//    fun onSaveButtonClicked() {
-//        val item: ScheduleItem
-//        if (parcelItem != null) {
-//            // Для редактирования элемента
-//            item = parcelItem!!.copy(
-//                text = title,
-//                description = text,
-//                date = date,
-//                priority = priority,
-//                startTime = timeStart,
-//                endTime = timeEnd,
-//                duration = calculateDuration(timeStart, timeEnd),
-//                taskColor = taskColor,
-//                isCompleteTask = parcelItem!!.isCompleteTask
-//            )
-//        } else {
-//            // По умолчанию обычное добавление элемента
-//            item = ScheduleItem(
-//                text = title,
-//                description = text,
-//                date = date,
-//                priority = priority,
-//                startTime = timeStart,
-//                endTime = timeEnd,
-//                duration = calculateDuration(timeStart, timeEnd),
-//                taskColor = taskColor,
-//                isCompleteTask = false
-//            )
-//            setReminder()
-//        }
-//        onAction(Actions.GoBackWithItem(item))
-//    }
+    fun setParcelItem(item: ScheduleItem) {
+        parcelTask = item
+        currentTask = item
+        updateTask(item) // Для установки currentTask в Fragment
+        type = TaskType.CHANGE
 
-    fun calculateDuration(startTime: String, endTime: String): String {
+        Log.d("debugTag", "updateSaveButtonState FROM VM setParcelItem")
+        updateSaveButtonState()
+    }
+
+    fun updateTask(item: ScheduleItem) {
+        if (type == TaskType.CHANGE) {
+            parcelTask = item
+        } else {
+            currentTask = item
+        }
+
+        if (type == TaskType.CHANGE) {
+            modifyState { copy(item = parcelTask) }
+        } else {
+            modifyState { copy(item = currentTask) }
+        }
+
+        Log.d("debugTag", "updateSaveButtonState FROM VM updateTask")
+        updateSaveButtonState()
+    }
+
+    fun clearTime() {
+        if (type == TaskType.CHANGE) {
+            parcelTask?.let {
+                updateTask(it.copy(
+                    startTime = "",
+                    endTime = ""
+                ))
+            }
+        } else {
+            currentTask?.let {
+                updateTask(it.copy(
+                    startTime = "",
+                    endTime = ""
+                ))
+            }
+        }
+        Log.d("debugTag", "updateSaveButtonState FROM VM clearTime")
+        updateSaveButtonState()
+    }
+
+    fun reminderOpen(isChecked: Boolean) {
+        Log.d("debugTag", "reminderOpen")
+        onAction(Actions.OpenReminder(isChecked))
+    }
+
+    fun onSaveButtonClicked() {
+        var item: ScheduleItem? = null
+        if (type == TaskType.CHANGE) {
+            parcelTask?.let {
+                item = it.copy(
+                    text = it.text,
+                    description = it.description,
+                    date = it.date,
+                    priority = it.priority,
+                    startTime = it.startTime,
+                    endTime = it.endTime,
+                    duration = calculateTaskDuration(it.startTime, it.endTime),
+                    taskColor = it.taskColor,
+                    isCompleteTask = it.isCompleteTask
+                )
+            }
+        } else {
+            currentTask?.let {
+                item = it.copy(
+                    text = it.text,
+                    description = it.description,
+                    date = it.date,
+                    priority = it.priority,
+                    startTime = it.startTime,
+                    endTime = it.endTime,
+                    duration = calculateTaskDuration(it.startTime, it.endTime),
+                    taskColor = it.taskColor,
+                    isCompleteTask = it.isCompleteTask
+                )
+            }
+        }
+        item?.let { onAction(Actions.GoBackWithItem(it)) }
+    }
+
+    private fun calculateTaskDuration(startTime: String, endTime: String): String {
         if (endTime.isEmpty()) {
             return "бессрочно"
         }
@@ -126,8 +128,50 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
         }
     }
 
-//    Вспомогательные функции для форматирования данных или конвертации
+    fun calculateReminderDelay(): String {
+        currentTask?.let { task ->
+            val delay: Long? = task.alarmTime
+            return if (delay != null) {
+                "${delay / 60} мин."
+            } else {
+                ""
+            }
+        }
+        return ""
+    }
 
+//    States
+    fun updateReminderState() {
+        Log.d("debugTag", "updateReminderState")
+        currentTask?.let { task ->
+            Log.d("debugTag", "updateReminderState task not null")
+            if (task.date.isNotEmpty()) {
+                onAction(Actions.ChangeReminderState(true))
+            }
+        }
+    }
+
+    fun updateSaveButtonState() {
+        Log.d("debugTag", "updateSaveButtonState currentTask $currentTask")
+        Log.d("debugTag", "updateSaveButtonState parcelTask $parcelTask")
+        if (type == TaskType.CHANGE) {
+            if (currentTask != null && parcelTask != null) {
+                val isEnabled = currentTask != parcelTask && fieldRequiredFilled(parcelTask!!)
+                onAction(Actions.ChangeSaveButtonState(isEnabled))
+            }
+        } else {
+            var isEnabled = false
+            currentTask?.let {
+                isEnabled = fieldRequiredFilled(it)
+            }
+            onAction(Actions.ChangeSaveButtonState(isEnabled))
+        }
+    }
+
+    private fun fieldRequiredFilled(task: ScheduleItem) =
+        task.text.isNotEmpty() && task.date.isNotEmpty() && task.startTime.isNotEmpty()
+
+//    Вспомогательные функции для форматирования данных или конвертации
     fun getPriorityString(priority: Priority): String {
         return when (priority) {
             Priority.STANDARD -> "Обычный приоритет"
@@ -152,16 +196,20 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
     }
 
     fun goBack() {
+        Log.d("debugTag", "goBack")
         onAction(Actions.GoBack)
     }
 
     data class State(
-        var update: Resource? = null
+        var item: ScheduleItem? = null
     )
 
     sealed interface Actions {
         data object GoBack : Actions
-//        data class GoBackWithItem(val item: ScheduleItem) : Actions
+        data class OpenReminder(val isChecked: Boolean) : Actions
+        data class GoBackWithItem(val item: ScheduleItem) : Actions
+        data class ChangeReminderState(val state: Boolean): Actions
+        data class ChangeSaveButtonState(val state: Boolean): Actions
     }
 
     class TaskViewModelFactory @Inject constructor() : ViewModelProvider.Factory {

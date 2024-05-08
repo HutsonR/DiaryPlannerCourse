@@ -24,6 +24,8 @@
     <string name="task_reminder">Напоминание</string>
     <string name="task_repeat">Повторение</string>
     <string name="task_tag">Добавить метку</string>
+    <string name="task_priority_default">Обычный приоритет</string>
+    <string name="task_priority_high">Высокий приоритет</string>
 
     <!--  Main Screen  -->
     <string name="main_count_task">Записей: </string>
@@ -74,6 +76,8 @@
     <string name="settings_theme_navigation">Размер панели навигации</string>
     <string name="settings_theme_navigation_full">Средняя</string>
     <string name="settings_theme_navigation_compact">Компактная</string>
+    <string name="settings_security">Безопасность</string>
+    <string name="settings_security_fingerprint">Вход по отпечатку пальца</string>
 
     <string name="error">Возникла ошибка, попробуйте позже</string>
     <string name="fetch_error">Возникла ошибка получения данных, попробуйте позже</string>

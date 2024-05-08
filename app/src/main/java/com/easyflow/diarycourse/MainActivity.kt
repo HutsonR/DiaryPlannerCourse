@@ -1,14 +1,15 @@
 package com.easyflow.diarycourse
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AlertDialog
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.easyflow.diarycourse.databinding.ActivityMainBinding
@@ -20,10 +21,33 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+            insets
+        }
 
+        createNotificationChannel()
         setNavigation()
+    }
+
+    private fun createNotificationChannel() {
+        val channelId = "alarm_id"
+        val channelName = "alarm_name"
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channel = NotificationChannel(
+            channelId,
+            channelName,
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        channel.enableLights(true)
+        channel.enableVibration(true)
+        channel.lightColor = Color.GREEN
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun setNavigation() {

@@ -49,11 +49,12 @@ class SettingsFragment : BaseFragment() {
     }
 
     private fun initialize() {
-        setClickListeners()
+        setListeners()
     }
 
-    private fun setClickListeners() {
+    private fun setListeners() {
         binding.settingTheme.setOnClickListener { viewModel.goToAppearance() }
+        binding.settingFingerprint.setOnClickListener { viewModel.goToSecurity() }
     }
 
     private fun setObservers() {
@@ -67,6 +68,7 @@ class SettingsFragment : BaseFragment() {
             .onEach { action ->
                 when (action) {
                     is SettingsViewModel.Actions.GoToAppearance -> navigateTo(R.id.actionSettingsGoToAppearance)
+                    is SettingsViewModel.Actions.GoToSecurity -> navigateTo(R.id.actionSettingsGoToSecurity)
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)

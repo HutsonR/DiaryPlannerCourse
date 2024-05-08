@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundMain"
+    android:orientation="vertical"
+    tools:context=".features.feature_settings.security.SecurityFragment">
+
+    <include layout="@layout/navbar" android:id="@+id/securityToolbar" />
+
+    <LinearLayout
+        android:id="@+id/settingSecurity_fingerprint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="18dp"
+        android:paddingHorizontal="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        tools:ignore="UseCompoundDrawables">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_security_fingerprint"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <Switch
+            android:id="@+id/settingFingerprintSwitchButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:checked="false"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+    </LinearLayout>
+
+</LinearLayout>

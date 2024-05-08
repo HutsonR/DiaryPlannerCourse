@@ -1,6 +1,7 @@
 package com.easyflow.diarycourse.features.feature_calendar.task
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -14,9 +15,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RadioButton
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -27,20 +30,18 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
-import com.easyflow.diarycourse.core.utils.ReminderWorker
+import com.easyflow.diarycourse.core.utils.alarm.AlarmScheduler
+import com.easyflow.diarycourse.core.utils.alarm.AlarmSchedulerImpl
 import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentTaskBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
-import com.easyflow.diarycourse.domain.util.Resource
-import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.PriorityAdapter
-import com.easyflow.diarycourse.features.feature_calendar.task.dialogs.ReminderDialogFragment
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
+import com.easyflow.diarycourse.features.feature_calendar.task.dialogs.ReminderBottomDialogFragment
+import com.easyflow.diarycourse.features.feature_calendar.task.util.TaskType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -50,13 +51,11 @@ import com.google.android.material.timepicker.TimeFormat
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TaskFragment : BottomSheetDialogFragment() {
@@ -68,28 +67,27 @@ class TaskFragment : BottomSheetDialogFragment() {
     private val viewModel: TaskViewModel by viewModels {
         taskViewModelFactory.get()
     }
-    private var parcelItem: ScheduleItem? = null
-    private var previousTitle: String = ""
-    private var previousText: String = ""
-    private var previousDate: String = ""
-    private var previousPriority: Priority = Priority.STANDARD
-    private var previousTimeStart: String = ""
-    private var previousTimeEnd: String = ""
-    private var previousTaskColor: TaskColor = TaskColor.BLUE
 
-    private var title: String = ""
-    private var text: String = ""
-    private var date: String = ""
-    private var priority: Priority = Priority.STANDARD
-    private var timeStart: String = ""
-    private var timeEnd: String = ""
-    private var taskColor: TaskColor = TaskColor.BLUE
+    private lateinit var alarmScheduler: AlarmScheduler
+    // private var alarmItem: ScheduleItem? = null
 
+    private var currentTask = ScheduleItem(
+        text = "",
+        description = "",
+        date = "",
+        startTime = "",
+        endTime = ""
+    )
+
+    private var purposeTask: TaskType = TaskType.ADD
+
+    // For Reminder
     private var chosenYear = 0
     private var chosenMonth = 0
     private var chosenDay = 0
     private var chosenHour = 0
     private var chosenMin = 0
+    private var reminderDelay: Long = 0
 
     private lateinit var taskIconBackground: LinearLayout
     private lateinit var titleEditTV: TextView
@@ -103,6 +101,7 @@ class TaskFragment : BottomSheetDialogFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (context.applicationContext as App).appComponent.inject(this)
+        alarmScheduler = AlarmSchedulerImpl(context)
     }
 
     override fun onCreateView(
@@ -121,12 +120,8 @@ class TaskFragment : BottomSheetDialogFragment() {
         initialize()
         initializeParcel()
         initializeListeners()
-        updateSaveButtonState()
-    }
-
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
+        Log.d("debugTag", "updateSaveButtonState FROM FRAGMENT onViewCreated")
+        viewModel.updateSaveButtonState()
     }
 
     private fun setStyle() {
@@ -152,18 +147,9 @@ class TaskFragment : BottomSheetDialogFragment() {
             .state
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .onEach { state ->
-                updateCollect(state.update)
+                updateItem(state.item)
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
-    }
-
-    private fun updateCollect(result: Resource?) {
-        result?.let {
-            when (it) {
-                is Resource.Success<*> -> viewModel.goBack()
-                is Resource.Failed -> onFailed()
-            }
-        }
     }
 
     private fun observeActions() {
@@ -172,16 +158,24 @@ class TaskFragment : BottomSheetDialogFragment() {
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { action ->
                 when (action) {
-                    is TaskViewModel.Actions.GoBack -> dismiss()
+                    is TaskViewModel.Actions.GoBack -> goBack()
+                    is TaskViewModel.Actions.OpenReminder -> handleReminderSwitchButton(action.isChecked)
+                    is TaskViewModel.Actions.GoBackWithItem -> saveButtonClicked(action.item)
+                    is TaskViewModel.Actions.ChangeReminderState -> updateReminderState(action.state)
+                    is TaskViewModel.Actions.ChangeSaveButtonState -> updateSaveButtonState(action.state)
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
+    private fun goBack() {
+        Log.d("debugTag", "FRAGMENT goback")
+        dismiss()
+    }
     private fun initialize() {
         initializeNavBar()
         setFragmentListener()
-        checkPermission()
+        checkNotificationPermissions()
 
         taskIconBackground = binding.taskIconBackground
         titleEditTV = binding.addTitleTask
@@ -193,33 +187,17 @@ class TaskFragment : BottomSheetDialogFragment() {
 
         saveButton = binding.taskConfirm
         saveButton.setOnClickListener {
-            handleSaveButtonClicked()
+            viewModel.onSaveButtonClicked()
         }
 
-        titleEditTV.requestFocus()
+        Log.d("debugTag", "FRAGMENT updateTask initialize")
+        viewModel.updateTask(currentTask)
 
-        binding.reminderSwitchButton.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                val reminderDialogFragment = ReminderDialogFragment()
-                reminderDialogFragment.show(childFragmentManager, "reminder dialog")
-            } else {
-                chosenHour = 0
-                chosenMin = 0
+        (titleEditTV as EditText).setSelection(titleEditTV.text.length)
 
-                binding.reminderPickerText.text = ""
-            }
-        }
-
-        setTaskStyle(taskColor)
+        setTaskStyle(currentTask.taskColor)
         binding.timeEndPicker.alpha = 0.5f
-
-        taskIconBackground.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Выбор иконки в разработке...",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        updateReminderState(false)
     }
 
     private fun initializeNavBar() {
@@ -230,43 +208,35 @@ class TaskFragment : BottomSheetDialogFragment() {
     }
 
     private fun initializeListeners() {
+        iconListener()
         titleListener()
         descriptionListener()
         datePickerListener()
         dateFastPickerListener()
         startTimePickerListener()
         colorPickerListener()
+        reminderListener()
     }
 
     private fun initializeParcel() {
-        parcelItem = arguments?.getParcelable("scheduleItem")
-        parcelItem?.let { parcelItem ->
+        val parcelItem: ScheduleItem? = arguments?.getParcelable("scheduleItem")
+        parcelItem?.let {
             binding.taskToolbar.toolbar.title = getString(R.string.task_edit_title)
             saveButtonTV.text = getString(R.string.task_button_edit)
 
-            title = parcelItem.text
-            text = parcelItem.description
-            date = parcelItem.date
-            priority = parcelItem.priority
-            timeStart = parcelItem.startTime
-            timeEnd = parcelItem.endTime
-            taskColor = parcelItem.taskColor
-
-            previousTitle = title
-            previousText = text
-            previousDate = date
-            previousPriority = priority
-            previousTimeStart = timeStart
-            previousTimeEnd = timeEnd
-            previousTaskColor = taskColor
+            viewModel.setParcelItem(parcelItem)
+            purposeTask = TaskType.CHANGE
+            currentTask = parcelItem
 
             titleEditTV.text = parcelItem.text
             textEditTV.text = parcelItem.description
             datePickerTV.text = parcelItem.date
             timeStartPickerTV.text = parcelItem.startTime
             timeEndPickerTV.text = parcelItem.endTime.ifEmpty { getString(R.string.task_time_blank) }
+            
             setColor()
             setTaskStyle(parcelItem.taskColor)
+            setReminderUI()
             // Для активации кнопки конца времени
             isStartTimeAfterEndTime()
             timePicked()
@@ -284,12 +254,12 @@ class TaskFragment : BottomSheetDialogFragment() {
             val requestValue: String? = bundle.getString(FRAGMENT_REMIND_ITEM)
             requestValue?.let { time ->
                 if (time.isNotEmpty()) {
-                    Log.d("debugTag", "requestValue $requestValue")
                     val (hours, minutes) = requestValue.split(":").map { it.toInt() }
                     chosenHour = hours
                     chosenMin = minutes
-
-                    binding.reminderPickerText.text = "в $requestValue"
+                    setReminderUI()
+                    Log.d("debugTag", "reminderDelay $reminderDelay")
+                    viewModel.updateTask(currentTask.copy(alarmTime = reminderDelay))
                     updateReminderSwitchState(true)
                 } else {
                     chosenHour = 0
@@ -302,113 +272,108 @@ class TaskFragment : BottomSheetDialogFragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun setReminderUI() {
+        val userSelectedDateTime = Calendar.getInstance()
+        userSelectedDateTime.set(chosenYear, chosenMonth, chosenDay, chosenHour , chosenMin)
+
+        val todayDateTime = Calendar.getInstance()
+        reminderDelay = (userSelectedDateTime.timeInMillis/1000L) - (todayDateTime.timeInMillis/1000L)
+
+        binding.reminderPickerText.text = "через ${viewModel.calculateReminderDelay()}"
+        if (purposeTask == TaskType.CHANGE) {
+            updateReminderSwitchState(true)
+            updateReminderState(true)
+        }
+    }
+
+    private fun handleReminderSwitchButton(isChecked: Boolean) {
+        Log.d("debugTag", "FRAGMENT handleReminderSwitchButton")
+        if (isChecked) {
+            val reminderBottomSheetFragment = ReminderBottomDialogFragment()
+
+            val args = Bundle()
+            args.putParcelable(REMINDER_TASK, currentTask)
+            reminderBottomSheetFragment.arguments = args
+
+            reminderBottomSheetFragment.show(
+                childFragmentManager, reminderBottomSheetFragment.tag
+            )
+        } else {
+            chosenHour = 0
+            chosenMin = 0
+
+            binding.reminderPickerText.text = ""
+            Log.d("debugTag", "FRAGMENT updateTask handleReminderSwitchButton")
+            setTaskStyle(currentTask.taskColor)
+            viewModel.updateTask(currentTask.copy(alarmTime = null))
+        }
+    }
+
+    private fun updateItem(item: ScheduleItem?) {
+        item?.let { currentTask = it }
+    }
+
+    private fun updateReminderState(state: Boolean) {
+        Log.d("debugTag", "FRAGMENT updateReminderState")
+        if (state) {
+            binding.reminderSwitchButton.isEnabled = true
+            binding.reminderSwitchButton.alpha = 1.0f
+        } else {
+            Log.d("debugTag", "FRAGMENT updateReminderState false")
+            binding.reminderSwitchButton.isEnabled = false
+            binding.reminderSwitchButton.alpha = 0.5f
+        }
+    }
+
     private fun updateReminderSwitchState(isChecked: Boolean) {
         binding.reminderSwitchButton.isChecked = isChecked
+        setTaskStyle(currentTask.taskColor)
     }
 
-    private fun updateSaveButtonState() {
-        if (parcelItem != null) {
-            // Для редактирования элемента
-            val isTitleChanged = title != previousTitle
-            val isDateChanged = date != previousDate
-            val isTimeStartChanged = timeStart != previousTimeStart
-            val isTextChanged = text != previousText
-            val isTimeEndChanged = timeEnd != previousTimeEnd
-            val isColorChanged = taskColor != previousTaskColor
-            val isPriorityChanged = priority != previousPriority
-
-            val isEnabled =
-                (isTitleChanged || isDateChanged || isTimeStartChanged || isTextChanged || isTimeEndChanged || isColorChanged || isPriorityChanged) &&
-                        title.isNotEmpty() && date.isNotEmpty() && timeStart.isNotEmpty()
-
-            saveButton.isEnabled = isEnabled
-            saveButtonTV.alpha = if (isEnabled) 1.0f else 0.6f
+    private fun updateSaveButtonState(state: Boolean) {
+        Log.d("debugTag", "FRAGMENT updateSaveButtonState")
+        if (state) {
+            saveButton.isEnabled = true
+            saveButtonTV.alpha = 1.0f
         } else {
-            // По умолчанию обычное добавление элемента
-            val isTitleFilled = title.isNotEmpty()
-            val isDateFilled = date.isNotEmpty()
-            val isTimeStartFilled = timeStart.isNotEmpty()
-
-            val isEnabled = isTitleFilled && isDateFilled && isTimeStartFilled
-
-            saveButton.isEnabled = isEnabled
-            saveButtonTV.alpha = if (isEnabled) 1.0f else 0.6f
+            saveButton.isEnabled = false
+            saveButtonTV.alpha = 0.6f
         }
     }
 
-    private fun handleSaveButtonClicked() {
-        if (parcelItem != null) {
-            // Для редактирования элемента
-            lifecycleScope.launch {
-                val updatedItem = parcelItem!!.copy(
-                    text = title,
-                    description = text,
-                    date = date,
-                    priority = priority,
-                    startTime = timeStart,
-                    endTime = timeEnd,
-                    duration = viewModel.calculateDuration(timeStart, timeEnd),
-                    taskColor = taskColor,
-                    isCompleteTask = parcelItem!!.isCompleteTask
-                )
-                sendTaskItem(updatedItem)
-                viewModel.goBack()
-            }
-        } else {
-            // По умолчанию обычное добавление элемента
-            val taskItem = ScheduleItem(
-                text = title,
-                description = text,
-                date = date,
-                priority = priority,
-                startTime = timeStart,
-                endTime = timeEnd,
-                duration = viewModel.calculateDuration(timeStart, timeEnd),
-                taskColor = taskColor,
-                isCompleteTask = false
-            )
-            sendTaskItem(taskItem)
+    private fun saveButtonClicked(item: ScheduleItem) {
+        Log.d("debugTag", "FRAGMENT saveButtonClicked")
+        if (purposeTask == TaskType.ADD) {
             setReminder()
-            viewModel.goBack()
         }
-    }
-
-    private fun onFailed() {
-        Toast.makeText(requireContext(), getString(R.string.error), Toast.LENGTH_SHORT).show()
+        sendTaskItem(item)
         viewModel.goBack()
-    }
-
-    private fun setReminder() {
-        Log.d("debugTag", "chosenHour $chosenHour, chosenMin $chosenMin")
-        if (chosenHour != 0 && chosenMin != 0) {
-            val userSelectedDateTime = Calendar.getInstance()
-            userSelectedDateTime.set(chosenYear, chosenMonth, chosenDay, chosenHour , chosenMin)
-
-            val todayDateTime = Calendar.getInstance()
-            val delayInSeconds = (userSelectedDateTime.timeInMillis/1000L) - (todayDateTime.timeInMillis/1000L)
-            createWorkRequest(title, timeStart, delayInSeconds)
-        }
     }
 
     private fun sendTaskItem(item: ScheduleItem) {
         val bundle = Bundle().apply {
             putParcelable(FRAGMENT_TASK_ITEM, item)
         }
-        if (parcelItem != null) {
+        if (purposeTask == TaskType.CHANGE) {
             activity?.supportFragmentManager?.setFragmentResult(KEY_TASK_FRAGMENT_RESULT_UPD, bundle)
         } else {
             activity?.supportFragmentManager?.setFragmentResult(KEY_TASK_FRAGMENT_RESULT_ADD, bundle)
         }
     }
 
-    private fun checkPermission() {
+    private fun checkNotificationPermissions() {
         val notificationPermissionStatus = ContextCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.POST_NOTIFICATIONS
         )
-
         // Если разрешение еще не предоставлено, запросите его у пользователя
         if (notificationPermissionStatus != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(
+                requireContext(),
+                "Предоставьте, пожалуйста, разрешение для уведомлений",
+                Toast.LENGTH_SHORT
+            ).show()
             ActivityCompat.requestPermissions(
                 requireActivity(),
                 arrayOf(Manifest.permission.POST_NOTIFICATIONS),
@@ -421,46 +386,42 @@ class TaskFragment : BottomSheetDialogFragment() {
         binding.addClearTimeTV.visibility = View.VISIBLE
         binding.timePickerTitle.text = getString(R.string.task_time_title)
         binding.addClearTimeTV.setOnClickListener {
+            viewModel.clearTime()
             binding.addClearTimeTV.visibility = View.GONE
-            timeStart = ""
-            timeStartPickerTV.text = getString(R.string.task_time_blank)
-            timeEnd = ""
-            timeEndPickerTV.text = getString(R.string.task_time_blank)
             binding.timePickerTitle.text = getString(R.string.task_time_title_add)
+            timeStartPickerTV.text = getString(R.string.task_time_blank)
+            timeEndPickerTV.text = getString(R.string.task_time_blank)
             isStartTimeAfterEndTime()
-            updateSaveButtonState()
         }
     }
 
     private fun isStartTimeAfterEndTime() {
         val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
-        if (timeStart.isNotEmpty() && timeEnd.isNotEmpty()) {
-            val currentStartTime = LocalTime.parse(timeStart, timeFormat)
-            val currentEndTime = LocalTime.parse(timeEnd, timeFormat)
+        val startTime = currentTask.startTime
+        val endTime = currentTask.endTime
+
+        if (startTime.isNotEmpty() && endTime.isNotEmpty()) {
+            val currentStartTime = LocalTime.parse(startTime, timeFormat)
+            val currentEndTime = LocalTime.parse(endTime, timeFormat)
             //  Проверка между двумя временами в окне добавления
             if (currentStartTime.isAfter(currentEndTime)) {
                 Toast.makeText(requireContext(), "Начальное время не может быть больше конечного", Toast.LENGTH_SHORT).show()
-                timeStart = ""
-                timeStartPickerTV.text = getString(R.string.task_time_blank)
-                timeEnd = ""
-                timeEndPickerTV.text = getString(R.string.task_time_blank)
+                viewModel.clearTime()
                 binding.addClearTimeTV.visibility = View.GONE
-            } else if (currentStartTime == currentEndTime) {
-                Toast.makeText(requireContext(), "Если начальное время одинаково с конечным, то конечное можно не писать", Toast.LENGTH_SHORT).show()
-                timeEnd = ""
+                timeStartPickerTV.text = getString(R.string.task_time_blank)
                 timeEndPickerTV.text = getString(R.string.task_time_blank)
             }
         }
 
-        if (timeStart.isNotEmpty()) {
+        if (currentTask.startTime.isNotEmpty()) {
             binding.timeEndPicker.alpha = 1f
             binding.timeEndPicker.setOnClickListener { endTimePickerListener() }
         } else {
             binding.timeEndPicker.alpha = 0.5f
             binding.timeEndPicker.setOnClickListener { }
         }
-
-        updateSaveButtonState()
+        Log.d("debugTag", "updateSaveButtonState FROM FRAGMENT isStartTimeAfterEndTime")
+        viewModel.updateSaveButtonState()
     }
 
     private fun checkDate() {
@@ -471,17 +432,17 @@ class TaskFragment : BottomSheetDialogFragment() {
         tomorrow.add(Calendar.DAY_OF_YEAR, 1)
         val formattedTomorrow = formatDate(tomorrow)
 
-        if (date == formattedToday) {
+        if (currentTask.date.isNotEmpty() && currentTask.date == formattedToday) {
             binding.datePickerTodayChecked.visibility = View.VISIBLE
         } else {
             binding.datePickerTodayChecked.visibility = View.INVISIBLE
         }
-        if (date == formattedTomorrow) {
+        if (currentTask.date.isNotEmpty() && currentTask.date == formattedTomorrow) {
             binding.datePickerTomorrowChecked.visibility = View.VISIBLE
         } else {
             binding.datePickerTomorrowChecked.visibility = View.INVISIBLE
         }
-        if (date.isNotEmpty()) {
+        if (currentTask.date.isNotEmpty()) {
             binding.datePickerText.visibility = View.VISIBLE
             binding.datePickerTitle.text = getString(R.string.task_date_title)
         }
@@ -529,10 +490,10 @@ class TaskFragment : BottomSheetDialogFragment() {
         // Цвет кнопки добавления задачи
         binding.taskConfirmTV.backgroundTintList = taskColorStateList
         // Устанавливаем цвет для переключателя
-        binding.reminderSwitchButton.thumbTintList = taskColorStateList
-        binding.reminderSwitchButton.trackTintList = taskColorStateList
-        binding.repeatSwitchButton.thumbTintList = taskColorStateList
-        binding.repeatSwitchButton.trackTintList = taskColorStateList
+        setSwitchStyle(binding.reminderSwitchButton, taskColorStateList)
+        setSwitchStyle(binding.repeatSwitchButton, taskColorStateList)
+
+        binding.reminderPickerText.setTextColor(taskColorStateList)
         // Галочки для даты
         binding.datePickerTodayChecked.setColorFilter(taskColorStateList.defaultColor, PorterDuff.Mode.SRC_IN)
         binding.datePickerTomorrowChecked.setColorFilter(taskColorStateList.defaultColor, PorterDuff.Mode.SRC_IN)
@@ -545,8 +506,21 @@ class TaskFragment : BottomSheetDialogFragment() {
         binding.taskTagAdd.tagIcon.setColorFilter(taskColorStateList.defaultColor, PorterDuff.Mode.SRC_IN)
     }
 
+    private fun setSwitchStyle(switchButton: Switch, taskColorStateList: ColorStateList) {
+        val defaultColor = ColorStateList.valueOf(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.switchColor
+            )
+        )
+        switchButton.apply {
+            thumbTintList = if (isChecked) taskColorStateList else defaultColor
+            trackTintList = if (isChecked) taskColorStateList else defaultColor
+        }
+    }
+
     private fun setColor() {
-        val taskColorToSet = parcelItem?.taskColor ?: TaskColor.BLUE
+        val taskColorToSet = currentTask.taskColor
 
         // Пройти по всем RadioButton в группе и установить isChecked для соответствующего цвета
         for (i in 0 until binding.colorPicker.childCount) {
@@ -561,44 +535,47 @@ class TaskFragment : BottomSheetDialogFragment() {
         }
     }
 
-    // Private Function to create the OneTimeWorkRequest
-    private fun createWorkRequest(title: String, message: String, timeDelayInSeconds: Long  ) {
-        val myWorkRequest = OneTimeWorkRequestBuilder<ReminderWorker>()
-            .setInitialDelay(timeDelayInSeconds, TimeUnit.SECONDS)
-            .setInputData(workDataOf(
-                "title" to title,
-                "message" to message,
-            )
-            )
-            .build()
-
-        WorkManager.getInstance(requireContext()).enqueue(myWorkRequest)
+    private fun setReminder() {
+        currentTask.alarmTime?.let {
+            currentTask.let(alarmScheduler::schedule)
+        }
     }
 
+
     //    Listeners
+    private fun iconListener() {
+        taskIconBackground.setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "Выбор иконки в разработке...",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     private fun titleListener() {
         titleEditTV.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                title = s.toString()
-                updateSaveButtonState()
+                Log.d("debugTag", "FRAGMENT updateTask titleListener")
+                viewModel.updateTask(currentTask.copy(text = s.toString()))
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) = Unit
         })
     }
 
     private fun descriptionListener() {
         textEditTV.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                text = s.toString()
-                updateSaveButtonState()
+                Log.d("debugTag", "FRAGMENT updateTask descriptionListener")
+                viewModel.updateTask(currentTask.copy(description = s.toString()))
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) = Unit
         })
     }
 
@@ -620,10 +597,11 @@ class TaskFragment : BottomSheetDialogFragment() {
 
                 val formattedDate = formatDate(selectedDate)
 
-                date = formattedDate
+                Log.d("debugTag", "FRAGMENT updateTask datePickerListener")
+                viewModel.updateTask(currentTask.copy(date = formattedDate))
                 datePickerTV.text = formattedDate
                 checkDate()
-                isStartTimeAfterEndTime()
+                viewModel.updateReminderState()
             }
 
             datePicker.show(childFragmentManager, datePicker.toString())
@@ -640,10 +618,11 @@ class TaskFragment : BottomSheetDialogFragment() {
 
             val formattedDate = formatDate(day)
 
-            date = formattedDate
+            Log.d("debugTag", "FRAGMENT updateTask dateFastPickerListener today")
+            viewModel.updateTask(currentTask.copy(date = formattedDate))
             datePickerTV.text = formattedDate
             checkDate()
-            isStartTimeAfterEndTime()
+            viewModel.updateReminderState()
         }
         binding.datePickerTomorrow.setOnClickListener {
             val day = Calendar.getInstance()
@@ -655,10 +634,11 @@ class TaskFragment : BottomSheetDialogFragment() {
 
             val formattedDate = formatDate(day)
 
-            date = formattedDate
+            Log.d("debugTag", "FRAGMENT updateTask dateFastPickerListener tomorrow")
+            viewModel.updateTask(currentTask.copy(date = formattedDate))
             datePickerTV.text = formattedDate
             checkDate()
-            isStartTimeAfterEndTime()
+            viewModel.updateReminderState()
         }
     }
 
@@ -677,8 +657,10 @@ class TaskFragment : BottomSheetDialogFragment() {
 
                 val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
                 val formattedTime = selectedTimeForStart.time.let { timeFormat.format(it) }
-                timeStart = formattedTime
-                timeStartPickerTV.text = timeStart
+
+                Log.d("debugTag", "FRAGMENT updateTask startTimePickerListener")
+                viewModel.updateTask(currentTask.copy(startTime = formattedTime))
+                timeStartPickerTV.text = formattedTime
                 timePicked()
                 isStartTimeAfterEndTime()
             }
@@ -704,8 +686,10 @@ class TaskFragment : BottomSheetDialogFragment() {
 
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
             val formattedTime = selectedTimeForEnd.time.let { timeFormat.format(it) }
-            timeEnd = formattedTime
-            timeEndPickerTV.text = timeEnd
+
+            Log.d("debugTag", "FRAGMENT updateTask endTimePickerListener")
+            viewModel.updateTask(currentTask.copy(endTime = formattedTime))
+            timeEndPickerTV.text = formattedTime
             timePicked()
             isStartTimeAfterEndTime()
         }
@@ -720,8 +704,8 @@ class TaskFragment : BottomSheetDialogFragment() {
         val prioritySpinner = binding.prioritySpinner
         prioritySpinner.adapter = adapter
 
-        if (parcelItem != null) {
-            val position = items.indexOf(viewModel.getPriorityString(priority))
+        if (purposeTask == TaskType.CHANGE) {
+            val position = items.indexOf(viewModel.getPriorityString(currentTask.priority))
             if (position != -1) {
                 prioritySpinner.setSelection(position)
             }
@@ -736,11 +720,12 @@ class TaskFragment : BottomSheetDialogFragment() {
             ) {
                 val currentPriority = parent?.getItemAtPosition(position).toString()
                 val selectedPriority: Priority = viewModel.getPriorityEnum(currentPriority)
-                priority = selectedPriority
-                updateSaveButtonState()
+
+                Log.d("debugTag", "FRAGMENT updateTask priorityPickerListener $currentTask")
+                viewModel.updateTask(currentTask.copy(priority = selectedPriority))
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
     }
 
@@ -751,11 +736,36 @@ class TaskFragment : BottomSheetDialogFragment() {
             val selectedColorTag: String = selectedRadioButton.tag as String
 
             val selectedTaskColor: TaskColor = viewModel.getColorEnum(selectedColorTag)
-            taskColor = selectedTaskColor
-            setTaskStyle(taskColor)
 
-            updateSaveButtonState()
+            Log.d("debugTag", "FRAGMENT updateTask colorPickerListener")
+            viewModel.updateTask(currentTask.copy(taskColor = selectedTaskColor))
+            setTaskStyle(selectedTaskColor)
+
+            Log.d("debugTag", "updateSaveButtonState FROM FRAGMENT updateSaveButtonState")
+            viewModel.updateSaveButtonState()
         }
+    }
+
+    private fun reminderListener() {
+        binding.reminderSwitchButton.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.reminderOpen(isChecked)
+            // TODO здесь реализовать удаление напоминания
+        }
+
+        binding.reminderPicker.setOnClickListener {
+            if (!binding.reminderSwitchButton.isEnabled) {
+                Toast.makeText(
+                    requireContext(),
+                    "Чтобы установить напоминание, выберите дату задачи",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {
@@ -765,6 +775,7 @@ class TaskFragment : BottomSheetDialogFragment() {
         const val PERMISSION_REQUEST_CODE = 1337
 
         const val FRAGMENT_TASK_ITEM = "taskItem"
+        const val REMINDER_TASK = "REMINDER_TASK"
         const val FRAGMENT_REMIND_ITEM = "REMIND_ITEM"
     }
 }

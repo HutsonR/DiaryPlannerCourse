@@ -47,7 +47,7 @@
     <!--  Navigation  -->
     <color name="navDivider">#f1f2f6</color>
     <color name="bgNavigation">#FDFFFF</color>
-    <color name="bgNavActiveItem">#f1f2f6</color>
+    <color name="bgNavActiveItem">#E9F6FF</color>
     <color name="navIcon">#1B1B1D</color>
     <color name="navText">#1B1B1D</color>
 
@@ -55,8 +55,9 @@
 
     <!--  TASK ITEM  -->
     <color name="gray">#ECECEC</color>
-    <color name="blue">#5F96BA</color>
-    <color name="green">#6BAC64</color>
+    <color name="switchColor">#BFBFBF</color>
+    <color name="blue">#34A2D5</color>
+    <color name="green">#4CAF50</color>
     <color name="redDialog">#EC9999</color>
     <color name="purple">#B27FCD</color>
     <color name="pink">#FFA4F6</color>

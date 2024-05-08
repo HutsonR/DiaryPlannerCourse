@@ -1,0 +1,88 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/bottom_sheet_background"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="20dp"
+        android:orientation="horizontal">
+        <View
+            android:id="@+id/divider"
+            android:layout_width="60dp"
+            android:layout_height="4dp"
+            android:background="@drawable/bottom_sheet_divider" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/titleReminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reminder_title"
+            android:textSize="21sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp" />
+
+        <TimePicker
+            android:id="@+id/timePickerReminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:timePickerMode="spinner" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_corner_15"
+        android:backgroundTint="@color/bgDialogNote"
+        android:paddingTop="18dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:id="@+id/btn_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/close"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:background="?attr/selectableItemBackground"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="16dp"/>
+        </androidx.appcompat.widget.LinearLayoutCompat>
+        <LinearLayout
+            android:id="@+id/btnConfirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:background="@drawable/background_radius25_primary"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/btnConfirmTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/apply"
+                android:textSize="16sp"
+                android:textColor="@color/alwaysWhite"
+                android:paddingHorizontal="4dp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
