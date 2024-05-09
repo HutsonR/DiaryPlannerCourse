@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.core.utils.fingerprint
+package com.easyflow.diarycourse.core.utils.fingerprint.common
 
 import android.util.Base64
 import java.security.SecureRandom

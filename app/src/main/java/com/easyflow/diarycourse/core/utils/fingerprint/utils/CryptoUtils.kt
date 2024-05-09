@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.core.utils.fingerprint
+package com.easyflow.diarycourse.core.utils.fingerprint.utils
 
 import android.annotation.SuppressLint
 import android.security.keystore.KeyGenParameterSpec
@@ -6,8 +6,7 @@ import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
-import androidx.annotation.Nullable
-import androidx.core.hardware.fingerprint.FingerprintManagerCompat
+import androidx.biometric.BiometricPrompt
 import java.io.IOException
 import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException
@@ -184,10 +183,10 @@ class CryptoUtils {
         }
     }
 
-    @Nullable
-    fun getCryptoObject(): FingerprintManagerCompat.CryptoObject? {
+    fun getCryptoObject(): BiometricPrompt.CryptoObject? {
         return if (prepare() && initCipher(Cipher.DECRYPT_MODE)) {
-            sCipher?.let { FingerprintManagerCompat.CryptoObject(it) }
+            Log.d("debugTag", "CRYPTO getCryptoObject $sCipher")
+            sCipher?.let { BiometricPrompt.CryptoObject(it) }
         } else null
     }
 
@@ -196,9 +195,10 @@ class CryptoUtils {
         try {
             if (prepare() && initCipher(Cipher.ENCRYPT_MODE)) {
                 sCipher?.let { cipher ->
-                    Log.d("debugTag", "encode bytes before ${inputBytes.joinToString { it.toString() }}")
+                    Log.d("debugTag", "CRYPTO sCipher $sCipher")
+                    Log.d("debugTag", "CRYPTO encode bytes before ${inputBytes.joinToString { it.toString() }}")
                     val bytes: ByteArray = cipher.doFinal(inputBytes)
-                    Log.d("debugTag", "encode bytes $${bytes.joinToString { it.toString() }}")
+                    Log.d("debugTag", "CRYPTO encode bytes ${bytes.joinToString { it.toString() }}")
                     return Base64.encodeToString(bytes, Base64.NO_WRAP)
                 }
             }
@@ -214,7 +214,7 @@ class CryptoUtils {
     fun decode(encodedString: String?, cipher: Cipher): String? {
         try {
             val bytes = Base64.decode(encodedString, Base64.NO_WRAP)
-            Log.d("debugTag", "decode bytes ${bytes.joinToString { it.toString() }}")
+            Log.d("debugTag", "CRYPTO decode bytes ${bytes.joinToString { it.toString() }}")
             return String(cipher.doFinal(bytes))
         } catch (exception: IllegalBlockSizeException) {
             exception.printStackTrace()
