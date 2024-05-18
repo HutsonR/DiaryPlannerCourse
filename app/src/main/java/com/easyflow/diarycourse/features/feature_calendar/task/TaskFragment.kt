@@ -27,13 +27,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.utils.alarm.AlarmScheduler
 import com.easyflow.diarycourse.core.utils.alarm.AlarmSchedulerImpl
+import com.easyflow.diarycourse.core.utils.collectOnStart
 import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentTaskBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
@@ -49,7 +47,6 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.Lazy
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.text.SimpleDateFormat
 import java.time.LocalTime
@@ -137,34 +134,22 @@ class TaskFragment : BottomSheetDialogFragment() {
     }
 
     private fun setObservers() {
-        observeState()
-        observeActions()
+        viewModel.state.onEach(::handleState).collectOnStart(viewLifecycleOwner)
+        viewModel.action.onEach(::handleActions).collectOnStart(viewLifecycleOwner)
     }
 
-    private fun observeState() {
-        viewModel
-            .state
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-            .onEach { state ->
-                updateItem(state.item)
-            }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
+    private fun handleState(state: TaskViewModel.State) {
+        updateItem(state.item)
     }
 
-    private fun observeActions() {
-        viewModel
-            .action
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-            .onEach { action ->
-                when (action) {
-                    is TaskViewModel.Actions.GoBack -> goBack()
-                    is TaskViewModel.Actions.OpenReminder -> handleReminderSwitchButton(action.isChecked)
-                    is TaskViewModel.Actions.GoBackWithItem -> saveButtonClicked(action.item)
-                    is TaskViewModel.Actions.ChangeReminderState -> updateReminderState(action.state)
-                    is TaskViewModel.Actions.ChangeSaveButtonState -> updateSaveButtonState(action.state)
-                }
-            }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
+    private fun handleActions(action: TaskViewModel.Actions) {
+        when (action) {
+            is TaskViewModel.Actions.GoBack -> goBack()
+            is TaskViewModel.Actions.OpenReminder -> handleReminderSwitchButton(action.isChecked)
+            is TaskViewModel.Actions.GoBackWithItem -> saveButtonClicked(action.item)
+            is TaskViewModel.Actions.ChangeReminderState -> updateReminderState(action.state)
+            is TaskViewModel.Actions.ChangeSaveButtonState -> updateSaveButtonState(action.state)
+        }
     }
 
     private fun goBack() {
