@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:layout_marginBottom="14dp">
+    android:layout_marginBottom="6dp">
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -31,35 +31,45 @@
             android:textSize="13sp" />
     </LinearLayout>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/contentWrapper"
-        android:layout_width="0dp"
-        android:layout_weight="1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
-        <LinearLayout
-            android:id="@+id/schedule_oval_background"
-            android:layout_width="46dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_marginStart="14dp"
-            android:layout_marginEnd="14dp"
-            android:background="@drawable/schedule_oval" >
-            <ImageView
-                android:id="@+id/schedule_icon"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                app:srcCompat="@drawable/ic_task_hashtag"
-                app:tint="@color/alwaysWhite" />
-        </LinearLayout>
+
+        <View
+            android:id="@+id/taskBackground"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="@id/contentWrapper"
+            app:layout_constraintBottom_toBottomOf="@id/contentWrapper"
+            app:layout_constraintStart_toStartOf="@id/contentWrapper"
+            app:layout_constraintEnd_toEndOf="@id/contentWrapper"
+            android:background="@drawable/schedule_oval"/>
+
+        <ImageButton
+            android:id="@+id/complete_schedule_button"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintTop_toTopOf="@id/contentWrapper"
+            app:layout_constraintBottom_toBottomOf="@id/contentWrapper"
+            app:layout_constraintStart_toStartOf="@id/contentWrapper"
+            android:backgroundTint="@color/backgroundMain"
+            app:srcCompat="@drawable/ic_main_complete_circle"
+            android:background="@null"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <LinearLayout
             android:id="@+id/contentLayout"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/complete_schedule_button"
             android:orientation="vertical"
+            android:layout_marginStart="48dp"
             android:paddingTop="14dp"
             android:paddingBottom="14dp"
             tools:ignore="NestedWeights">
@@ -133,16 +143,6 @@
                     android:visibility="gone"/>
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/complete_schedule_button"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:backgroundTint="@color/backgroundMain"
-        app:srcCompat="@drawable/ic_main_complete_circle"
-        android:background="@null"
-        tools:ignore="SpeakableTextPresentCheck" />
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

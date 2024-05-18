@@ -29,44 +29,19 @@
                 android:paddingBottom="78dp"
                 android:orientation="vertical">
 
-                <LinearLayout
+                <EditText
+                    android:id="@+id/addTitleTask"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:id="@+id/taskIconBackground"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/add_background"
-                        android:backgroundTint="@color/blue"
-                        android:gravity="center">
-
-                        <ImageView
-                            android:id="@+id/taskIcon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:srcCompat="@drawable/ic_task_hashtag"
-                            app:tint="@color/alwaysWhite"
-                            tools:ignore="ContentDescription" />
-                    </LinearLayout>
-
-                    <EditText
-                        android:id="@+id/addTitleTask"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:hint="@string/task_name"
-                        android:inputType="textCapSentences"
-                        android:textColor="@color/black"
-                        android:gravity="center_vertical"
-                        android:textColorHint="@color/textGray"
-                        android:textSize="18sp"
-                        android:paddingVertical="18dp"
-                        tools:ignore="TouchTargetSizeCheck" />
-
-                </LinearLayout>
+                    android:layout_marginTop="16dp"
+                    android:hint="@string/task_name"
+                    android:inputType="textCapSentences"
+                    android:textColor="@color/black"
+                    android:gravity="center_vertical"
+                    android:textColorHint="@color/textGray"
+                    android:textSize="18sp"
+                    android:paddingVertical="18dp"
+                    tools:ignore="TouchTargetSizeCheck" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

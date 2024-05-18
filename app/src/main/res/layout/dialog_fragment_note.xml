@@ -48,37 +48,21 @@
                 tools:ignore="SpeakableTextPresentCheck"
                 android:contentDescription="@string/apply" />
         </LinearLayout>
-        <LinearLayout
+        <EditText
+            android:id="@+id/noteBody"
+            android:gravity="start"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/titleAddFragment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/note"
-                android:textSize="21sp"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="20dp" />
-
-            <EditText
-                android:id="@+id/noteBody"
-                android:gravity="start"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/note_background"
-                android:textColor="@color/black"
-                android:textColorHint="@color/textGray"
-                android:hint="@string/note"
-                android:inputType="textCapSentences|textMultiLine"
-                android:textSize="14sp"
-                android:textAppearance="?attr/textAppearanceBody1"
-                tools:ignore="TouchTargetSizeCheck"
-                android:autofillHints="" />
-
-        </LinearLayout>
+            android:background="@drawable/note_background"
+            android:textColor="@color/black"
+            android:textColorHint="@color/textGray"
+            android:hint="@string/note_blank"
+            android:inputType="textCapSentences|textMultiLine"
+            android:textSize="16sp"
+            android:layout_marginTop="32dp"
+            android:textAppearance="?attr/textAppearanceBody1"
+            tools:ignore="TouchTargetSizeCheck"
+            android:autofillHints="" />
 
     </LinearLayout>
 </FrameLayout>

@@ -1,75 +1,110 @@
 package com.easyflow.diarycourse.features.feature_calendar.note
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.easyflow.diarycourse.core.BaseViewModel
 import com.easyflow.diarycourse.domain.domain_api.NoteUseCase
 import com.easyflow.diarycourse.domain.models.NoteItem
-import com.easyflow.diarycourse.domain.util.Resource
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import com.easyflow.diarycourse.features.feature_calendar.note.util.NotePurpose
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class NoteViewModel @Inject constructor(
     private val noteUseCase: NoteUseCase
-) : BaseViewModel<NoteViewModel.State, NoteViewModel.Actions>(NoteViewModel.State()) {
+) : BaseViewModel<NoteViewModel.State, NoteViewModel.Actions>(State()) {
+    private var currentNote: NoteItem? = null
+    private var parcelNote: NoteItem? = null
+    private var purpose = NotePurpose.ADD
 
-    private val _result = MutableSharedFlow<Resource>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val result: SharedFlow<Resource> = _result.asSharedFlow()
+    fun setParcelItem(item: NoteItem) {
+        parcelNote = item
+        currentNote = item
+        updateNote(item) // Для установки currentTask в Fragment
+        if (item.text.isNotEmpty()) {
+            purpose = NotePurpose.CHANGE
+        }
+
+        Log.d("debugTag", "updateSaveButtonState FROM VM setParcelItem")
+        updateSaveButtonState()
+    }
+
+    fun updateNote(item: NoteItem) {
+        if (purpose == NotePurpose.CHANGE) {
+            parcelNote = item
+            modifyState { copy(item = parcelNote) }
+        } else {
+            currentNote = item
+            modifyState { copy(item = currentNote) }
+        }
+
+        Log.d("debugTag", "updateSaveButtonState FROM VM updateTask")
+        updateSaveButtonState()
+    }
 
     fun fetchData(date: String) {
         viewModelScope.launch {
             val fetchData = noteUseCase.getNote(date)
             modifyState {
                 copy(
-                    note = fetchData
+                    item = fetchData
                 )
             }
         }
     }
 
-    fun addData(data: NoteItem) {
+    fun onDeleteItem(itemId: Int) {
         viewModelScope.launch {
-            val addData = noteUseCase.insert(data)
-            _result.emit(addData)
+            noteUseCase.deleteById(itemId)
+            onAction(Actions.GoBack)
         }
     }
 
-    fun updateData(data: NoteItem) {
+    fun onSaveButtonClicked() {
         viewModelScope.launch {
-            val updateData = noteUseCase.update(data)
-            _result.emit(updateData)
+            if (purpose == NotePurpose.CHANGE) {
+                parcelNote?.let { noteUseCase.update(it) }
+            } else {
+                currentNote?.let { noteUseCase.insert(it) }
+            }
+            onAction(Actions.GoBack)
         }
     }
 
-    fun deleteItem(itemId: Int) {
-        viewModelScope.launch {
-            val deleteItem = noteUseCase.deleteById(itemId)
-            _result.emit(deleteItem)
+    fun updateSaveButtonState() {
+        if (purpose == NotePurpose.CHANGE) {
+            if (currentNote != null && parcelNote != null) {
+                val isEnabled = currentNote != parcelNote && parcelNote!!.text.isNotEmpty()
+                onAction(Actions.ChangeSaveButtonState(isEnabled))
+            }
+        } else {
+            var isEnabled = false
+            currentNote?.let {
+                isEnabled = it.text.isNotEmpty()
+            }
+            onAction(Actions.ChangeSaveButtonState(isEnabled))
         }
+    }
+
+    fun goBack() {
+        onAction(Actions.GoBack)
     }
 
     data class State(
-        var note: NoteItem? = null
+        var item: NoteItem? = null
     )
 
     sealed interface Actions {
-        data class ShowAlert(val alertData: String) : Actions
+        data object GoBack : Actions
+        data class ChangeSaveButtonState(val state: Boolean): Actions
     }
 
     class NoteViewModelFactory @Inject constructor(
-        private val useCase: NoteUseCase
+        private val noteUseCase: NoteUseCase
     ) : ViewModelProvider.Factory {
-
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return NoteViewModel(useCase) as T
+            return NoteViewModel(noteUseCase) as T
         }
     }
 }

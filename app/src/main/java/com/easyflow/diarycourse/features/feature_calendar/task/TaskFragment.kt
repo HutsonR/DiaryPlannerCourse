@@ -41,7 +41,7 @@ import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priorit
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.PriorityAdapter
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import com.easyflow.diarycourse.features.feature_calendar.task.dialogs.ReminderBottomDialogFragment
-import com.easyflow.diarycourse.features.feature_calendar.task.util.TaskType
+import com.easyflow.diarycourse.features.feature_calendar.task.util.TaskPurpose
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -79,7 +79,7 @@ class TaskFragment : BottomSheetDialogFragment() {
         endTime = ""
     )
 
-    private var purposeTask: TaskType = TaskType.ADD
+    private var purposeTask: TaskPurpose = TaskPurpose.ADD
 
     // For Reminder
     private var chosenYear = 0
@@ -89,7 +89,6 @@ class TaskFragment : BottomSheetDialogFragment() {
     private var chosenMin = 0
     private var reminderDelay: Long = 0
 
-    private lateinit var taskIconBackground: LinearLayout
     private lateinit var titleEditTV: TextView
     private lateinit var textEditTV: TextView
     private lateinit var datePickerTV: TextView
@@ -172,12 +171,12 @@ class TaskFragment : BottomSheetDialogFragment() {
         Log.d("debugTag", "FRAGMENT goback")
         dismiss()
     }
+
     private fun initialize() {
         initializeNavBar()
         setFragmentListener()
         checkNotificationPermissions()
 
-        taskIconBackground = binding.taskIconBackground
         titleEditTV = binding.addTitleTask
         textEditTV = binding.addDeskTask
         datePickerTV = binding.datePickerText
@@ -208,7 +207,6 @@ class TaskFragment : BottomSheetDialogFragment() {
     }
 
     private fun initializeListeners() {
-        iconListener()
         titleListener()
         descriptionListener()
         datePickerListener()
@@ -225,7 +223,7 @@ class TaskFragment : BottomSheetDialogFragment() {
             saveButtonTV.text = getString(R.string.task_button_edit)
 
             viewModel.setParcelItem(parcelItem)
-            purposeTask = TaskType.CHANGE
+            purposeTask = TaskPurpose.CHANGE
             currentTask = parcelItem
 
             titleEditTV.text = parcelItem.text
@@ -281,7 +279,7 @@ class TaskFragment : BottomSheetDialogFragment() {
         reminderDelay = (userSelectedDateTime.timeInMillis/1000L) - (todayDateTime.timeInMillis/1000L)
 
         binding.reminderPickerText.text = "через ${viewModel.calculateReminderDelay()}"
-        if (purposeTask == TaskType.CHANGE) {
+        if (purposeTask == TaskPurpose.CHANGE) {
             updateReminderSwitchState(true)
             updateReminderState(true)
         }
@@ -344,7 +342,7 @@ class TaskFragment : BottomSheetDialogFragment() {
 
     private fun saveButtonClicked(item: ScheduleItem) {
         Log.d("debugTag", "FRAGMENT saveButtonClicked")
-        if (purposeTask == TaskType.ADD) {
+        if (purposeTask == TaskPurpose.ADD) {
             setReminder()
         }
         sendTaskItem(item)
@@ -355,7 +353,7 @@ class TaskFragment : BottomSheetDialogFragment() {
         val bundle = Bundle().apply {
             putParcelable(FRAGMENT_TASK_ITEM, item)
         }
-        if (purposeTask == TaskType.CHANGE) {
+        if (purposeTask == TaskPurpose.CHANGE) {
             activity?.supportFragmentManager?.setFragmentResult(KEY_TASK_FRAGMENT_RESULT_UPD, bundle)
         } else {
             activity?.supportFragmentManager?.setFragmentResult(KEY_TASK_FRAGMENT_RESULT_ADD, bundle)
@@ -481,8 +479,6 @@ class TaskFragment : BottomSheetDialogFragment() {
                 )
             )
         }
-        // Задний фон иконки задачи
-        taskIconBackground.backgroundTintList = taskColorStateList
         // Цвет нижней черты у заголовка задачи
         val drawable = binding.addTitleTask.background
         DrawableCompat.setTintList(drawable, taskColorStateList)
@@ -543,16 +539,6 @@ class TaskFragment : BottomSheetDialogFragment() {
 
 
     //    Listeners
-    private fun iconListener() {
-        taskIconBackground.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Выбор иконки в разработке...",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
     private fun titleListener() {
         titleEditTV.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
@@ -704,7 +690,7 @@ class TaskFragment : BottomSheetDialogFragment() {
         val prioritySpinner = binding.prioritySpinner
         prioritySpinner.adapter = adapter
 
-        if (purposeTask == TaskType.CHANGE) {
+        if (purposeTask == TaskPurpose.CHANGE) {
             val position = items.indexOf(viewModel.getPriorityString(currentTask.priority))
             if (position != -1) {
                 prioritySpinner.setSelection(position)

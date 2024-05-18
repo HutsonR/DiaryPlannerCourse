@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,10 +19,12 @@ import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.collapsiblecalendar.widget.CollapsibleCalendar
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.BaseFragment
+import com.easyflow.diarycourse.core.utils.collectOnStart
 import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentCalendarBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
+import com.easyflow.diarycourse.features.feature_calendar.note.NoteFragment
 import com.easyflow.diarycourse.features.feature_calendar.schedule.adapter.ScheduleAdapter
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TimeChangedReceiver
 import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
@@ -32,7 +33,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -95,14 +95,15 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         // Content
         setAddButton()
         setRecycler()
+        setOnClickListeners()
 
-        viewModel.fetchTasksByDate(dateSelected)
+        viewModel.fetchDataByDate(dateSelected)
     }
 
     private fun setObservers() {
         subscribeToFlow()
-        observeState()
-        observeActions()
+        viewModel.state.onEach(::handleState).collectOnStart(viewLifecycleOwner)
+        viewModel.action.onEach(::handleActions).collectOnStart(viewLifecycleOwner)
     }
 
     private fun subscribeToFlow() {
@@ -125,22 +126,36 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     private fun onSuccess() {
-        viewModel.fetchTasksByDate(dateSelected)
+        viewModel.fetchDataByDate(dateSelected)
     }
 
     private fun onFailed() {
         Toast.makeText(requireContext(), getString(R.string.fetch_error), Toast.LENGTH_SHORT).show()
     }
 
-    private fun observeState() {
-        viewModel
-            .state
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-            .onEach { state ->
-                dataCollect(state.list)
-                sortedDataCollect(state.selectedTasks)
+    private fun handleState(state: CalendarViewModel.State) {
+        dataCollect(state.list)
+        sortedDataCollect(state.selectedTasks)
+    }
+
+    private fun handleActions(action: CalendarViewModel.Actions) {
+        when (action) {
+            is CalendarViewModel.Actions.ShowAlert -> {
+                showAlert(action.alertData)
             }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
+            is CalendarViewModel.Actions.GoToTask -> {
+                TaskFragment().show(childFragmentManager, "taskFragment")
+            }
+            is CalendarViewModel.Actions.GoToNote -> {
+                val noteFragment = NoteFragment()
+
+                val args = Bundle()
+                args.putParcelable(FRAGMENT_NOTE_ITEM, action.note)
+                noteFragment.arguments = args
+
+                noteFragment.show(childFragmentManager, "noteFragment")
+            }
+        }
     }
 
     private fun dataCollect(items: List<ScheduleItem>) {
@@ -154,22 +169,7 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
             addAll(items)
         }
         adapter.notifyDataSetChanged()
-        countSchedules(adapterList)
-    }
-
-    private fun observeActions() {
-        viewModel
-            .action
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-            .onEach { action ->
-                when (action) {
-                    is CalendarViewModel.Actions.ShowAlert -> showAlert(action.alertData)
-                    is CalendarViewModel.Actions.GoToTask -> {
-                        TaskFragment().show(childFragmentManager, "taskFragment")
-                    }
-                }
-            }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
+        countTasks(adapterList)
     }
 
     private fun setFragmentListener() {
@@ -201,6 +201,12 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
             requestValue?.let {
                 it.id?.let { id -> viewModel.deleteItem(id) }
             }
+        }
+    }
+
+    private fun setOnClickListeners() {
+        binding.calendarGroupNote.groupItem.setOnClickListener {
+            viewModel.goToNote()
         }
     }
 
@@ -244,7 +250,7 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
                     dateFormat.format(currentDate)
                 }
                 setSelectedDayOfWeek()
-                viewModel.fetchTasksByDate(dateSelected)
+                viewModel.fetchDataByDate(dateSelected)
             }
 
             override fun onItemClick(v: View) {}
@@ -307,7 +313,7 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     // Подсчет кол-ва записей на день
-    private fun countSchedules(dataList: List<ScheduleItem>) {
+    private fun countTasks(dataList: List<ScheduleItem>) {
         binding.countSchedules.text = dataList.size.toString()
         if (dataList.isEmpty()) {
             binding.scheduleBlank.visibility = View.VISIBLE
@@ -340,6 +346,7 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         const val KEY_BOTTOM_SHEET_RESULT_DEL = "KEY_BOTTOM_SHEET_RESULT_DEL"
 
         const val FRAGMENT_TASK_ITEM = "taskItem"
+        const val FRAGMENT_NOTE_ITEM = "noteItem"
     }
 
 }
