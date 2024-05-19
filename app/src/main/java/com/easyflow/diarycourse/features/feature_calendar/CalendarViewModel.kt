@@ -22,7 +22,7 @@ import javax.inject.Inject
 class CalendarViewModel @Inject constructor(
     private val scheduleUseCase: ScheduleUseCase,
     private val noteUseCase: NoteUseCase
-) : BaseViewModel<CalendarViewModel.State, CalendarViewModel.Actions>(CalendarViewModel.State()) {
+) : BaseViewModel<CalendarViewModel.State, CalendarViewModel.Actions>(State()) {
 
     private val _result = MutableSharedFlow<Resource>(
         replay = 1,

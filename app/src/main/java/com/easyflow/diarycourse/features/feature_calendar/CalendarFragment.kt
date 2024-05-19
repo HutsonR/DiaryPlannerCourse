@@ -58,6 +58,8 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     private var dateSelected: String = ""
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
+    private var previousDataList: List<ScheduleItem> = emptyList()
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (context.applicationContext as App).appComponent.inject(this)
@@ -159,8 +161,11 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     private fun dataCollect(items: List<ScheduleItem>) {
-        // TODO исправить повторное обновление тэгов при выборе дня
-        updateEventsTag(items)
+        if (items != previousDataList) {
+            Log.d("debugTag", "dataCollect if")
+            previousDataList = items.toList()
+            updateEventsTag(items)
+        }
     }
 
     private fun sortedDataCollect(items: List<ScheduleItem>) {

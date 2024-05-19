@@ -16,7 +16,7 @@ import androidx.fragment.app.viewModels
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.utils.collectOnStart
-import com.easyflow.diarycourse.databinding.DialogFragmentNoteBinding
+import com.easyflow.diarycourse.databinding.FragmentNoteBinding
 import com.easyflow.diarycourse.domain.models.NoteItem
 import com.easyflow.diarycourse.features.feature_calendar.note.util.NotePurpose
 import dagger.Lazy
@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 class NoteFragment : DialogFragment() {
     private val TAG = "debugTag"
-    private var _binding: DialogFragmentNoteBinding? = null
+    private var _binding: FragmentNoteBinding? = null
     private val binding get() = _binding!!
 
     @Inject
@@ -58,7 +58,7 @@ class NoteFragment : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = DialogFragmentNoteBinding.inflate(inflater, container, false)
+        _binding = FragmentNoteBinding.inflate(inflater, container, false)
         return _binding?.root
     }
 
