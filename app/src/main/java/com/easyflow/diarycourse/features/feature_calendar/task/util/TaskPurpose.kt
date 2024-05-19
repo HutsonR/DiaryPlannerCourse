@@ -1,5 +1,5 @@
 package com.easyflow.diarycourse.features.feature_calendar.task.util
 
-enum class TaskType {
+enum class TaskPurpose {
     CHANGE, ADD
 }

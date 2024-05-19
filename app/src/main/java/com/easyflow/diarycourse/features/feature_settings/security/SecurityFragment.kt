@@ -2,11 +2,13 @@ package com.easyflow.diarycourse.features.feature_settings.security
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.hardware.fingerprint.FingerprintManagerCompat
+import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -15,17 +17,17 @@ import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.BaseFragment
 import com.easyflow.diarycourse.core.utils.SharedPreferencesHelper
-import com.easyflow.diarycourse.core.utils.fingerprint.CryptoUtils
-import com.easyflow.diarycourse.core.utils.fingerprint.FingerprintHelper
-import com.easyflow.diarycourse.core.utils.fingerprint.FingerprintUtils
-import com.easyflow.diarycourse.core.utils.fingerprint.TouchIdRandomGenerator
+import com.easyflow.diarycourse.core.utils.fingerprint.common.BiometricAuthListener
+import com.easyflow.diarycourse.core.utils.fingerprint.common.TouchIdRandomGenerator
+import com.easyflow.diarycourse.core.utils.fingerprint.utils.BiometricUtils
+import com.easyflow.diarycourse.core.utils.fingerprint.utils.CryptoUtils
 import com.easyflow.diarycourse.databinding.FragmentSettingsSecurityBinding
 import dagger.Lazy
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-class SecurityFragment : BaseFragment() {
+class SecurityFragment : BaseFragment(), BiometricAuthListener {
     private var _binding: FragmentSettingsSecurityBinding? = null
     private val binding get() = _binding!!
 
@@ -34,6 +36,7 @@ class SecurityFragment : BaseFragment() {
     private val viewModel: SecurityViewModel by viewModels {
         securityViewModelFactory.get()
     }
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -91,9 +94,7 @@ class SecurityFragment : BaseFragment() {
     }
 
     private fun onFingerprintSwitchButtonClicked() {
-        val manager = FingerprintManagerCompat.from(requireContext())
-
-        if (manager.isHardwareDetected && manager.hasEnrolledFingerprints()) {
+        if (BiometricUtils.isBiometricReady(requireContext())) {
             viewModel.makeFingerprint()
         } else {
             Toast.makeText(
@@ -107,25 +108,60 @@ class SecurityFragment : BaseFragment() {
     private fun setFingerprints() {
         CryptoUtils().deleteInvalidKey()
         val touchId = TouchIdRandomGenerator().generateTouchId()
-        CryptoUtils().encode(touchId.bytes)?.let { SharedPreferencesHelper.setTouchId(requireContext(), it) }
+
+        val encoded = CryptoUtils().encode(touchId.bytes)
+        Log.d("debugTag", "FRAGMENT setFingerprints encoded(base64) $encoded")
+        encoded?.let { SharedPreferencesHelper.setTouchId(requireContext(), it) }
         prepareSensor()
     }
 
     private fun prepareSensor() {
-        if (FingerprintUtils().isSensorStateAt(FingerprintUtils.SensorState.READY, requireContext())) {
-            val cryptoObject: FingerprintManagerCompat.CryptoObject? = CryptoUtils().getCryptoObject()
-            if (cryptoObject != null) {
-                Toast.makeText(requireContext(), "use fingerprint to login", Toast.LENGTH_LONG).show()
-                FingerprintHelper(requireContext()).startAuth(cryptoObject)
-            } else {
-                SharedPreferencesHelper.setTouchId(requireContext(), "")
-                Toast.makeText(
-                    requireContext(),
-                    "new fingerprint enrolled. enter pin again",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+        Toast.makeText(requireContext(), "use fingerprint to login", Toast.LENGTH_LONG).show()
+        BiometricUtils.showBiometricPrompt(
+            activity = requireActivity(),
+            listener = this,
+            cryptoObject = CryptoUtils().getCryptoObject(),
+        )
+    }
+
+    override fun onBiometricAuthenticateError(error: Int, errMsg: String) {
+        when (error) {
+            BiometricPrompt.ERROR_USER_CANCELED -> showBiometricAuthenticateError()
+            BiometricPrompt.ERROR_NEGATIVE_BUTTON -> showBiometricAuthenticateError()
         }
+    }
+
+    override fun onBiometricAuthenticateSuccess(result: BiometricPrompt.AuthenticationResult) {
+        showBiometricAuthenticateSuccess(result)
+    }
+
+    private fun showBiometricAuthenticateError() {
+        binding.settingFingerprintSwitchButton.isChecked = false
+        Toast.makeText(
+            requireContext(),
+            "Отмена использования отпечатков пальцев",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun showBiometricAuthenticateSuccess(result: BiometricPrompt.AuthenticationResult) {
+        val cipher = result.cryptoObject?.cipher
+        Log.d("debugTag", "FRAGMENT showBiometricAuthenticateSuccess - cipher $cipher")
+        val encoded: String? = SharedPreferencesHelper.getTouchId(requireContext())
+        Log.d("debugTag", "FRAGMENT showBiometricAuthenticateSuccess - encoded(base64) $encoded")
+        val decoded: String? = cipher?.let { CryptoUtils().decode(encoded, it) }
+        Log.d("debugTag", "FRAGMENT showBiometricAuthenticateSuccess - decoded $decoded")
+
+        val bytes = Base64.decode(encoded, Base64.NO_WRAP)
+        Log.d("debugTag", "FRAGMENT showBiometricAuthenticateSuccess - decoded(base64) ${bytes.joinToString { it.toString() }}")
+        Toast.makeText(context, "success", Toast.LENGTH_SHORT).show()
+
+        binding.settingFingerprintSwitchButton.isChecked = true
+        Toast.makeText(
+            requireContext(),
+            "Отпечатки пальцев зарегистированы",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     override fun onDestroyView() {

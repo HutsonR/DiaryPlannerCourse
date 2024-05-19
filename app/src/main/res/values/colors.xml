@@ -61,4 +61,10 @@
     <color name="redDialog">#EC9999</color>
     <color name="purple">#B27FCD</color>
     <color name="pink">#FFA4F6</color>
+
+    <color name="blueAlpha">#0F34A2D5</color>
+    <color name="greenAlpha">#0F4CAF50</color>
+    <color name="redDialogAlpha">#0FEC9999</color>
+    <color name="purpleAlpha">#0FB27FCD</color>
+    <color name="pinkAlpha">#0FFFA4F6</color>
 </resources>

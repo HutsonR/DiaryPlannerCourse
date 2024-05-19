@@ -7,34 +7,30 @@ import com.easyflow.diarycourse.core.BaseViewModel
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
-import com.easyflow.diarycourse.features.feature_calendar.task.util.TaskType
+import com.easyflow.diarycourse.features.feature_calendar.task.util.TaskPurpose
 import javax.inject.Inject
 
 class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, TaskViewModel.Actions>(TaskViewModel.State()) {
     private var currentTask: ScheduleItem? = null
     private var parcelTask: ScheduleItem? = null
-    private var type: TaskType = TaskType.ADD
+    private var type: TaskPurpose = TaskPurpose.ADD
 
     fun setParcelItem(item: ScheduleItem) {
         parcelTask = item
         currentTask = item
         updateTask(item) // Для установки currentTask в Fragment
-        type = TaskType.CHANGE
+        type = TaskPurpose.CHANGE
 
         Log.d("debugTag", "updateSaveButtonState FROM VM setParcelItem")
         updateSaveButtonState()
     }
 
     fun updateTask(item: ScheduleItem) {
-        if (type == TaskType.CHANGE) {
+        if (type == TaskPurpose.CHANGE) {
             parcelTask = item
-        } else {
-            currentTask = item
-        }
-
-        if (type == TaskType.CHANGE) {
             modifyState { copy(item = parcelTask) }
         } else {
+            currentTask = item
             modifyState { copy(item = currentTask) }
         }
 
@@ -43,7 +39,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
     }
 
     fun clearTime() {
-        if (type == TaskType.CHANGE) {
+        if (type == TaskPurpose.CHANGE) {
             parcelTask?.let {
                 updateTask(it.copy(
                     startTime = "",
@@ -69,7 +65,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
 
     fun onSaveButtonClicked() {
         var item: ScheduleItem? = null
-        if (type == TaskType.CHANGE) {
+        if (type == TaskPurpose.CHANGE) {
             parcelTask?.let {
                 item = it.copy(
                     text = it.text,
@@ -154,7 +150,7 @@ class TaskViewModel @Inject constructor() : BaseViewModel<TaskViewModel.State, T
     fun updateSaveButtonState() {
         Log.d("debugTag", "updateSaveButtonState currentTask $currentTask")
         Log.d("debugTag", "updateSaveButtonState parcelTask $parcelTask")
-        if (type == TaskType.CHANGE) {
+        if (type == TaskPurpose.CHANGE) {
             if (currentTask != null && parcelTask != null) {
                 val isEnabled = currentTask != parcelTask && fieldRequiredFilled(parcelTask!!)
                 onAction(Actions.ChangeSaveButtonState(isEnabled))

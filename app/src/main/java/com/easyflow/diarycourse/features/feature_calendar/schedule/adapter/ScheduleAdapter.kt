@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -68,6 +67,15 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
         )
         val itemColorInt = taskColorMap[item.taskColor]
 
+        val taskColorMapAlpha: Map<TaskColor, Int> = mapOf(
+            TaskColor.BLUE to ContextCompat.getColor(holder.itemView.context, R.color.blueAlpha),
+            TaskColor.GREEN to ContextCompat.getColor(holder.itemView.context, R.color.greenAlpha),
+            TaskColor.RED to ContextCompat.getColor(holder.itemView.context, R.color.redDialogAlpha),
+            TaskColor.PURPLE to ContextCompat.getColor(holder.itemView.context, R.color.purpleAlpha),
+            TaskColor.PINK to ContextCompat.getColor(holder.itemView.context, R.color.pinkAlpha)
+        )
+        val itemColorIntAlpha = taskColorMapAlpha[item.taskColor]
+
         // Установка отступа к последнему элементу
         val density = holder.itemView.context.resources.displayMetrics.density
         val dpToPx = { dp: Float -> (dp * density + 0.5f).toInt() }
@@ -76,7 +84,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
         if (position == itemCount - 1) {
             layoutParams.bottomMargin = dpToPx(120f)
         } else {
-            layoutParams.bottomMargin = dpToPx(14f)
+            layoutParams.bottomMargin = dpToPx(8f)
         }
         holder.scheduleItem.layoutParams = layoutParams
 
@@ -86,8 +94,7 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             contentTextView.text = item.text
             durationTextView.text = item.duration
             priorityTextView.text = getPriorityString(item.priority)
-            taskOval.backgroundTintList = ColorStateList.valueOf(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
-            // scheduleIcon.setColorFilter(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.black))
+            taskBackground.backgroundTintList = ColorStateList.valueOf(itemColorIntAlpha ?: ContextCompat.getColor(holder.itemView.context, R.color.blueAlpha))
             isCompleteButton.setColorFilter(itemColorInt ?: ContextCompat.getColor(holder.itemView.context, R.color.blue))
 
             if (item.priority == Priority.STANDARD) {
@@ -129,13 +136,13 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
             )
             if (item.isCompleteTask) {
                 contentTextView.paintFlags = contentTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                contentWrapper.alpha = 0.5f
+                contentLayout.alpha = 0.5f
             } else {
                 contentTextView.paintFlags = contentTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-                contentWrapper.alpha = 1.0f
+                contentLayout.alpha = 1.0f
             }
 
-            contentWrapper.setOnClickListener {
+            contentLayout.setOnClickListener {
                 showBottomSheet(item, holder)
             }
 
@@ -206,15 +213,13 @@ class ScheduleAdapter(private val adapterList: MutableList<ScheduleItem>, privat
 
     class StatisticViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val scheduleItem: LinearLayout = itemView.findViewById(R.id.scheduleItem)
-        val scheduleIcon: ImageView = itemView.findViewById(R.id.schedule_icon)
-        val contentWrapper: LinearLayout = itemView.findViewById(R.id.contentWrapper)
+        val taskBackground: View = itemView.findViewById(R.id.taskBackground)
+        val contentLayout: LinearLayout = itemView.findViewById(R.id.contentLayout)
         val startTimeTextView: TextView = itemView.findViewById(R.id.start_time)
         val endTimeTextView: TextView = itemView.findViewById(R.id.end_time)
         val contentTextView: TextView = itemView.findViewById(R.id.schedule_text)
         val durationTextView: TextView = itemView.findViewById(R.id.schedule_duration)
-        val taskOval: LinearLayout = itemView.findViewById(R.id.schedule_oval_background)
         val priorityWrapper: LinearLayout = itemView.findViewById(R.id.priorityWrapper)
-        val priorityIcon: ImageView = itemView.findViewById(R.id.priorityIcon)
         val priorityTextView: TextView = itemView.findViewById(R.id.priorityText)
         val activeTextView: TextView = itemView.findViewById(R.id.scheduleActive)
         val isCompleteButton: ImageButton = itemView.findViewById(R.id.complete_schedule_button)

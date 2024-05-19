@@ -7,5 +7,5 @@ import kotlinx.parcelize.Parcelize
 data class NoteItem(
     val id: Int? = null,
     val text: String,
-    val date: String
+    var date: String
 ): Parcelable

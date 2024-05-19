@@ -39,8 +39,7 @@
     <string name="task_active">Активно</string>
 
     <!--  Note  -->
-    <string name="note">Заметки</string>
-    <string name="note_blank">Создайте заметку на день</string>
+    <string name="note_blank">Напишите Вашу заметку на день</string>
 
     <!--  Reminder Dialog  -->
     <string name="reminder_title" tools:ignore="ExtraTranslation">Установить напоминание</string>

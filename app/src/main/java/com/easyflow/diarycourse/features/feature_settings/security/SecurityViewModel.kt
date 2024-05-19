@@ -3,7 +3,6 @@ package com.easyflow.diarycourse.features.feature_settings.security
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.easyflow.diarycourse.core.BaseViewModel
-import com.easyflow.diarycourse.features.feature_calendar.models.CombineModel
 import javax.inject.Inject
 
 class SecurityViewModel @Inject constructor() : BaseViewModel<SecurityViewModel.State, SecurityViewModel.Actions>(SecurityViewModel.State()) {
@@ -17,7 +16,7 @@ class SecurityViewModel @Inject constructor() : BaseViewModel<SecurityViewModel.
     }
 
     data class State(
-        var list: List<CombineModel> = emptyList()
+        var list: String = ""
     )
 
     sealed interface Actions {
