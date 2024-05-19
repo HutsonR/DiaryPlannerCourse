@@ -19,11 +19,12 @@
         android:backgroundTint="@color/calendar_group_icon_background"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="\u2764" /> <!-- Сердце -->
+        <ImageView
+            android:id="@+id/groupItemIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:srcCompat="@drawable/ic_book"
+            android:contentDescription="Заметка" />
     </LinearLayout>
     <TextView
         android:id="@+id/groupItemText"
