@@ -3,7 +3,6 @@ package com.easyflow.diarycourse.features.feature_settings.appearance
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.easyflow.diarycourse.core.BaseViewModel
-import com.easyflow.diarycourse.features.feature_calendar.models.CombineModel
 import javax.inject.Inject
 
 class AppearanceViewModel @Inject constructor() : BaseViewModel<AppearanceViewModel.State, AppearanceViewModel.Actions>(AppearanceViewModel.State()) {
@@ -21,7 +20,7 @@ class AppearanceViewModel @Inject constructor() : BaseViewModel<AppearanceViewMo
     }
 
     data class State(
-        var list: List<CombineModel> = emptyList()
+        var list: String = ""
     )
 
     sealed interface Actions {

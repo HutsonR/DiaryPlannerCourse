@@ -256,16 +256,19 @@ class TaskFragment : BottomSheetDialogFragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setReminderUI() {
-        val userSelectedDateTime = Calendar.getInstance()
-        userSelectedDateTime.set(chosenYear, chosenMonth, chosenDay, chosenHour , chosenMin)
+        Log.d("debugTag", "setReminderUI alarmTime ${currentTask.alarmTime.toString()}")
+        if (currentTask.alarmTime != null && currentTask.alarmTime.toString().isNotEmpty()) {
+            val userSelectedDateTime = Calendar.getInstance()
+            userSelectedDateTime.set(chosenYear, chosenMonth, chosenDay, chosenHour , chosenMin)
 
-        val todayDateTime = Calendar.getInstance()
-        reminderDelay = (userSelectedDateTime.timeInMillis/1000L) - (todayDateTime.timeInMillis/1000L)
+            val todayDateTime = Calendar.getInstance()
+            reminderDelay = (userSelectedDateTime.timeInMillis/1000L) - (todayDateTime.timeInMillis/1000L)
 
-        binding.reminderPickerText.text = "через ${viewModel.calculateReminderDelay()}"
-        if (purposeTask == TaskPurpose.CHANGE) {
-            updateReminderSwitchState(true)
-            updateReminderState(true)
+            binding.reminderPickerText.text = "через ${viewModel.calculateReminderDelay()}"
+            if (purposeTask == TaskPurpose.CHANGE) {
+                updateReminderSwitchState(true)
+                updateReminderState(true)
+            }
         }
     }
 
