@@ -56,7 +56,6 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     private lateinit var adapter: ScheduleAdapter
     private var adapterList: MutableList<ScheduleItem> = mutableListOf()
     private var dateSelected: String = ""
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     private var previousDataList: List<ScheduleItem> = emptyList()
 
@@ -307,14 +306,6 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
         binding.fabAdd.setOnClickListener {
             viewModel.goToTask()
         }
-        val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.wave_animation)
-
-        coroutineScope.launch {
-            while (true) {
-                delay(3000)
-                binding.fabAddRipple.startAnimation(animation)
-            }
-        }
     }
 
     // Подсчет кол-ва записей на день
@@ -336,7 +327,6 @@ class CalendarFragment : BaseFragment(), ScheduleAdapter.ScheduleTimeChangedList
     }
 
     override fun onDestroyView() {
-        coroutineScope.cancel()
         _binding = null
         super.onDestroyView()
     }
