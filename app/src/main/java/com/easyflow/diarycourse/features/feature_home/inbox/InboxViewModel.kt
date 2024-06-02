@@ -1,4 +1,4 @@
-package com.easyflow.diarycourse.features.feature_home
+package com.easyflow.diarycourse.features.feature_home.inbox
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -7,39 +7,29 @@ import com.easyflow.diarycourse.domain.domain_api.ScheduleUseCase
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import javax.inject.Inject
 
-class HomeViewModel @Inject constructor(
+class InboxViewModel @Inject constructor(
     private val scheduleUseCase: ScheduleUseCase
-) : BaseViewModel<HomeViewModel.State, HomeViewModel.Actions>(State()) {
-    // TODO сделать UseCase для Inbox
+) : BaseViewModel<InboxViewModel.State, InboxViewModel.Actions>(State()) {
 
-    fun fastAddTask() {
-        onAction(Actions.GoToFastAddTask)
+    fun goBack() {
+        onAction(Actions.GoBack)
     }
-
-    fun goToInbox() {
-        onAction(Actions.GoToInbox)
-    }
-
-    fun getInboxItemsCount() =
-        getState().inboxList.size.toString()
 
     data class State(
-        var inboxList: List<Any> = emptyList(),
         var list: List<ScheduleItem> = emptyList()
     )
 
     sealed interface Actions {
-        data object GoToInbox : Actions
-        data object GoToFastAddTask : Actions
+        data object GoBack : Actions
         data class ShowAlert(val alertData: String) : Actions
     }
 
-    class HomeViewModelFactory @Inject constructor(
+    class InboxViewModelFactory @Inject constructor(
         private val scheduleUseCase: ScheduleUseCase
     ) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return HomeViewModel(scheduleUseCase) as T
+            return InboxViewModel(scheduleUseCase) as T
         }
     }
 }

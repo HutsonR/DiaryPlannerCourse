@@ -2,6 +2,7 @@
     <string name="app_name">Taskader: Ежедневник</string>
 
     <string name="temp_text">Временный текст</string>
+    <string name="search">Поиск...</string>
 
     <!--  Task  -->
     <string name="task_main_title">Добавить план на день</string>
@@ -64,6 +65,12 @@
     <string name="button_uncomplete">Отменить</string>
     <string name="button_edit">Редактировать</string>
 
+    <!--  HOME  -->
+    <string name="home_title">Главная</string>
+    <string name="home_folder_inbox">Входящие</string>
+    <string name="home_folder_inbox_blank">Все задачи распределены</string>
+    <string name="home_search">Поиск по задачам</string>
+    <string name="home_add_task">Добавить быструю задачу</string>
 
     <!--  SETTINGS  -->
     <string name="settings_title">Настройки</string>
