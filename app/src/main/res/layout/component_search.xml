@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/searchWrapper"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/search_round_corner" >
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_search"
+        android:paddingHorizontal="12dp"
+        android:contentDescription="@string/home_folder_inbox" />
+    <EditText
+        android:id="@+id/searchET"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:hint="@string/search"
+        android:inputType="textCapSentences"
+        android:textColor="@color/black"
+        android:gravity="center_vertical"
+        android:textColorHint="@color/textGray"
+        android:textSize="16sp"
+        android:paddingEnd="14dp"
+        style="@style/NoUnderlineEditText"/>
+
+</LinearLayout>

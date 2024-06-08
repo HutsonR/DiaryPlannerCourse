@@ -2,6 +2,7 @@
     <string name="app_name">Taskader: Ежедневник</string>
 
     <string name="temp_text">Временный текст</string>
+    <string name="search">Поиск...</string>
 
     <!--  Task  -->
     <string name="task_main_title">Добавить план на день</string>
@@ -14,6 +15,7 @@
     <string name="task_date_title">Дата</string>
     <string name="task_date_today">Сегодня</string>
     <string name="task_date_tomorrow">Завтра</string>
+    <string name="task_date_threeDays">Через 3 дня</string>
     <string name="task_time_title_add">Выберите время</string>
     <string name="task_time_title">Время</string>
     <string name="task_time_clear">Очистить</string>
@@ -26,6 +28,14 @@
     <string name="task_tag">Добавить метку</string>
     <string name="task_priority_default">Обычный приоритет</string>
     <string name="task_priority_high">Высокий приоритет</string>
+
+    <!--  NEW TASK  -->
+    <string name="fast_task_date">Срок выполнения</string>
+    <string name="fast_task_priority">Приоритет</string>
+    <string name="fast_task_color">Цвет</string>
+    <!--  TASK DURATION  -->
+    <string name="task_duration_time_button">Добавить время</string>
+    <string name="task_duration_time_allDay">Весь день</string>
 
     <!--  Main Screen  -->
     <string name="main_count_task">Записей: </string>
@@ -64,6 +74,12 @@
     <string name="button_uncomplete">Отменить</string>
     <string name="button_edit">Редактировать</string>
 
+    <!--  HOME  -->
+    <string name="home_title">Главная</string>
+    <string name="home_folder_inbox">Входящие</string>
+    <string name="home_folder_inbox_blank">Все задачи распределены</string>
+    <string name="home_search">Поиск по задачам</string>
+    <string name="home_add_task">Добавить быструю задачу</string>
 
     <!--  SETTINGS  -->
     <string name="settings_title">Настройки</string>

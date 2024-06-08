@@ -8,14 +8,7 @@
     android:orientation="vertical"
     tools:context=".features.feature_settings.SettingsFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/settings_title"
-        android:textColor="@color/black"
-        android:paddingVertical="18dp"
-        android:paddingHorizontal="24dp"
-        android:textSize="22sp" />
+    <include layout="@layout/component_title_navbar" android:id="@+id/navbar" />
 
     <LinearLayout
         android:id="@+id/settingTheme"

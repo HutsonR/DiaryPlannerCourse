@@ -49,7 +49,12 @@ class SettingsFragment : BaseFragment() {
     }
 
     private fun initialize() {
+        setupNavbar()
         setListeners()
+    }
+
+    private fun setupNavbar() {
+        binding.navbar.title.text = getString(R.string.settings_title)
     }
 
     private fun setListeners() {

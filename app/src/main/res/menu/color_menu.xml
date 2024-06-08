@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/colorBlue"
+        android:icon="@drawable/ic_ball"
+        android:iconTint="@color/blue"
+        android:iconTintMode="src_in"
+        android:title="Синий" />
+    <item
+        android:id="@+id/colorGreen"
+        android:icon="@drawable/ic_ball"
+        android:iconTint="@color/green"
+        android:iconTintMode="src_in"
+        android:title="Зелёный" />
+    <item
+        android:id="@+id/colorRed"
+        android:icon="@drawable/ic_ball"
+        android:iconTint="@color/red"
+        android:iconTintMode="src_in"
+        android:title="Красный" />
+    <item
+        android:id="@+id/colorPurple"
+        android:icon="@drawable/ic_ball"
+        android:iconTint="@color/purple"
+        android:iconTintMode="src_in"
+        android:title="Фиолетовый" />
+    <item
+        android:id="@+id/colorPink"
+        android:icon="@drawable/ic_ball"
+        android:iconTint="@color/pink"
+        android:iconTintMode="src_in"
+        android:title="Розовый" />
+</menu>
