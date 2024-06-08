@@ -1,0 +1,201 @@
+<!-- Customize the layout based on your needs -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/bottom_sheet_background"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/sheetTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/fast_task_date"
+            android:textSize="21sp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+        <Button
+            style="?attr/materialIconButtonFilledTonalStyle"
+            android:id="@+id/sheetClose"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:backgroundTint="@color/bottom_sheet_close_background"
+            app:icon="@drawable/ic_add_close"
+            app:iconSize="12dp"
+            app:iconTint="@color/black"
+            app:rippleColor="@color/fast_task_outline_ripple_color" />
+    </LinearLayout>
+
+    <CalendarView
+        android:id="@+id/calendar"
+        android:layout_width="match_parent"
+        android:layout_height="308dp"
+        style="@style/Widget.CalendarView.Custom"/>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none" >
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleLine="true"
+            app:singleSelection="true">
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Material3.Chip.Filter"
+                android:id="@+id/calendarToday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="@string/task_date_today"
+                android:textColor="@color/fast_task_chip_color"
+                app:checkedIconTint="@color/primary"
+                app:chipBackgroundColor="@color/bottom_sheet_background"
+                app:rippleColor="@color/fast_task_outline_ripple_color"
+                app:chipStrokeColor="@color/fast_task_outline_border" />
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Material3.Chip.Filter"
+                android:id="@+id/calendarTomorrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="@string/task_date_tomorrow"
+                android:textColor="@color/fast_task_chip_color"
+                app:checkedIconTint="@color/primary"
+                app:chipBackgroundColor="@color/bottom_sheet_background"
+                app:rippleColor="@color/fast_task_outline_ripple_color"
+                app:chipStrokeColor="@color/fast_task_outline_border" />
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Material3.Chip.Filter"
+                android:id="@+id/calendarThreeDays"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="@string/task_date_threeDays"
+                android:textColor="@color/fast_task_chip_color"
+                app:checkedIconTint="@color/primary"
+                app:chipBackgroundColor="@color/bottom_sheet_background"
+                app:rippleColor="@color/fast_task_outline_ripple_color"
+                app:chipStrokeColor="@color/fast_task_outline_border" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <View
+        android:id="@+id/calendar_separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
+        android:background="@color/task_dialog_divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/addTime"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            style="@style/Widget.Material3.Button.TextButton.Icon"
+            android:text="@string/task_duration_time_button"
+            android:textColor="@color/textGray"
+            android:textAlignment="textStart"
+            app:icon="@drawable/ic_clock"
+            app:iconPadding="12dp"
+            app:iconSize="16dp"
+            app:iconTint="@color/iconGray"
+            app:rippleColor="@color/fast_task_outline_ripple_color" />
+        <Button
+            style="?attr/materialIconButtonStyle"
+            android:id="@+id/removeTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_add_close"
+            app:iconSize="12dp"
+            app:iconTint="@color/iconGray"
+            android:visibility="gone"
+            app:rippleColor="@color/fast_task_outline_ripple_color" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/taskTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp">
+            <Button
+                android:id="@+id/startTime"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                style="@style/Widget.Material3.Button"
+                app:backgroundTint="@color/fast_task_time_color"
+                android:text="16:00"
+                android:textColor="@color/black"
+                app:rippleColor="@color/fast_task_outline_ripple_color" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="➞"
+                android:textSize="16sp"
+                android:paddingHorizontal="8dp"
+                android:textColor="@color/textGray" />
+            <Button
+                android:id="@+id/endTime"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                style="@style/Widget.Material3.Button"
+                app:backgroundTint="@color/fast_task_time_color"
+                android:text="18:30"
+                android:textColor="@color/black"
+                app:rippleColor="@color/fast_task_outline_ripple_color" />
+            <TextView
+                android:id="@+id/durationTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 ч. 30 мин."
+                android:textSize="14sp"
+                android:layout_marginStart="8dp"
+                android:textColor="@color/textGray" />
+        </LinearLayout>
+        <com.google.android.material.chip.Chip
+            style="@style/Widget.Material3.Chip.Filter"
+            android:id="@+id/timeAllDay"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:textSize="14sp"
+            android:text="@string/task_duration_time_allDay"
+            android:textColor="@color/fast_task_chip_color"
+            app:checkedIconTint="@color/primary"
+            app:chipBackgroundColor="@color/bottom_sheet_background"
+            app:rippleColor="@color/fast_task_outline_ripple_color"
+            app:chipStrokeColor="@color/fast_task_outline_border" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/time_separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="2dp"
+        android:background="@color/task_dialog_divider" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:enabled="true"
+        android:text="@string/task_reminder"
+        android:textColor="@color/textGray" />
+</LinearLayout>

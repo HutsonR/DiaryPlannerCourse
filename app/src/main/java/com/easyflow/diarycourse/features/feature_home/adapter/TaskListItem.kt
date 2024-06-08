@@ -20,7 +20,7 @@ sealed class TaskListItem(override val id: String): CompositeItem {
     ): TaskListItem(id)
 
     data class DateHeader(
-        val text: String,
+        val date: String,
     ): TaskListItem("DateHeader")
 
     data object Loading: TaskListItem("Loading")

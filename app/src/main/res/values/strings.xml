@@ -15,6 +15,7 @@
     <string name="task_date_title">Дата</string>
     <string name="task_date_today">Сегодня</string>
     <string name="task_date_tomorrow">Завтра</string>
+    <string name="task_date_threeDays">Через 3 дня</string>
     <string name="task_time_title_add">Выберите время</string>
     <string name="task_time_title">Время</string>
     <string name="task_time_clear">Очистить</string>
@@ -27,6 +28,14 @@
     <string name="task_tag">Добавить метку</string>
     <string name="task_priority_default">Обычный приоритет</string>
     <string name="task_priority_high">Высокий приоритет</string>
+
+    <!--  NEW TASK  -->
+    <string name="fast_task_date">Срок выполнения</string>
+    <string name="fast_task_priority">Приоритет</string>
+    <string name="fast_task_color">Цвет</string>
+    <!--  TASK DURATION  -->
+    <string name="task_duration_time_button">Добавить время</string>
+    <string name="task_duration_time_allDay">Весь день</string>
 
     <!--  Main Screen  -->
     <string name="main_count_task">Записей: </string>

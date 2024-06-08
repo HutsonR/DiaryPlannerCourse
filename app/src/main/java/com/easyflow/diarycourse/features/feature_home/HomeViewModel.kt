@@ -6,8 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.easyflow.diarycourse.core.BaseViewModel
 import com.easyflow.diarycourse.domain.domain_api.ScheduleUseCase
 import com.easyflow.diarycourse.domain.models.ScheduleItem
-import com.easyflow.diarycourse.features.feature_home.adapter.TaskListItem
-import com.easyflow.diarycourse.features.feature_home.adapter.TaskListUiConverter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -19,15 +17,16 @@ class HomeViewModel @Inject constructor(
     // TODO сделать UseCase для Inbox
 
     private var jobChangeQuerySearch: Job? = null
-    private var list: List<TaskListItem> = emptyList()
+    private var list: List<ScheduleItem> = emptyList()
 
     init {
         viewModelScope.launch {
-            val taskItems = scheduleUseCase.getAll()
-            list = TaskListUiConverter().convertToTaskListItem(taskItems)
+            modifyState { copy(isLoading = true) }
+            list = scheduleUseCase.getAll()
             modifyState {
                 copy(
-                    dataList = list
+                    dataList = list,
+                    isLoading = false
                 )
             }
         }
@@ -45,14 +44,35 @@ class HomeViewModel @Inject constructor(
         getState().inboxList.size.toString()
 
     fun onUpdateButtonClick(id: String) {
-        onAction(Actions.ShowAlert("onUpdateButtonClick $id"))
+        viewModelScope.launch {
+            val stateList = getState().dataList
+            val item = stateList.firstOrNull { it.id == id.toInt() }
+            val updatedItem = item?.copy(isCompleteTask = !item.isCompleteTask)
+            updatedItem?.let {
+                scheduleUseCase.update(it)
+                modifyState {
+                    copy(
+                        dataList = stateList.map { stateItem ->
+                            if (stateItem.id == id.toInt()) {
+                                it
+                            } else {
+                                stateItem
+                            }
+                        }
+                    )
+                }
+            }
+        }
     }
 
     fun onTaskContentClick(id: String) {
-        val item = getState().dataList.find { it is TaskListItem.Task && it.id == id } as? TaskListItem.Task
-            ?: return
+        val item = getState().dataList.firstOrNull { it.id == id.toInt() }
 
-//        onAction(Actions.ShowTaskBottomSheet(item))
+        if (item != null) {
+            onAction(Actions.ShowTaskBottomSheet(item))
+        } else {
+            onAction(Actions.ShowAlert("Возникла ошибка, попробуйте позже"))
+        }
     }
 
     fun onChangeQuerySearch(querySearch: String) {
@@ -70,21 +90,22 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun filterItemsByName(
-        list: List<TaskListItem>,
+        list: List<ScheduleItem>,
         querySearch: String
-    ): List<TaskListItem> {
+    ): List<ScheduleItem> {
         return if (querySearch.isEmpty()) {
             list
         } else {
             list.filter {
-                it is TaskListItem.Task && it.text.contains(querySearch, ignoreCase = true)
+                it.text.contains(querySearch, ignoreCase = true)
             }
         }
     }
 
     data class State(
+        var isLoading: Boolean = false,
         var inboxList: List<Any> = emptyList(),
-        var dataList: List<TaskListItem> = emptyList(),
+        var dataList: List<ScheduleItem> = emptyList(),
         var querySearch: String = ""
     )
 

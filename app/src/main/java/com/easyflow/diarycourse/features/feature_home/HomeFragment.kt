@@ -17,7 +17,10 @@ import com.easyflow.diarycourse.core.utils.collectOnStart
 import com.easyflow.diarycourse.databinding.FragmentHomeBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.features.feature_calendar.schedule.dialogs.ScheduleItemBottomSheetFragment
+import com.easyflow.diarycourse.features.feature_home.adapter.DateDelegate
+import com.easyflow.diarycourse.features.feature_home.adapter.LoadingDelegate
 import com.easyflow.diarycourse.features.feature_home.adapter.TaskDelegate
+import com.easyflow.diarycourse.features.feature_home.adapter.TaskListUiConverter
 import com.easyflow.diarycourse.features.feature_home.task.FastTaskFragment
 import dagger.Lazy
 import kotlinx.coroutines.flow.onEach
@@ -71,7 +74,8 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun handleState(state: HomeViewModel.State) {
-        adapter.submitList(state.dataList)
+        val list = TaskListUiConverter().convertToTaskListItem(state.dataList, state.isLoading)
+        adapter.submitList(list)
     }
 
     private fun handleActions(action: HomeViewModel.Actions) {
@@ -109,8 +113,9 @@ class HomeFragment : BaseFragment() {
     private fun setRecycler() {
         adapter = CompositeAdapter
             .Builder()
+            .add(DateDelegate())
             .add(TaskDelegate(viewModel::onUpdateButtonClick, viewModel::onTaskContentClick))
-//            .add(LoadingDelegate())
+            .add(LoadingDelegate())
             .build()
 
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())

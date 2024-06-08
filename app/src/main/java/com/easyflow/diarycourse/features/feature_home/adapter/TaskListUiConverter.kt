@@ -4,13 +4,21 @@ import com.easyflow.diarycourse.domain.models.ScheduleItem
 
 internal class TaskListUiConverter {
 
-    fun convertToTaskListItem(tasks: List<ScheduleItem>): List<TaskListItem> {
+    fun convertToTaskListItem(tasks: List<ScheduleItem>, isLoading: Boolean): List<TaskListItem> {
         return mutableListOf<TaskListItem>().apply {
-            addAll(tasks.map(::convertToScheduleItem))
-//
-//            if (isLoading) {
-//                add(TaskListItem.Loading)
-//            }
+            var currentDate = ""
+            for (task in tasks) {
+                val date = task.date
+                if (currentDate != date) {
+                    currentDate = date
+                    add(TaskListItem.DateHeader(date))
+                }
+                add(convertToScheduleItem(task))
+            }
+
+            if (isLoading) {
+                add(TaskListItem.Loading)
+            }
         }
     }
 

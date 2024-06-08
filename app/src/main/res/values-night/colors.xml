@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="primary">#49A2DD</color>
+    <color name="onPrimaryRipple">#80C0EC</color>
     <color name="lightPrimary">#3A4953</color>
     <color name="red">#D54343</color>
     <color name="backgroundMain">#16171B</color>
@@ -28,13 +29,20 @@
     <color name="task_dialog_bg">#16171B</color>
     <color name="task_dialog_item">#24272E</color>
     <color name="task_dialog_border">#24272E</color>
-    <color name="task_dialog_divider">#3F4450</color>
+    <color name="task_dialog_divider">#272930</color>
     <color name="task_dialog_tag_border">#3F4450</color>
+    <!--  New Task  -->
+    <color name="fast_task_outline_border">#3F4450</color>
+    <color name="fast_task_outline_ripple_color">#333F4450</color>
+    <color name="fast_task_chip_color">#A7AFBF</color>
+    <color name="fast_task_time_color">#24272E</color>
+    <color name="fast_task_calendar_unfocused_date">#454545</color>
 
     <!--  Bottom Dialog Sheet  -->
     <color name="bottom_sheet_background">#16171B</color>
     <color name="bottom_sheet_button_background">#24272E</color>
     <color name="bottom_sheet_divider">#DBDBDB</color>
+    <color name="bottom_sheet_close_background">#24272E</color>
 
     <!--  Note  -->
     <color name="bgDialogNote">#16171B</color>
@@ -42,6 +50,11 @@
 
     <!--  Settings  -->
     <color name="settingsIcon">#d4d4d4</color>
+
+    <!--  Home  -->
+    <color name="search">#24272E</color>
+    <color name="fastAddButton">#24272E</color>
+    <color name="fastAddButtonStroke">#2C2F35</color>
 
     <!--  Navigation  -->
     <color name="navDivider">#272a31</color>
