@@ -99,7 +99,6 @@ class HomeFragment : BaseFragment() {
     private fun showTaskBottomSheet(item: ScheduleItem) {
         val bottomSheetFragment = ScheduleItemBottomSheetFragment()
 
-        // Передаем всю модель в аргументы
         val args = Bundle()
         args.putParcelable("scheduleItem", item)
         bottomSheetFragment.arguments = args
@@ -114,7 +113,7 @@ class HomeFragment : BaseFragment() {
         adapter = CompositeAdapter
             .Builder()
             .add(DateDelegate())
-            .add(TaskDelegate(viewModel::onUpdateButtonClick, viewModel::onTaskContentClick))
+            .add(TaskDelegate(viewModel::updateData, viewModel::onTaskContentClick))
             .add(LoadingDelegate())
             .build()
 
@@ -125,7 +124,28 @@ class HomeFragment : BaseFragment() {
     private fun setListeners() {
         binding.inboxButton.setOnClickListener { viewModel.goToInbox() }
         binding.fastAddTask.setOnClickListener { viewModel.fastAddTask() }
+        setFragmentListener()
         searchListener()
+    }
+
+    private fun setFragmentListener() {
+        // Из ScheduleItemBottomSheetFragment
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            ScheduleItemBottomSheetFragment.KEY_BOTTOM_SHEET_RESULT_UPD,
+            this
+        ) { _, bundle ->
+            val requestValue: Int = bundle.getInt(ScheduleItemBottomSheetFragment.FRAGMENT_TASK_ITEM)
+            viewModel.updateData(requestValue)
+        }
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            ScheduleItemBottomSheetFragment.KEY_BOTTOM_SHEET_RESULT_DEL,
+            this
+        ) { _, bundle ->
+            val requestValue: ScheduleItem? = bundle.getParcelable(ScheduleItemBottomSheetFragment.FRAGMENT_TASK_ITEM)
+            requestValue?.let {
+                it.id?.let { id -> viewModel.deleteItem(id) }
+            }
+        }
     }
 
     private fun searchListener() {

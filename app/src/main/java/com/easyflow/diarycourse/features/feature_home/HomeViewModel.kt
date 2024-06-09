@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.easyflow.diarycourse.core.BaseViewModel
 import com.easyflow.diarycourse.domain.domain_api.ScheduleUseCase
 import com.easyflow.diarycourse.domain.models.ScheduleItem
+import com.easyflow.diarycourse.domain.util.Resource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -43,28 +44,6 @@ class HomeViewModel @Inject constructor(
     fun getInboxItemsCount() =
         getState().inboxList.size.toString()
 
-    fun onUpdateButtonClick(id: String) {
-        viewModelScope.launch {
-            val stateList = getState().dataList
-            val item = stateList.firstOrNull { it.id == id.toInt() }
-            val updatedItem = item?.copy(isCompleteTask = !item.isCompleteTask)
-            updatedItem?.let {
-                scheduleUseCase.update(it)
-                modifyState {
-                    copy(
-                        dataList = stateList.map { stateItem ->
-                            if (stateItem.id == id.toInt()) {
-                                it
-                            } else {
-                                stateItem
-                            }
-                        }
-                    )
-                }
-            }
-        }
-    }
-
     fun onTaskContentClick(id: String) {
         val item = getState().dataList.firstOrNull { it.id == id.toInt() }
 
@@ -72,6 +51,52 @@ class HomeViewModel @Inject constructor(
             onAction(Actions.ShowTaskBottomSheet(item))
         } else {
             onAction(Actions.ShowAlert("Возникла ошибка, попробуйте позже"))
+        }
+    }
+
+    fun updateData(itemId: Int) {
+        viewModelScope.launch {
+            val stateList = getState().dataList
+            val item = stateList.firstOrNull { it.id == itemId }
+            item?.let {
+                val updatedItem = item.copy(isCompleteTask = !item.isCompleteTask)
+                when (scheduleUseCase.update(updatedItem)) {
+                    is Resource.Success<*> -> {
+                        modifyState {
+                            copy(
+                                dataList = stateList.map { stateItem ->
+                                    if (stateItem.id == updatedItem.id) {
+                                        updatedItem
+                                    } else {
+                                        stateItem
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    is Resource.Failed -> {
+                        onAction(Actions.ShowAlert("Возникла ошибка, попробуйте позже"))
+                    }
+                }
+            }
+        }
+    }
+
+    fun deleteItem(itemId: Int) {
+        viewModelScope.launch {
+            val deleteItem = scheduleUseCase.deleteById(itemId)
+            when (deleteItem) {
+                is Resource.Success<*> -> {
+                    modifyState {
+                        copy(
+                            dataList = getState().dataList.filter { it.id != itemId }
+                        )
+                    }
+                }
+                is Resource.Failed -> {
+                    onAction(Actions.ShowAlert("Возникла ошибка, попробуйте позже"))
+                }
+            }
         }
     }
 
