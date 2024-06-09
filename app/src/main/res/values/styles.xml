@@ -47,7 +47,6 @@
     </style>
 
     <style name="CustomDialogButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
-        <item name="android:background">@drawable/alert_dialog_background</item>
         <item name="android:textColor">@color/black</item>
     </style>
 

@@ -34,6 +34,8 @@
     <string name="fast_task_priority">Приоритет</string>
     <string name="fast_task_color">Цвет</string>
     <!--  TASK DURATION  -->
+    <string name="task_duration_alert_title">Вы уверены?</string>
+    <string name="task_duration_alert_text">Внесённые изменения будут удалены</string>
     <string name="task_duration_time_button">Добавить время</string>
     <string name="task_duration_time_allDay">Весь день</string>
 
@@ -56,6 +58,7 @@
 
     <string name="close">Закрыть</string>
     <string name="apply">Сохранить</string>
+    <string name="cancel">Отмена</string>
 
     <!--  Week Day  -->
     <string name="week_monday">Понедельник</string>
@@ -94,8 +97,10 @@
     <string name="settings_security">Безопасность</string>
     <string name="settings_security_fingerprint">Вход по отпечатку пальца</string>
 
+    <string name="error_title">Ошибка</string>
     <string name="error">Возникла ошибка, попробуйте позже</string>
     <string name="fetch_error">Возникла ошибка получения данных, попробуйте позже</string>
+    <string name="error_understand">Понятно</string>
     <string name="success">Закрыть</string>
 
     <!--  CALENDAR  -->

@@ -46,12 +46,17 @@ abstract class BaseFragment : Fragment(){
 
     fun showAlert(alertData: AlertData) {
         val builder = AlertDialog.Builder(requireContext(), R.style.CustomAlertDialogTheme)
-        builder.setTitle(alertData.title)
+        builder.setTitle(getString(alertData.title))
         builder.setMessage(getString(alertData.message))
-        builder.setPositiveButton(alertData.positiveButton) { dialog: DialogInterface, _: Int ->
+        builder.setPositiveButton(getString(alertData.positiveButton)) { dialog: DialogInterface, _: Int ->
             if (alertData.navigate != null) {
                 alertData.navigate
             } else {
+                dialog.dismiss()
+            }
+        }
+        if (alertData.isNegativeButtonNeeded) {
+            builder.setNegativeButton(getString(alertData.negativeButton)) { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
             }
         }
