@@ -18,7 +18,7 @@ import java.util.Calendar
 import java.util.Locale
 
 class TaskDelegate(
-    private val onUpdateButtonClick: (id: String) -> Unit,
+    private val onUpdateButtonClick: (id: Int) -> Unit,
     private val onContentClick: (id: String) -> Unit
 ) : CompositeDelegate<TaskListItem.Task, ScheduleItemBinding>() {
 
@@ -43,7 +43,7 @@ class TaskDelegate(
         }
 
         completeScheduleButton.setOnClickListener {
-            onUpdateButtonClick(item.id)
+            onUpdateButtonClick(item.id.toInt())
         }
     }
 

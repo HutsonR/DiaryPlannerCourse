@@ -14,7 +14,7 @@
     <color name="iconGray">#605F64</color>
     <color name="scheduleIcon">#48484C</color>
     <color name="scheduleCircleCompleteIcon">#BDBDBD</color>
-    <color name="bgGray">#EDEDED</color>
+    <color name="bgGray">#EFEFEF</color>
     <color name="menuColorGray">#ACACAC</color>
 
     <!--  CALENDAR GROUPS  -->
