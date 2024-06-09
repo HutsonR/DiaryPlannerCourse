@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.easyflow.diarycourse.core.BaseViewModel
+import com.easyflow.diarycourse.core.models.AlertData
 import com.easyflow.diarycourse.domain.domain_api.NoteUseCase
 import com.easyflow.diarycourse.domain.domain_api.ScheduleUseCase
 import com.easyflow.diarycourse.domain.models.NoteItem
@@ -123,7 +124,7 @@ class CalendarViewModel @Inject constructor(
     )
 
     sealed interface Actions {
-        data class ShowAlert(val alertData: String) : Actions
+        data class ShowAlert(val alertData: AlertData) : Actions
         data class GoToNote(val note: NoteItem) : Actions
         data object GoToTask : Actions
     }

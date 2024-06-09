@@ -41,4 +41,14 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="CustomAlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/alert_dialog_background</item>
+        <item name="buttonBarButtonStyle">@style/CustomDialogButton</item>
+    </style>
+
+    <style name="CustomDialogButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:background">@drawable/alert_dialog_background</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
 </resources>

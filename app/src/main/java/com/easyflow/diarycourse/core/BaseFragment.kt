@@ -7,6 +7,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import com.easyflow.diarycourse.R
+import com.easyflow.diarycourse.core.models.AlertData
 
 abstract class BaseFragment : Fragment(){
 
@@ -42,12 +44,16 @@ abstract class BaseFragment : Fragment(){
         findNavController().navigateWithAnimation(id, bundle, navBuilder)
     }
 
-    fun showAlert(alertText: String) {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Ошибка")
-        builder.setMessage(alertText)
-        builder.setPositiveButton("OK") { dialog: DialogInterface, _: Int ->
-            dialog.dismiss()
+    fun showAlert(alertData: AlertData) {
+        val builder = AlertDialog.Builder(requireContext(), R.style.CustomAlertDialogTheme)
+        builder.setTitle(alertData.title)
+        builder.setMessage(getString(alertData.message))
+        builder.setPositiveButton(alertData.positiveButton) { dialog: DialogInterface, _: Int ->
+            if (alertData.navigate != null) {
+                alertData.navigate
+            } else {
+                dialog.dismiss()
+            }
         }
         val alertDialog = builder.create()
         alertDialog.show()

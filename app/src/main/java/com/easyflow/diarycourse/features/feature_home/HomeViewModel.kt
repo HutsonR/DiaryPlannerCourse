@@ -3,7 +3,9 @@ package com.easyflow.diarycourse.features.feature_home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.BaseViewModel
+import com.easyflow.diarycourse.core.models.AlertData
 import com.easyflow.diarycourse.domain.domain_api.ScheduleUseCase
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.domain.util.Resource
@@ -48,9 +50,9 @@ class HomeViewModel @Inject constructor(
         val item = getState().dataList.firstOrNull { it.id == id.toInt() }
 
         if (item != null) {
-            onAction(Actions.ShowTaskBottomSheet(item))
+            onAction(Actions.ShowAlert(AlertData(message = R.string.error)))
         } else {
-            onAction(Actions.ShowAlert("Возникла ошибка, попробуйте позже"))
+            onAction(Actions.ShowAlert(AlertData(message = R.string.error)))
         }
     }
 
@@ -75,7 +77,7 @@ class HomeViewModel @Inject constructor(
                         }
                     }
                     is Resource.Failed -> {
-                        onAction(Actions.ShowAlert("Возникла ошибка, попробуйте позже"))
+                        onAction(Actions.ShowAlert(AlertData(message = R.string.error)))
                     }
                 }
             }
@@ -94,7 +96,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 is Resource.Failed -> {
-                    onAction(Actions.ShowAlert("Возникла ошибка, попробуйте позже"))
+                    onAction(Actions.ShowAlert(AlertData(message = R.string.error)))
                 }
             }
         }
@@ -138,7 +140,7 @@ class HomeViewModel @Inject constructor(
         data object GoToInbox : Actions
         data object GoToFastAddTask : Actions
         data class ShowTaskBottomSheet(val item: ScheduleItem) : Actions
-        data class ShowAlert(val alertData: String) : Actions
+        data class ShowAlert(val alertData: AlertData) : Actions
     }
 
     class HomeViewModelFactory @Inject constructor(
