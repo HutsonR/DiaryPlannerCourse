@@ -8,5 +8,5 @@ data class AlertData(
     val positiveButton: Int = R.string.error_understand,
     val isNegativeButtonNeeded: Boolean = false,
     val negativeButton: Int = R.string.cancel,
-    val navigate: Any? = null
+    val navigate: (() -> Unit)? = null
 )

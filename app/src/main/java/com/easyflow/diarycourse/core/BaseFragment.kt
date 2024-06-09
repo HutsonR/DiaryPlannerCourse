@@ -49,11 +49,7 @@ abstract class BaseFragment : Fragment(){
         builder.setTitle(getString(alertData.title))
         builder.setMessage(getString(alertData.message))
         builder.setPositiveButton(getString(alertData.positiveButton)) { dialog: DialogInterface, _: Int ->
-            if (alertData.navigate != null) {
-                alertData.navigate
-            } else {
-                dialog.dismiss()
-            }
+            alertData.navigate?.invoke() ?: dialog.dismiss()
         }
         if (alertData.isNegativeButtonNeeded) {
             builder.setNegativeButton(getString(alertData.negativeButton)) { dialog: DialogInterface, _: Int ->
