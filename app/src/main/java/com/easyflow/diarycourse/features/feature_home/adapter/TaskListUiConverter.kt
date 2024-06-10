@@ -8,7 +8,7 @@ internal class TaskListUiConverter {
         return mutableListOf<TaskListItem>().apply {
             var currentDate = ""
             for (task in tasks) {
-                val date = task.date
+                val date = convertDate(task.date)
                 if (currentDate != date) {
                     currentDate = date
                     add(TaskListItem.DateHeader(date))
@@ -35,4 +35,27 @@ internal class TaskListUiConverter {
             isCompleteTask = task.isCompleteTask,
             priority = task.priority
         )
+
+    private fun convertDate(date: String): String {
+        val dateParts = date.split(".")
+        return "${dateParts[0]} ${monthToString(dateParts[1].toInt())}"
+    }
+
+    private fun monthToString(month: Int): String {
+        return when (month) {
+            1 -> "Января"
+            2 -> "Февраля"
+            3 -> "Марта"
+            4 -> "Апреля"
+            5 -> "Мая"
+            6 -> "Июня"
+            7 -> "Июля"
+            8 -> "Августа"
+            9 -> "Сентября"
+            10 -> "Октября"
+            11 -> "Ноября"
+            12 -> "Декабря"
+            else -> ""
+        }
+    }
 }
