@@ -1,11 +1,11 @@
 package com.easyflow.diarycourse.features.feature_home.task
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -13,13 +13,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.PopupMenu
-import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.utils.collectOnStart
 import com.easyflow.diarycourse.databinding.FragmentFastTaskBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.Priority
+import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
 import com.easyflow.diarycourse.features.feature_home.task.dialogs.TaskDurationDialog
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -38,13 +40,7 @@ class FastTaskFragment : BottomSheetDialogFragment() {
         fastTaskViewModelFactory.get()
     }
 
-    private var currentTask = ScheduleItem(
-        text = "",
-        description = "",
-        date = "",
-        startTime = "",
-        endTime = ""
-    )
+    private var currentTask: ScheduleItem = createScheduleItem()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -79,10 +75,18 @@ class FastTaskFragment : BottomSheetDialogFragment() {
     }
 
     private fun initialize() {
-        viewModel.updateTask(currentTask)
+        currentTask = viewModel.getCurrentTask() ?: createScheduleItem()
         binding.titleTask.requestFocus()
         setListeners()
     }
+
+    private fun createScheduleItem(): ScheduleItem = ScheduleItem(
+        text = "",
+        description = "",
+        date = "",
+        startTime = "",
+        endTime = ""
+    )
 
     private fun setObservers() {
         viewModel.state.onEach(::handleState).collectOnStart(viewLifecycleOwner)
@@ -90,21 +94,31 @@ class FastTaskFragment : BottomSheetDialogFragment() {
     }
 
     private fun handleState(state: FastTaskViewModel.State) {
-        updateItem(state.task)
-    }
-
-    private fun updateItem(item: ScheduleItem?) {
-        item?.let { currentTask = it }
+        state.task?.let {
+            currentTask = it
+            updatePriorityButton(it.priority)
+        }
+        setStyle(state.taskColor)
+        updateSaveButtonState(state.isSaveButtonEnable)
     }
 
     private fun handleActions(action: FastTaskViewModel.Actions) {
         when (action) {
             is FastTaskViewModel.Actions.GoBack -> dismiss()
-            is FastTaskViewModel.Actions.GoToDurationDialog -> TaskDurationDialog().show(childFragmentManager, TaskDurationDialog.TAG)
+            is FastTaskViewModel.Actions.GoToDurationDialog -> showDurationDialog(action.task)
             is FastTaskViewModel.Actions.GoToPriorityDialog -> showPriorityMenu(binding.taskPriorityButton)
             is FastTaskViewModel.Actions.GoToColorDialog -> showColorMenu(binding.taskColorButton)
-            is FastTaskViewModel.Actions.UpdateSaveButtonState -> updateSaveButtonState(action.state)
         }
+    }
+
+    private fun showDurationDialog(task: ScheduleItem?) {
+        val durationFragment = TaskDurationDialog()
+
+        val bundle = Bundle()
+        bundle.putParcelable(TaskDurationDialog.KEY_TASK_ITEM, task)
+        durationFragment.arguments = bundle
+
+        durationFragment.show(childFragmentManager, TaskDurationDialog.TAG)
     }
 
     private fun showPriorityMenu(view: View) {
@@ -115,11 +129,11 @@ class FastTaskFragment : BottomSheetDialogFragment() {
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.priorityBase -> {
-                    Toast.makeText(requireContext(), "Приоритет 1", Toast.LENGTH_SHORT).show()
+                    viewModel.updateTask(currentTask.copy(priority = Priority.STANDARD))
                     true
                 }
                 R.id.priorityHigh -> {
-                    Toast.makeText(requireContext(), "Приоритет 2", Toast.LENGTH_SHORT).show()
+                    viewModel.updateTask(currentTask.copy(priority = Priority.IMPORTANT))
                     true
                 }
                 else -> false
@@ -140,23 +154,23 @@ class FastTaskFragment : BottomSheetDialogFragment() {
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.colorBlue -> {
-                    Toast.makeText(requireContext(), "Синий", Toast.LENGTH_SHORT).show()
+                    viewModel.updateTask(currentTask.copy(taskColor = TaskColor.BLUE))
                     true
                 }
                 R.id.colorGreen -> {
-                    Toast.makeText(requireContext(), "зелёный", Toast.LENGTH_SHORT).show()
+                    viewModel.updateTask(currentTask.copy(taskColor = TaskColor.GREEN))
                     true
                 }
                 R.id.colorRed -> {
-                    Toast.makeText(requireContext(), "красный", Toast.LENGTH_SHORT).show()
+                    viewModel.updateTask(currentTask.copy(taskColor = TaskColor.RED))
                     true
                 }
                 R.id.colorPurple -> {
-                    Toast.makeText(requireContext(), "фиолетовый", Toast.LENGTH_SHORT).show()
+                    viewModel.updateTask(currentTask.copy(taskColor = TaskColor.PURPLE))
                     true
                 }
                 R.id.colorPink -> {
-                    Toast.makeText(requireContext(), "розовый", Toast.LENGTH_SHORT).show()
+                    viewModel.updateTask(currentTask.copy(taskColor = TaskColor.PINK))
                     true
                 }
                 else -> false
@@ -166,11 +180,45 @@ class FastTaskFragment : BottomSheetDialogFragment() {
         popupMenu.show()
     }
 
+    private fun setStyle(taskColor: TaskColor) {
+        val taskColorStateList = setColorStateList(taskColor)
+
+        with(binding) {
+            saveButton.backgroundTintList = taskColorStateList
+
+            taskDurationButton.chipIconTint = taskColorStateList
+            taskPriorityButton.chipIconTint = taskColorStateList
+            taskColorButton.chipIconTint = taskColorStateList
+
+            taskDurationButton.chipStrokeColor = taskColorStateList
+            taskPriorityButton.chipStrokeColor = taskColorStateList
+            taskColorButton.chipStrokeColor = taskColorStateList
+
+        }
+    }
+
+    private fun setColorStateList(taskColor: TaskColor): ColorStateList {
+        val color = when (taskColor) {
+            TaskColor.BLUE -> R.color.blue
+            TaskColor.GREEN -> R.color.green
+            TaskColor.RED -> R.color.redDialog
+            TaskColor.PURPLE -> R.color.purple
+            TaskColor.PINK -> R.color.pink
+        }
+        return ColorStateList.valueOf(ContextCompat.getColor(requireContext(), color))
+    }
+
     private fun updateSaveButtonState(state: Boolean) {
-        Log.d("debugTag", "FRAGMENT updateSaveButtonState")
         binding.saveButton.apply {
             isEnabled = state
             alpha = if (state) 1.0f else 0.6f
+        }
+    }
+
+    private fun updatePriorityButton(priority: Priority) {
+        binding.taskPriorityButton.text = when (priority) {
+            Priority.STANDARD -> getString(R.string.main_low_priority)
+            Priority.IMPORTANT -> getString(R.string.main_high_priority)
         }
     }
 

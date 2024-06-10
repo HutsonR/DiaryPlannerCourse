@@ -197,5 +197,19 @@
         android:layout_height="match_parent"
         android:enabled="true"
         android:text="@string/task_reminder"
+        android:visibility="gone"
         android:textColor="@color/textGray" />
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.FloatingActionButton.Primary"
+        android:text="@string/task_duration_save_button"
+        app:backgroundTint="@color/blue"
+        android:textColor="@color/alwaysWhite"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:rippleColor="@color/onPrimaryRipple"
+        android:layout_gravity="end"
+        android:layout_marginTop="6dp"/>
 </LinearLayout>

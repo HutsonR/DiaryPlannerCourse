@@ -36,8 +36,10 @@
     <!--  TASK DURATION  -->
     <string name="task_duration_alert_title">Вы уверены?</string>
     <string name="task_duration_alert_text">Внесённые изменения будут удалены</string>
+    <string name="task_duration_alert_ok_button">Удалить</string>
     <string name="task_duration_time_button">Добавить время</string>
     <string name="task_duration_time_allDay">Весь день</string>
+    <string name="task_duration_save_button">Сохранить</string>
 
     <!--  Main Screen  -->
     <string name="main_count_task">Записей: </string>

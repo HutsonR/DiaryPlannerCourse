@@ -34,7 +34,7 @@
     <!--  New Task  -->
     <color name="fast_task_outline_border">#3F4450</color>
     <color name="fast_task_outline_ripple_color">#333F4450</color>
-    <color name="fast_task_chip_color">#A7AFBF</color>
+    <color name="fast_task_chip_color">#b5bac4</color>
     <color name="fast_task_time_color">#24272E</color>
     <color name="fast_task_calendar_unfocused_date">#454545</color>
 

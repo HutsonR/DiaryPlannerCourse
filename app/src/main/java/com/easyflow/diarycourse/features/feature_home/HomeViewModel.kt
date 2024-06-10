@@ -50,7 +50,7 @@ class HomeViewModel @Inject constructor(
         val item = getState().dataList.firstOrNull { it.id == id.toInt() }
 
         if (item != null) {
-            onAction(Actions.ShowAlert(AlertData(message = R.string.error)))
+            onAction(Actions.ShowTaskBottomSheet(item))
         } else {
             onAction(Actions.ShowAlert(AlertData(message = R.string.error)))
         }

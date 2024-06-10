@@ -12,6 +12,7 @@ import com.easyflow.diarycourse.features.feature_calendar.task.dialogs.ReminderB
 import com.easyflow.diarycourse.features.feature_home.HomeFragment
 import com.easyflow.diarycourse.features.feature_home.inbox.InboxFragment
 import com.easyflow.diarycourse.features.feature_home.task.FastTaskFragment
+import com.easyflow.diarycourse.features.feature_home.task.dialogs.TaskDurationDialog
 import com.easyflow.diarycourse.features.feature_settings.SettingsFragment
 import com.easyflow.diarycourse.features.feature_settings.appearance.AppearanceFragment
 import com.easyflow.diarycourse.features.feature_settings.security.SecurityFragment
@@ -32,6 +33,7 @@ interface AppComponent {
     fun inject(fragment: HomeFragment)
     fun inject(fragment: InboxFragment)
     fun inject(fragment: FastTaskFragment)
+    fun inject(fragment: TaskDurationDialog)
 
     @Component.Builder
     interface Builder {
