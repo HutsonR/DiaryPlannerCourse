@@ -17,6 +17,7 @@ import com.easyflow.diarycourse.R
 import com.easyflow.diarycourse.core.App
 import com.easyflow.diarycourse.core.models.AlertData
 import com.easyflow.diarycourse.core.utils.collectOnStart
+import com.easyflow.diarycourse.core.utils.formatDate
 import com.easyflow.diarycourse.databinding.FragmentTaskDurationDialogBinding
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskColor
@@ -106,15 +107,20 @@ class TaskDurationDialog: BottomSheetDialogFragment() {
                     navigate = { dismiss() }
                 )
             )
+            is TaskDurationViewModel.Actions.GoBackWithItem -> {
+                val bundle = Bundle().apply {
+                    putParcelable(KEY_TASK_ITEM, action.item)
+                }
+                parentFragmentManager.setFragmentResult(KEY_TASK_ITEM, bundle)
+                dismiss()
+            }
         }
     }
 
     private fun initializeParcel() {
         val parcelItem: ScheduleItem? = arguments?.getParcelable(KEY_TASK_ITEM)
         currentTask = parcelItem ?: createScheduleItem()
-        parcelItem?.let {
-            viewModel.updateTask(parcelItem)
-        }
+        viewModel.updateTask(currentTask)
     }
 
     private fun createScheduleItem(): ScheduleItem {
@@ -172,7 +178,69 @@ class TaskDurationDialog: BottomSheetDialogFragment() {
             setupTimeListeners()
             setupAllDayCheckboxListener()
             saveButton.setOnClickListener { viewModel.saveTaskDuration() }
+            // DATE
+            calendar.setOnDateChangeListener { view, year, month, dayOfMonth ->
+                val calendar = Calendar.getInstance()
+                calendar.set(year, month, dayOfMonth)
+                val formattedDate = formatDate(calendar)
+                checkPredefinedDates(calendar)
+                viewModel.updateDate(formattedDate)
+            }
+            calendarToday.setOnClickListener {
+                val calendar = Calendar.getInstance()
+                binding.calendar.date = calendar.timeInMillis
+                val formattedDate = formatDate(calendar)
+                viewModel.updateDate(formattedDate)
+            }
+            calendarTomorrow.setOnClickListener {
+                val calendar = Calendar.getInstance().apply {
+                    add(Calendar.DAY_OF_MONTH, 1)
+                }
+                binding.calendar.date = calendar.timeInMillis
+                val formattedDate = formatDate(calendar)
+                viewModel.updateDate(formattedDate)
+            }
+            calendarThreeDays.setOnClickListener {
+                val calendar = Calendar.getInstance().apply {
+                    add(Calendar.DAY_OF_MONTH, 3)
+                }
+                binding.calendar.date = calendar.timeInMillis
+                val formattedDate = formatDate(calendar)
+                viewModel.updateDate(formattedDate)
+            }
         }
+    }
+
+    private fun checkPredefinedDates(selectedCalendar: Calendar) {
+        with(binding) {
+            calendarToday.isChecked = false
+            calendarTomorrow.isChecked = false
+            calendarThreeDays.isChecked = false
+
+            val today = Calendar.getInstance()
+            if (isSameDay(today, selectedCalendar)) {
+                calendarToday.isChecked = true
+            }
+
+            val tomorrow = Calendar.getInstance().apply {
+                add(Calendar.DAY_OF_MONTH, 1)
+            }
+            if (isSameDay(tomorrow, selectedCalendar)) {
+                calendarTomorrow.isChecked = true
+            }
+
+            val threeDaysLater = Calendar.getInstance().apply {
+                add(Calendar.DAY_OF_MONTH, 3)
+            }
+            if (isSameDay(threeDaysLater, selectedCalendar)) {
+                calendarThreeDays.isChecked = true
+            }
+        }
+    }
+
+    private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
     }
 
     private fun setupTimeListeners() {

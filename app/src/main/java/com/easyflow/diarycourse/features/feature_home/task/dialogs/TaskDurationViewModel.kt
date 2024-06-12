@@ -22,8 +22,15 @@ class TaskDurationViewModel @Inject constructor() :
         updateSaveButtonState()
     }
 
-    fun saveTaskDuration() {
+    fun updateDate(date: String) {
+        modifyState { copy(task = task?.copy(date = date)) }
+        updateSaveButtonState()
+    }
 
+    fun saveTaskDuration() {
+        getState().task?.let {
+            onAction(Actions.GoBackWithItem(it))
+        }
     }
 
     fun goBack() = onAction(Actions.GoBack)
@@ -62,6 +69,7 @@ class TaskDurationViewModel @Inject constructor() :
 
     sealed interface Actions {
         data object GoBack : Actions
+        data class GoBackWithItem(val item: ScheduleItem) : Actions
     }
 
     class TaskDurationViewModelFactory @Inject constructor() : ViewModelProvider.Factory {
