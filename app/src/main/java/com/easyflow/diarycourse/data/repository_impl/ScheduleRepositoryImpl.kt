@@ -14,9 +14,21 @@ class ScheduleRepositoryImpl @Inject constructor (
 ): ScheduleRepository {
 
     private val mapper = Mapper
-    override suspend fun insert(item: ScheduleItem) = withContext(Dispatchers.IO) {
+    override suspend fun insert(item: ScheduleItem): ScheduleItem = withContext(Dispatchers.IO) {
         val scheduleItemDto = mapper.mapToScheduleItemDto(item)
-        scheduleItemDao.insert(scheduleItemDto)
+        val id = scheduleItemDao.insert(scheduleItemDto)
+        val insertedItemDto = scheduleItemDao.getById(id.toInt())
+        requireNotNull(insertedItemDto) { "Error inserting item with id $id" }
+        mapper.mapToScheduleItem(insertedItemDto)
+    }
+
+    override suspend fun getById(id: Int): ScheduleItem? = withContext(Dispatchers.IO) {
+        val scheduleItemDto = scheduleItemDao.getById(id)
+        return@withContext if (scheduleItemDto == null) {
+            null
+        } else {
+            mapper.mapToScheduleItem(scheduleItemDto)
+        }
     }
 
     override suspend fun getAll(): List<ScheduleItem> = withContext(Dispatchers.IO) {

@@ -9,7 +9,10 @@ import com.easyflow.diarycourse.data.models.ScheduleItemDto
 @Dao
 interface ScheduleItemDao {
     @Insert
-    suspend fun insert(item: ScheduleItemDto)
+    suspend fun insert(item: ScheduleItemDto): Long
+
+    @Query("SELECT * FROM schedule_items WHERE id = :itemId")
+    suspend fun getById(itemId: Int): ScheduleItemDto?
 
     @Query("SELECT * FROM schedule_items ORDER BY id DESC")
     fun getAll(): List<ScheduleItemDto>

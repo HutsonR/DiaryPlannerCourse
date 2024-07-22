@@ -9,6 +9,10 @@ import com.easyflow.diarycourse.features.feature_calendar.note.NoteFragment
 import com.easyflow.diarycourse.features.feature_calendar.schedule.dialogs.ScheduleItemBottomSheetFragment
 import com.easyflow.diarycourse.features.feature_calendar.task.TaskFragment
 import com.easyflow.diarycourse.features.feature_calendar.task.dialogs.ReminderBottomDialogFragment
+import com.easyflow.diarycourse.features.feature_home.HomeFragment
+import com.easyflow.diarycourse.features.feature_home.inbox.InboxFragment
+import com.easyflow.diarycourse.features.feature_home.task.FastTaskFragment
+import com.easyflow.diarycourse.features.feature_home.task.dialogs.TaskDurationDialog
 import com.easyflow.diarycourse.features.feature_settings.SettingsFragment
 import com.easyflow.diarycourse.features.feature_settings.appearance.AppearanceFragment
 import com.easyflow.diarycourse.features.feature_settings.security.SecurityFragment
@@ -26,6 +30,10 @@ interface AppComponent {
     fun inject(fragment: SettingsFragment)
     fun inject(fragment: AppearanceFragment)
     fun inject(fragment: SecurityFragment)
+    fun inject(fragment: HomeFragment)
+    fun inject(fragment: InboxFragment)
+    fun inject(fragment: FastTaskFragment)
+    fun inject(fragment: TaskDurationDialog)
 
     @Component.Builder
     interface Builder {

@@ -9,11 +9,20 @@ import javax.inject.Inject
 class ScheduleUseCaseImpl @Inject constructor (
     private val scheduleRepository: ScheduleRepository
 ): ScheduleUseCase {
-    override suspend fun insert(item: ScheduleItem): Resource{
-        return if (item.text.isEmpty() || item.date.isEmpty() || item.startTime.isEmpty())
+    override suspend fun insert(item: ScheduleItem): Resource {
+        return if (item.text.isEmpty())
             Resource.Failed(Exception("Fields can not be empty"))
         else {
             Resource.Success(scheduleRepository.insert(item))
+        }
+    }
+
+    override suspend fun getById(id: Int): Resource {
+        val item = scheduleRepository.getById(id)
+        return if (item != null) {
+            Resource.Success(item)
+        } else {
+            Resource.Failed(Exception("Item not found"))
         }
     }
 

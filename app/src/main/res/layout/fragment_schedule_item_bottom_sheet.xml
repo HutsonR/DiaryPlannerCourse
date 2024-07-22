@@ -37,34 +37,41 @@
         android:orientation="horizontal"
         android:layout_marginTop="6dp"
         android:gravity="center_vertical">
-        <ImageView
-            android:id="@+id/schedule_sheet_icon"
+        <LinearLayout
+            android:id="@+id/dayOfWeekWrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_clock_medium" />
-        <TextView
-            android:id="@+id/schedule_sheet_day_of_week"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Вторник"
-            android:layout_marginStart="4dp"
-            android:textSize="14sp"
-            android:textColor="@color/textGray" />
-        <TextView
-            android:id="@+id/schedule_sheet_timeStart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="14:20"
-            android:layout_marginStart="4dp"
-            android:textSize="14sp"
-            android:textColor="@color/textGray" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginEnd="10dp">
+            <ImageView
+                android:id="@+id/schedule_sheet_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_clock_medium" />
+            <TextView
+                android:id="@+id/schedule_sheet_day_of_week"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Вторник"
+                android:layout_marginStart="4dp"
+                android:textSize="14sp"
+                android:textColor="@color/textGray" />
+            <TextView
+                android:id="@+id/schedule_sheet_timeStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="14:20"
+                android:layout_marginStart="4dp"
+                android:textSize="14sp"
+                android:textColor="@color/textGray" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/priorityWrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginStart="10dp"
             android:gravity="center_vertical">
             <ImageView
                 android:id="@+id/priorityIcon"

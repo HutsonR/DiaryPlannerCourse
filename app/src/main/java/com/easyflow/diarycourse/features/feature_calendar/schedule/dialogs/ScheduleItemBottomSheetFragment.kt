@@ -89,8 +89,7 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
                 dismiss()
             }
             completeButton.setOnClickListener {
-                val updatedItem = parcelItem.copy(isCompleteTask = !parcelItem.isCompleteTask)
-                sendItemToUpdate(updatedItem)
+                parcelItem.id?.let { itemId -> sendItemToUpdate(itemId) }
                 dismiss()
             }
             editButton.setOnClickListener {
@@ -107,7 +106,11 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
         titleTV.text = title
         descriptionTV.text = description
         startTimeTV.text = startTime
-        dayOfWeekTV.text = "${setDayOfWeek(dayOfWeek)},"
+        if (dayOfWeek.isNotBlank()) {
+            dayOfWeekTV.text = "${setDayOfWeek(dayOfWeek)},"
+        } else {
+            binding.dayOfWeekWrapper.visibility = View.GONE
+        }
         priorityTV.text = priority
     }
 
@@ -118,9 +121,9 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
         activity?.supportFragmentManager?.setFragmentResult(KEY_BOTTOM_SHEET_RESULT_DEL, bundle)
     }
 
-    private fun sendItemToUpdate(item: ScheduleItem) {
+    private fun sendItemToUpdate(itemId: Int) {
         val bundle = Bundle().apply {
-            putParcelable(FRAGMENT_TASK_ITEM, item)
+            putInt(FRAGMENT_TASK_ITEM, itemId)
         }
         activity?.supportFragmentManager?.setFragmentResult(KEY_BOTTOM_SHEET_RESULT_UPD, bundle)
     }

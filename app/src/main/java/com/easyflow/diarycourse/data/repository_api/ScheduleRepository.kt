@@ -3,7 +3,9 @@ package com.easyflow.diarycourse.data.repository_api
 import com.easyflow.diarycourse.domain.models.ScheduleItem
 
 interface ScheduleRepository {
-    suspend fun insert(item: ScheduleItem)
+    suspend fun insert(item: ScheduleItem): ScheduleItem
+
+    suspend fun getById(id: Int): ScheduleItem?
 
     suspend fun getAll(): List<ScheduleItem>
 

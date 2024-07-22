@@ -16,4 +16,38 @@
         <item name="android:background">@android:color/transparent</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+
+    <style name="NoUnderlineEditText">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="Widget.CalendarView.Custom" parent="android:Widget.CalendarView">
+        <item name="android:showWeekNumber">false</item>
+        <item name="android:focusedMonthDateColor">@color/black</item>
+        <item name="android:unfocusedMonthDateColor">@color/fast_task_calendar_unfocused_date</item>
+    </style>
+
+    <style name="CustomPopupMenuStyle" parent="@android:style/Widget.PopupMenu">
+        <item name="android:popupBackground">@color/alwaysWhite</item>
+
+        <item name="android:textColor">@color/black</item>
+        <item name="android:itemTextAppearance">@style/PopupMenuTextAppearance</item>
+        <item name="android:divider">@color/divider</item>
+        <item name="android:dividerHeight">1dp</item>
+    </style>
+
+    <style name="PopupMenuTextAppearance" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="CustomAlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/alert_dialog_background</item>
+        <item name="buttonBarButtonStyle">@style/CustomDialogButton</item>
+    </style>
+
+    <style name="CustomDialogButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
 </resources>
