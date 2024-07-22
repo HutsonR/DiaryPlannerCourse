@@ -33,6 +33,19 @@
     <string name="fast_task_date">Срок выполнения</string>
     <string name="fast_task_priority">Приоритет</string>
     <string name="fast_task_color">Цвет</string>
+    <string name="fast_task_date_short_1">янв.</string>
+    <string name="fast_task_date_short_2">фев.</string>
+    <string name="fast_task_date_short_3">мар.</string>
+    <string name="fast_task_date_short_4">апр.</string>
+    <string name="fast_task_date_short_5">май</string>
+    <string name="fast_task_date_short_6">июн.</string>
+    <string name="fast_task_date_short_7">июл.</string>
+    <string name="fast_task_date_short_8">авг.</string>
+    <string name="fast_task_date_short_9">сен.</string>
+    <string name="fast_task_date_short_10">окт.</string>
+    <string name="fast_task_date_short_11">ноя.</string>
+    <string name="fast_task_date_short_12">дек.</string>
+
     <!--  TASK DURATION  -->
     <string name="task_duration_alert_title">Вы уверены?</string>
     <string name="task_duration_alert_text">Внесённые изменения будут удалены</string>

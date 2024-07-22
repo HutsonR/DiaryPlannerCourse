@@ -53,6 +53,7 @@
 
     <!--  Home  -->
     <color name="search">#24272E</color>
+    <color name="homeFolder">#24272E</color>
     <color name="fastAddButton">#24272E</color>
     <color name="fastAddButtonStroke">#2C2F35</color>
 
@@ -67,9 +68,9 @@
 
     <!--  TASK ITEM  -->
     <color name="gray">#272930</color>
-    <color name="blue">#34A2D5</color>
-    <color name="green">#4CAF50</color>
-    <color name="redDialog">#EC9999</color>
-    <color name="purple">#B27FCD</color>
-    <color name="pink">#FFA4F6</color>
+    <color name="blue">#38A6EF</color>
+    <color name="green">#2CBC32</color>
+    <color name="redDialog">#FF6F6F</color>
+    <color name="purple">#B266DA</color>
+    <color name="pink">#FF7CF2</color>
 </resources>

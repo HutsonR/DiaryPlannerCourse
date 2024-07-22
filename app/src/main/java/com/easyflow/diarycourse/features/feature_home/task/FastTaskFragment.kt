@@ -97,6 +97,7 @@ class FastTaskFragment : BottomSheetDialogFragment() {
         state.task?.let {
             currentTask = it
             updatePriorityButton(it.priority)
+            setupDurationChip()
         }
         setStyle(state.taskColor)
         updateSaveButtonState(state.isSaveButtonEnable)
@@ -105,6 +106,13 @@ class FastTaskFragment : BottomSheetDialogFragment() {
     private fun handleActions(action: FastTaskViewModel.Actions) {
         when (action) {
             is FastTaskViewModel.Actions.GoBack -> dismiss()
+            is FastTaskViewModel.Actions.GoBackWithItem -> {
+                val bundle = Bundle().apply {
+                    putParcelable(KEY_TASK_ITEM, action.item)
+                }
+                activity?.supportFragmentManager?.setFragmentResult(REQ_KEY_TASK_ITEM, bundle)
+                viewModel.goBack()
+            }
             is FastTaskViewModel.Actions.GoToDurationDialog -> showDurationDialog(action.task)
             is FastTaskViewModel.Actions.GoToPriorityDialog -> showPriorityMenu(binding.taskPriorityButton)
             is FastTaskViewModel.Actions.GoToColorDialog -> showColorMenu(binding.taskColorButton)
@@ -180,6 +188,41 @@ class FastTaskFragment : BottomSheetDialogFragment() {
         popupMenu.show()
     }
 
+    private fun setupDurationChip() {
+        val date = currentTask.date
+        val startTime = currentTask.startTime
+        val endTime = currentTask.endTime
+        binding.taskDurationButton.text = convertDate(date, startTime, endTime)
+    }
+
+    private fun convertDate(date: String, startTime: String, endTime: String): String {
+        val dateParts = date.split(".")
+        return when {
+            endTime.isNotBlank() -> "${dateParts[0]} ${monthToString(dateParts[1].toInt())}, $startTime - $endTime"
+            startTime.isNotBlank() -> "${dateParts[0]} ${monthToString(dateParts[1].toInt())}, в $startTime"
+            date.isNotBlank() -> "${dateParts[0]} ${monthToString(dateParts[1].toInt())}"
+            else -> getString(R.string.fast_task_date)
+        }
+    }
+
+    private fun monthToString(month: Int): String {
+        return when (month) {
+            1 -> getString(R.string.fast_task_date_short_1)
+            2 -> getString(R.string.fast_task_date_short_2)
+            3 -> getString(R.string.fast_task_date_short_3)
+            4 -> getString(R.string.fast_task_date_short_4)
+            5 -> getString(R.string.fast_task_date_short_5)
+            6 -> getString(R.string.fast_task_date_short_6)
+            7 -> getString(R.string.fast_task_date_short_7)
+            8 -> getString(R.string.fast_task_date_short_8)
+            9 -> getString(R.string.fast_task_date_short_9)
+            10 -> getString(R.string.fast_task_date_short_10)
+            11 -> getString(R.string.fast_task_date_short_11)
+            12 -> getString(R.string.fast_task_date_short_12)
+            else -> ""
+        }
+    }
+
     private fun setStyle(taskColor: TaskColor) {
         val taskColorStateList = setColorStateList(taskColor)
 
@@ -223,12 +266,28 @@ class FastTaskFragment : BottomSheetDialogFragment() {
     }
 
     private fun setListeners() {
+        binding.saveButton.setOnClickListener { viewModel.saveTask() }
         binding.taskDurationButton.setOnClickListener { viewModel.openDurationDialog() }
         binding.taskPriorityButton.setOnClickListener { viewModel.openPriorityDialog() }
         binding.taskColorButton.setOnClickListener { viewModel.openColorDialog() }
+        setFragmentListener()
         titleListener()
         descriptionListener()
     }
+
+    private fun setFragmentListener() {
+        // Из TaskDurationDialog
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            TaskDurationDialog.REQ_KEY_TASK_ITEM,
+            this
+        ) { _, bundle ->
+            val requestValue: ScheduleItem? = bundle.getParcelable(TaskDurationDialog.KEY_TASK_ITEM)
+            requestValue?.let {
+                viewModel.updateTask(it)
+            }
+        }
+    }
+
 
     private fun titleListener() {
         binding.titleTask.addTextChangedListener(object : TextWatcher {
@@ -253,5 +312,10 @@ class FastTaskFragment : BottomSheetDialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        const val KEY_TASK_ITEM = "SCHEDULE_ITEM"
+        const val REQ_KEY_TASK_ITEM = "REQ_KEY_FAST_TASK_ITEM"
     }
 }

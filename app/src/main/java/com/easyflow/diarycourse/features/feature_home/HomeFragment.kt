@@ -146,6 +146,16 @@ class HomeFragment : BaseFragment() {
                 it.id?.let { id -> viewModel.deleteItem(id) }
             }
         }
+        // Из FastTaskFragment
+        activity?.supportFragmentManager?.setFragmentResultListener(
+            FastTaskFragment.REQ_KEY_TASK_ITEM,
+            this
+        ) { _, bundle ->
+            val requestValue: ScheduleItem? = bundle.getParcelable(FastTaskFragment.KEY_TASK_ITEM)
+            requestValue?.let {
+                viewModel.addData(requestValue)
+            }
+        }
     }
 
     private fun searchListener() {

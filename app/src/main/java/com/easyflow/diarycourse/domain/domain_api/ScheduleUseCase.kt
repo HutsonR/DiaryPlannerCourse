@@ -6,6 +6,8 @@ import com.easyflow.diarycourse.domain.util.Resource
 interface ScheduleUseCase {
     suspend fun insert(item: ScheduleItem): Resource
 
+    suspend fun getById(id: Int): Resource
+
     suspend fun getAll(): List<ScheduleItem>
 
     suspend fun getByDate(date: String): List<ScheduleItem>

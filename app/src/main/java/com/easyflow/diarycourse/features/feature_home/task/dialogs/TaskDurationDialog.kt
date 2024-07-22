@@ -4,12 +4,12 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
@@ -24,9 +24,15 @@ import com.easyflow.diarycourse.features.feature_calendar.schedule.utils.TaskCol
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import dagger.Lazy
 import kotlinx.coroutines.flow.onEach
+import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 class TaskDurationDialog: BottomSheetDialogFragment() {
@@ -90,7 +96,7 @@ class TaskDurationDialog: BottomSheetDialogFragment() {
         state.task?.let {
             currentTask = it
             binding.durationTime.text = it.duration
-            Log.d("debugTag", "task state $it")
+            isStartTimeAfterEndTime()
         }
         updateSaveButtonState(state.isSaveButtonEnable)
         setStyle(state.taskColor)
@@ -98,21 +104,22 @@ class TaskDurationDialog: BottomSheetDialogFragment() {
 
     private fun handleActions(action: TaskDurationViewModel.Actions) {
         when (action) {
-            is TaskDurationViewModel.Actions.GoBack -> showAlert(
+            is TaskDurationViewModel.Actions.ShowAlert -> showAlert(
                 AlertData(
                     title = R.string.task_duration_alert_title,
                     message = R.string.task_duration_alert_text,
                     positiveButton = R.string.task_duration_alert_ok_button,
                     isNegativeButtonNeeded = true,
-                    navigate = { dismiss() }
+                    navigate = { viewModel.goBack() }
                 )
             )
+            is TaskDurationViewModel.Actions.GoBack -> dismiss()
             is TaskDurationViewModel.Actions.GoBackWithItem -> {
                 val bundle = Bundle().apply {
                     putParcelable(KEY_TASK_ITEM, action.item)
                 }
-                parentFragmentManager.setFragmentResult(KEY_TASK_ITEM, bundle)
-                dismiss()
+                activity?.supportFragmentManager?.setFragmentResult(REQ_KEY_TASK_ITEM, bundle)
+                viewModel.goBack()
             }
         }
     }
@@ -121,17 +128,45 @@ class TaskDurationDialog: BottomSheetDialogFragment() {
         val parcelItem: ScheduleItem? = arguments?.getParcelable(KEY_TASK_ITEM)
         currentTask = parcelItem ?: createScheduleItem()
         viewModel.updateTask(currentTask)
+        initializeDate()
+        initializeTime()
     }
 
     private fun createScheduleItem(): ScheduleItem {
-        val (startTime, endTime) = getCurrentPairTime()
         return ScheduleItem(
             text = "",
             description = "",
             date = "",
-            startTime = startTime,
-            endTime = endTime
+            startTime = "",
+            endTime = ""
         )
+    }
+
+    private fun initializeDate() {
+        val date = currentTask.date
+        if (date.isNotBlank()) {
+            val dateParts = date.split(".")
+            val calendar = Calendar.getInstance()
+            calendar.set("20${dateParts[2]}".toInt(), dateParts[1].toInt() -1, dateParts[0].toInt())
+            binding.calendar.date = calendar.timeInMillis
+            checkPredefinedDates(calendar)
+        }
+    }
+
+    private fun initializeTime() {
+        val taskStartTime = currentTask.startTime
+        val taskEndTime = currentTask.endTime
+        if (taskStartTime.isNotBlank() && taskEndTime.isNotBlank()) {
+            with(binding) {
+                removeTime.visibility = View.VISIBLE
+                taskTime.visibility = View.VISIBLE
+                startTime.text = taskStartTime
+                endTime.text = taskEndTime
+                durationTime.visibility = View.VISIBLE
+                durationTime.text = currentTask.duration
+                timeAllDay.isChecked = currentTask.isAllDay
+            }
+        }
     }
 
     private fun getCurrentPairTime(): Pair<String, String> {
@@ -171,14 +206,29 @@ class TaskDurationDialog: BottomSheetDialogFragment() {
         return ColorStateList.valueOf(ContextCompat.getColor(requireContext(), color))
     }
 
+    private fun updateSaveButtonState(state: Boolean) {
+        binding.saveButton.apply {
+            isEnabled = state
+            alpha = if (state) 1.0f else 0.6f
+        }
+    }
+
     private fun setListeners() {
         with(binding) {
-            sheetClose.setOnClickListener { viewModel.goBack() }
+            sheetClose.setOnClickListener { viewModel.showAlert() }
+            saveButton.setOnClickListener { viewModel.saveTaskDuration() }
             // TIME
             setupTimeListeners()
             setupAllDayCheckboxListener()
-            saveButton.setOnClickListener { viewModel.saveTaskDuration() }
+            startTimePickerListener()
+            endTimePickerListener()
             // DATE
+            setupDateListeners()
+        }
+    }
+
+    private fun setupDateListeners() {
+        with(binding) {
             calendar.setOnDateChangeListener { view, year, month, dayOfMonth ->
                 val calendar = Calendar.getInstance()
                 calendar.set(year, month, dayOfMonth)
@@ -307,10 +357,71 @@ class TaskDurationDialog: BottomSheetDialogFragment() {
         }
     }
 
-    private fun updateSaveButtonState(state: Boolean) {
-        binding.saveButton.apply {
-            isEnabled = state
-            alpha = if (state) 1.0f else 0.6f
+    private fun startTimePickerListener() {
+        binding.startTime.setOnClickListener {
+            val timePicker = MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setTitleText("Время начала задачи")
+                .setTheme(R.style.MaterialTimePickerTheme)
+                .build()
+
+            timePicker.addOnPositiveButtonClickListener {
+                val selectedTimeForStart = Calendar.getInstance()
+                selectedTimeForStart.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+                selectedTimeForStart.set(Calendar.MINUTE, timePicker.minute)
+
+                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val formattedTime = selectedTimeForStart.time.let { timeFormat.format(it) }
+
+                viewModel.updateTask(currentTask.copy(startTime = formattedTime))
+                binding.startTime.text = formattedTime
+            }
+
+            timePicker.show(childFragmentManager, timePicker.toString())
+        }
+    }
+
+    private fun endTimePickerListener() {
+        binding.endTime.setOnClickListener {
+            val timePicker = MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setTitleText("Время окончания задачи")
+                .setTheme(R.style.MaterialTimePickerTheme)
+                .build()
+
+            timePicker.addOnPositiveButtonClickListener {
+                val selectedHour = timePicker.hour
+                val selectedMinute = timePicker.minute
+
+                val selectedTimeForEnd = Calendar.getInstance()
+                selectedTimeForEnd.set(Calendar.HOUR_OF_DAY, selectedHour)
+                selectedTimeForEnd.set(Calendar.MINUTE, selectedMinute)
+
+                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val formattedTime = selectedTimeForEnd.time.let { timeFormat.format(it) }
+
+                viewModel.updateTask(currentTask.copy(endTime = formattedTime))
+                binding.endTime.text = formattedTime
+            }
+
+            timePicker.show(childFragmentManager, timePicker.toString())
+        }
+    }
+
+    private fun isStartTimeAfterEndTime() {
+        val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
+        val startTime = currentTask.startTime
+        val endTime = currentTask.endTime
+
+        if (startTime.isNotEmpty() && endTime.isNotEmpty()) {
+            val currentStartTime = LocalTime.parse(startTime, timeFormat)
+            val currentEndTime = LocalTime.parse(endTime, timeFormat)
+            //  Проверка между двумя временами в окне добавления
+            if (currentStartTime.isAfter(currentEndTime)) {
+                Toast.makeText(requireContext(), "Начальное время не может быть больше конечного", Toast.LENGTH_SHORT).show()
+                binding.endTime.text = "ꝏ"
+                viewModel.updateTask(currentTask.copy(endTime = ""))
+            }
         }
     }
 
@@ -333,5 +444,6 @@ class TaskDurationDialog: BottomSheetDialogFragment() {
     companion object {
         const val TAG = "TaskDateDialog"
         const val KEY_TASK_ITEM = "SCHEDULE_ITEM"
+        const val REQ_KEY_TASK_ITEM = "REQ_KEY_DURATION_TASK_ITEM"
     }
 }

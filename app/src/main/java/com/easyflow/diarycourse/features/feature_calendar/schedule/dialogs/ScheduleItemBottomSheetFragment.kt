@@ -106,7 +106,11 @@ class ScheduleItemBottomSheetFragment : BottomSheetDialogFragment() {
         titleTV.text = title
         descriptionTV.text = description
         startTimeTV.text = startTime
-        dayOfWeekTV.text = "${setDayOfWeek(dayOfWeek)},"
+        if (dayOfWeek.isNotBlank()) {
+            dayOfWeekTV.text = "${setDayOfWeek(dayOfWeek)},"
+        } else {
+            binding.dayOfWeekWrapper.visibility = View.GONE
+        }
         priorityTV.text = priority
     }
 

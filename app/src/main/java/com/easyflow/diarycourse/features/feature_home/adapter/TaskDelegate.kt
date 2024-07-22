@@ -73,13 +73,22 @@ class TaskDelegate(
         startTime.text = item.startTime
         endTime.text = item.endTime
         scheduleText.text = item.text
+        scheduleText.setTextColor(getColorForTaskColor(root.context, item.taskColor))
         scheduleDuration.text = item.duration
         priorityText.text = getPriorityString(item.priority)
 
         taskBackground.backgroundTintList = ColorStateList.valueOf(itemColorIntAlpha)
         completeScheduleButton.setColorFilter(itemColorInt)
 
+        if (item.duration.isNotEmpty()) {
+            taskTimeVerticalWrapper.visibility = View.VISIBLE
+            timeLayout.visibility = View.VISIBLE
+        } else {
+            taskTimeVerticalWrapper.visibility = View.GONE
+            timeLayout.visibility = View.GONE
+        }
         priorityWrapper.visibility = if (item.priority == Priority.STANDARD) View.GONE else View.VISIBLE
+        scheduleBottomWrapper.visibility = if (item.duration.isNotEmpty() || item.priority != Priority.STANDARD) View.VISIBLE else View.GONE
 
         completeScheduleButton.setImageDrawable(
             ContextCompat.getDrawable(

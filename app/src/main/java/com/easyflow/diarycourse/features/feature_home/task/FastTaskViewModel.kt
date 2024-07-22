@@ -18,6 +18,10 @@ class FastTaskViewModel @Inject constructor() :
 
     fun openColorDialog() = onAction(Actions.GoToColorDialog)
 
+    fun saveTask() {
+        onAction(Actions.GoBackWithItem(getState().task ?: return))
+    }
+
     fun updateTask(item: ScheduleItem) {
         modifyState {
             copy(
@@ -32,7 +36,7 @@ class FastTaskViewModel @Inject constructor() :
         return getState().task
     }
 
-    fun updateSaveButtonState() {
+    private fun updateSaveButtonState() {
         val isEnable = getState().task?.text?.isNotEmpty()
         modifyState { copy(isSaveButtonEnable = isEnable ?: false) }
     }
@@ -45,6 +49,7 @@ class FastTaskViewModel @Inject constructor() :
 
     sealed interface Actions {
         data object GoBack : Actions
+        data class GoBackWithItem(val item: ScheduleItem) : Actions
         data class GoToDurationDialog(val task: ScheduleItem?) : Actions
         data object GoToPriorityDialog : Actions
         data object GoToColorDialog : Actions

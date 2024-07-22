@@ -8,10 +8,12 @@ internal class TaskListUiConverter {
         return mutableListOf<TaskListItem>().apply {
             var currentDate = ""
             for (task in tasks) {
-                val date = convertDate(task.date)
-                if (currentDate != date) {
-                    currentDate = date
-                    add(TaskListItem.DateHeader(date))
+                if(task.date.isNotBlank()) {
+                    val date = convertDate(task.date)
+                    if (currentDate != date) {
+                        currentDate = date
+                        add(TaskListItem.DateHeader(date))
+                    }
                 }
                 add(convertToScheduleItem(task))
             }

@@ -12,6 +12,8 @@ import com.easyflow.diarycourse.domain.util.Resource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
@@ -25,13 +27,20 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             modifyState { copy(isLoading = true) }
-            list = scheduleUseCase.getAll()
+            list = sortByDate(scheduleUseCase.getAll())
             modifyState {
                 copy(
                     dataList = list,
                     isLoading = false
                 )
             }
+        }
+    }
+
+    private fun sortByDate(list: List<ScheduleItem>): List<ScheduleItem> {
+        val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
+        return list.filter { it.date.isNotEmpty() }.sortedByDescending {
+            LocalDate.parse(it.date, dateFormatter)
         }
     }
 
@@ -53,6 +62,22 @@ class HomeViewModel @Inject constructor(
             onAction(Actions.ShowTaskBottomSheet(item))
         } else {
             onAction(Actions.ShowAlert(AlertData(message = R.string.error)))
+        }
+    }
+
+    fun addData(item: ScheduleItem) {
+        viewModelScope.launch {
+            modifyState { copy(dataList = emptyList(), isLoading = true) }
+            when (scheduleUseCase.insert(item)) {
+                is Resource.Success<*> -> {
+                    // TODO сделать получение только одного элемента и добавить его в начало
+                    list = sortByDate(scheduleUseCase.getAll())
+                }
+                is Resource.Failed -> {
+                    onAction(Actions.ShowAlert(AlertData(message = R.string.error)))
+                }
+            }
+            modifyState { copy(dataList = list, isLoading = false) }
         }
     }
 

@@ -9,11 +9,13 @@
     android:gravity="center_vertical"
     android:layout_marginBottom="6dp">
     <LinearLayout
+        android:id="@+id/taskTimeVerticalWrapper"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingTop="2dp"
-        android:paddingBottom="2dp">
+        android:paddingBottom="2dp"
+        android:layout_marginEnd="8dp">
         <TextView
             android:id="@+id/start_time"
             android:layout_width="wrap_content"
@@ -35,7 +37,6 @@
         android:id="@+id/contentWrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -73,28 +74,6 @@
             android:paddingTop="14dp"
             android:paddingBottom="14dp"
             tools:ignore="NestedWeights">
-            <LinearLayout
-                android:id="@+id/priorityWrapper"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="4dp"
-                android:gravity="center_vertical">
-                <ImageView
-                    android:id="@+id/priorityIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    app:srcCompat="@drawable/ic_flag_small_active" />
-                <TextView
-                    android:id="@+id/priorityText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Важное"
-                    android:layout_marginStart="2dp"
-                    android:textSize="12sp"
-                    android:textColor="@color/primary" />
-            </LinearLayout>
             <TextView
                 android:id="@+id/schedule_text"
                 android:layout_width="match_parent"
@@ -108,6 +87,7 @@
                 android:textStyle="bold"
                 android:layout_marginEnd="8dp"/>
             <LinearLayout
+                android:id="@+id/scheduleBottomWrapper"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -116,6 +96,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:layout_marginEnd="8dp"
                     android:gravity="center_vertical">
                     <ImageView
                         android:id="@+id/time_schedule_icon"
@@ -132,6 +113,28 @@
                         android:textSize="12sp"
                         android:textColor="@color/textGray" />
                 </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/priorityWrapper"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginEnd="8dp"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:id="@+id/priorityIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        app:srcCompat="@drawable/ic_flag_small_active" />
+                    <TextView
+                        android:id="@+id/priorityText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Важное"
+                        android:layout_marginStart="2dp"
+                        android:textSize="12sp"
+                        android:textColor="@color/primary" />
+                </LinearLayout>
                 <TextView
                     android:id="@+id/scheduleActive"
                     android:layout_width="wrap_content"
@@ -139,7 +142,6 @@
                     android:text="@string/task_active"
                     android:textSize="12sp"
                     android:textColor="@color/red"
-                    android:layout_marginStart="8dp"
                     android:visibility="gone"/>
             </LinearLayout>
         </LinearLayout>

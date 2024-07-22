@@ -33,6 +33,8 @@ class TaskDurationViewModel @Inject constructor() :
         }
     }
 
+    fun showAlert() = onAction(Actions.ShowAlert)
+
     fun goBack() = onAction(Actions.GoBack)
 
     private fun updateSaveButtonState() {
@@ -68,6 +70,7 @@ class TaskDurationViewModel @Inject constructor() :
     )
 
     sealed interface Actions {
+        data object ShowAlert : Actions
         data object GoBack : Actions
         data class GoBackWithItem(val item: ScheduleItem) : Actions
     }
